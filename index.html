@@ -9,57 +9,112 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg:#0d1117; --bg2:#161b27; --bg3:#1c2333; --surface:#212940; --surface2:#2a3352;
-  --border:#2a3650; --border2:#3a4e72;
-  --text:#e6eaf4; --text2:#8a95b0; --text3:#505870;
-  --accent:#4f8ef7; --accent2:#3a7ae0;
-  --green:#34d399; --green2:#10b981;
-  --red:#f87171; --red2:#ef4444;
-  --yellow:#fbbf24; --yellow2:#f59e0b;
-  --purple:#a78bfa; --orange:#fb923c;
+  /* Lighter, cleaner palette */
+  --bg:#f0f2f5; --bg2:#ffffff; --bg3:#f7f8fa; --surface:#eef0f4; --surface2:#e4e7ed;
+  --border:#e2e5eb; --border2:#d0d4dc;
+  --text:#1a1d23; --text2:#4a5168; --text3:#8892a4;
+  --accent:#2563eb; --accent2:#1d4ed8;
+  --green:#059669; --green2:#047857;
+  --red:#dc2626; --red2:#b91c1c;
+  --yellow:#d97706; --yellow2:#b45309;
+  --purple:#7c3aed; --orange:#ea580c;
+  --sidebar-w:220px; --sidebar-w-sm:56px;
+  --topbar-h:52px;
   --radius:10px; --radius-sm:6px;
-  --shadow:0 4px 24px rgba(0,0,0,.5);
+  --shadow:0 1px 4px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.07);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* HEADER */
-.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:200}
-.logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.logo-name{font-size:1em;font-weight:700;letter-spacing:-.3px;line-height:1.2}
-.logo-sub{font-size:.72em;color:var(--text3);font-weight:400}
-.header-right{display:flex;gap:8px;align-items:center}
-.cloud-btn{display:flex;align-items:center;gap:7px;padding:6px 13px;border-radius:20px;font-size:.8em;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .2s;font-family:inherit}
+/* ── SIDEBAR LAYOUT ──────────────────────────────── */
+body{overflow:hidden}
+.app{display:flex;height:100vh;background:var(--bg)}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:300;transition:width .22s ease;box-shadow:var(--shadow-sm)}
+.sidebar.sm{width:var(--sidebar-w-sm)}
+.sidebar-logo{padding:0 14px;height:var(--topbar-h);display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);overflow:hidden}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,#f59e0b,#ef4444);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.logo-texts{overflow:hidden;white-space:nowrap;transition:opacity .15s,width .22s}
+.logo-name{font-size:.88em;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:.65em;color:var(--text3);font-weight:500}
+.sidebar.sm .logo-texts{opacity:0;width:0}
+
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:6px 0;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.nav-section{padding:14px 14px 4px;font-size:.63em;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap;overflow:hidden;transition:opacity .15s}
+.sidebar.sm .nav-section{opacity:0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-size:.83em;font-weight:600;font-family:inherit;width:100%;text-align:left;transition:background .15s,color .15s;position:relative;white-space:nowrap;overflow:hidden;border-radius:0}
+.nav-item:hover{background:var(--surface);color:var(--text)}
+.nav-item.active{background:rgba(37,99,235,.08);color:var(--accent)}
+.nav-item.active .nav-icon{color:var(--accent)}
+.nav-item::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--accent);border-radius:0 3px 3px 0;opacity:0;transition:opacity .15s}
+.nav-item.active::before{opacity:1}
+.nav-icon{font-size:1em;width:20px;text-align:center;flex-shrink:0;color:var(--text3);transition:color .15s}
+.nav-label{overflow:hidden;white-space:nowrap;transition:opacity .15s,max-width .22s;max-width:160px}
+.sidebar.sm .nav-label{opacity:0;max-width:0}
+.sidebar.sm .nav-item .nbadge{display:none}
+.nbadge{background:var(--red2);color:#fff;border-radius:10px;padding:1px 6px;font-size:.68em;min-width:16px;text-align:center;margin-left:auto;flex-shrink:0}
+
+.nav-item.c-orange .nav-icon{color:var(--orange)}
+.nav-item.c-orange.active,.nav-item.c-orange:hover{background:rgba(234,88,12,.08);color:var(--orange)}
+.nav-item.c-orange.active::before{background:var(--orange)}
+.nav-item.c-purple .nav-icon{color:var(--purple)}
+.nav-item.c-purple.active,.nav-item.c-purple:hover{background:rgba(124,58,237,.08);color:var(--purple)}
+.nav-item.c-purple.active::before{background:var(--purple)}
+.nav-item.c-green .nav-icon{color:var(--green)}
+.nav-item.c-green.active,.nav-item.c-green:hover{background:rgba(5,150,105,.08);color:var(--green)}
+.nav-item.c-green.active::before{background:var(--green)}
+.nav-item.c-cyan .nav-icon{color:#0891b2}
+.nav-item.c-cyan.active,.nav-item.c-cyan:hover{background:rgba(8,145,178,.08);color:#0891b2}
+.nav-item.c-cyan.active::before{background:#0891b2}
+
+.sidebar-foot{padding:8px;border-top:1px solid var(--border)}
+.cloud-btn{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:var(--radius-sm);font-size:.78em;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s;font-family:inherit;width:100%;justify-content:center}
 .cloud-btn:hover{background:var(--surface2)}
-.cloud-btn.ok{border-color:var(--green2);color:var(--green)}
-.cloud-btn.sync{border-color:var(--accent);color:var(--accent)}
-.cloud-btn.err{border-color:var(--red2);color:var(--red)}
-.cloud-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.cloud-btn.ok{border-color:rgba(5,150,105,.4);color:var(--green);background:rgba(5,150,105,.06)}
+.cloud-btn.sync{border-color:rgba(37,99,235,.4);color:var(--accent)}
+.cloud-btn.err{border-color:rgba(220,38,38,.4);color:var(--red)}
+.cloud-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
 .cloud-dot.pulse{animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.cloud-label{overflow:hidden;white-space:nowrap;transition:opacity .15s,max-width .22s;max-width:140px}
+.sidebar.sm .cloud-label{opacity:0;max-width:0}
 
-/* NAV */
-.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;gap:0}
-.nav-tab{padding:13px 18px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-size:.85em;font-weight:600;font-family:inherit;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.nav-tab:hover{color:var(--text2)}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.nbadge{background:var(--red2);color:#fff;border-radius:10px;padding:1px 6px;font-size:.72em;min-width:17px;text-align:center}
+/* CONTENT */
+.content{margin-left:var(--sidebar-w);display:flex;flex-direction:column;height:100vh;overflow:hidden;transition:margin-left .22s ease}
+.content.sm{margin-left:var(--sidebar-w-sm)}
 
-/* MAIN */
-.main{padding:24px 28px;max-width:1440px;margin:0 auto}
+/* TOPBAR */
+.topbar{height:var(--topbar-h);background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:200}
+.topbar-toggle{background:transparent;border:none;cursor:pointer;padding:6px;border-radius:var(--radius-sm);color:var(--text3);font-size:1.1em;transition:all .15s;display:flex;align-items:center}
+.topbar-toggle:hover{background:var(--surface);color:var(--text)}
+.topbar-title{font-size:.88em;font-weight:700;color:var(--text);flex:1}
+.topbar-actions{display:flex;gap:6px;align-items:center}
+.topbar-info{font-size:.72em;color:var(--text3);white-space:nowrap}
+
+/* MAIN SCROLL */
+.main{flex:1;overflow-y:auto;padding:20px 24px;max-width:100%}
 .tab-content{display:none}
-.tab-content.active{display:block;animation:fadeUp .22s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tab-content.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
-/* SYNCBAR */
-.syncbar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 14px;font-size:.8em;color:var(--text3);display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:8px}
-.syncbar-l{display:flex;align-items:center;gap:8px}
-.syncbar strong{color:var(--text2)}
+/* SYNCBAR → removed, info in topbar */
+.syncbar{display:none}
+
+/* MOBILE */
+.mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:299;backdrop-filter:blur(2px)}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);width:var(--sidebar-w)!important}
+  .sidebar.mob-open{transform:translateX(0)}
+  .content{margin-left:0!important}
+  .mob-overlay.show{display:block}
+  .topbar-info{display:none}
+}
 
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
-.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;box-shadow:var(--shadow-sm)}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
 .kpi.blue::before{background:var(--accent)}
 .kpi.green::before{background:var(--green)}
@@ -83,16 +138,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .alert-info{background:rgba(79,142,247,.07);border-color:rgba(79,142,247,.28);color:var(--accent)}
 
 /* CARDS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
 .card-title{font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 
 /* FORM */
 .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:14px}
 .fg label{display:block;font-size:.73em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
-.fg input,.fg select,.fg textarea{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit;transition:border-color .2s}
-.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--accent)}
+.fg input,.fg select,.fg textarea{width:100%;padding:8px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit;transition:border-color .2s;box-shadow:var(--shadow-sm)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
 .fg input::placeholder{color:var(--text3)}
-select option{background:var(--bg3)}
+select option{background:var(--bg2);color:var(--text)}
 .tipo-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
 .tipo-btn{flex:1;padding:8px;border:none;background:transparent;color:var(--text3);font-size:.85em;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
 .tipo-btn.active-receita{background:rgba(52,211,153,.15);color:var(--green)}
@@ -115,9 +170,9 @@ select option{background:var(--bg3)}
 .action-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 
 /* TABLE */
-.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm)}
 table{width:100%;border-collapse:collapse}
-thead th{padding:11px 14px;text-align:left;font-size:.72em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--bg3);border-bottom:1px solid var(--border)}
+thead th{padding:11px 14px;text-align:left;font-size:.72em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;background:var(--surface);border-bottom:1px solid var(--border)}
 tbody td{padding:10px 14px;font-size:.85em;color:var(--text2);border-bottom:1px solid var(--border)}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover{background:var(--bg3)}
@@ -136,15 +191,15 @@ td.mono{font-family:'DM Mono',monospace;font-size:.82em;color:var(--text);font-w
 
 /* FILTROS */
 .filtros{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.filtros input,.filtros select{padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit}
+.filtros input,.filtros select{padding:7px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit;box-shadow:var(--shadow-sm)}
 .filtros input{flex:1;min-width:180px}
 .filtros input::placeholder{color:var(--text3)}
 .filtros input:focus,.filtros select:focus{outline:none;border-color:var(--accent)}
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .modal-overlay.active{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;width:90%;max-width:560px;animation:modalIn .2s ease;box-shadow:var(--shadow);max-height:90vh;overflow-y:auto}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:28px;width:90%;max-width:560px;animation:modalIn .2s ease;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto}
 .modal-lg{max-width:720px}
 @keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .modal-title{font-size:1.1em;font-weight:700;margin-bottom:6px}
@@ -153,16 +208,16 @@ td.mono{font-family:'DM Mono',monospace;font-size:.82em;color:var(--text);font-w
 
 /* SETTINGS LIST */
 .settings-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:260px;overflow-y:auto}
-.settings-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border)}
 .settings-item-name{font-size:.88em;font-weight:600}
 .settings-item-actions{display:flex;gap:6px}
 .settings-add{display:flex;gap:8px}
-.settings-add input{flex:1;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit}
+.settings-add input{flex:1;padding:8px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit}
 .settings-add input:focus{outline:none;border-color:var(--accent)}
 
 /* CHARTS */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;width:100%}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm)}
 .chart-title{font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
 .chart-wrap{position:relative;height:220px}
 
@@ -171,18 +226,15 @@ td.mono{font-family:'DM Mono',monospace;font-size:.82em;color:var(--text);font-w
 
 /* CATEGORIA BLOCK */
 .cat-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden}
-.cat-block-header{padding:12px 18px;background:var(--bg3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cat-block-header{padding:12px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .cat-block-name{font-weight:700;font-size:.92em}
 .cat-block-total{font-family:'DM Mono',monospace;font-size:.88em;font-weight:600;color:var(--accent)}
 
 /* PERIOD FILTER */
 .period-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.period-btn{padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:transparent;color:var(--text3);font-size:.78em;font-weight:600;font-family:inherit;cursor:pointer;transition:all .2s}
-.period-btn:hover{border-color:var(--accent);color:var(--accent)}
-.period-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
 /* DROP ZONE */
-.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius);padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px;background:var(--surface)}
 .drop-zone:hover,.drop-zone.dragover{border-color:var(--accent);background:rgba(79,142,247,.05)}
 
 /* TOAST */
@@ -204,19 +256,19 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 
 /* NOVA COMPRA */
-.compra-header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.compra-header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
 .compra-materiais{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
-.compra-mat-header{padding:12px 16px;background:var(--bg3);border-bottom:1px solid var(--border);font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between}
+.compra-mat-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between}
 .compra-mat-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:end}
 .compra-mat-row:last-child{border-bottom:none}
 .compra-mat-row .fg label{font-size:.7em}
-.compra-total-bar{background:var(--bg3);border-top:2px solid var(--border2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.compra-total-bar{background:var(--surface);border-top:1.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .compra-total-val{font-family:'DM Mono',monospace;font-size:1.4em;font-weight:700;color:var(--accent)}
 .compra-total-diff{font-size:.82em;font-weight:600}
 .compra-total-diff.ok{color:var(--green)}
 .compra-total-diff.over{color:var(--red)}
 .compra-total-diff.under{color:var(--yellow)}
-.compra-summary{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:none}
+.compra-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:none}
 .compra-summary h4{font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:10px}
 .compra-summary-row{display:flex;justify-content:space-between;font-size:.85em;padding:4px 0;border-bottom:1px solid var(--border)}
 .compra-summary-row:last-child{border-bottom:none;font-weight:700;padding-top:8px}
@@ -224,7 +276,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 /* ADIANTAMENTOS */
 .adiant-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:4px}
-.adiant-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.adiant-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)}
 .adiant-card.devendo{border-color:rgba(251,191,36,.35)}
 .adiant-card.quitado{border-color:rgba(52,211,153,.35)}
 .adiant-card.credito{border-color:rgba(79,142,247,.35)}
@@ -262,9 +314,46 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .quitar-diff.ok{color:var(--green)}
 .quitar-diff.err{color:var(--red)}
 
+
+/* AGENDA */
+.agenda-event{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start;transition:all .2s}
+.agenda-event:hover{border-color:var(--border2)}
+.agenda-event.realizado{opacity:.6}
+.agenda-event.cancelado{opacity:.4;text-decoration:line-through}
+.agenda-date-box{background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;text-align:center;min-width:52px}
+.agenda-date-day{font-family:'DM Mono',monospace;font-size:1.5em;font-weight:700;line-height:1;color:var(--text)}
+.agenda-date-mon{font-size:.68em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.agenda-date-box.hoje{background:rgba(79,142,247,.15);border:1px solid rgba(79,142,247,.3)}
+.agenda-date-box.hoje .agenda-date-day{color:var(--accent)}
+.agenda-date-box.atrasado{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25)}
+.agenda-date-box.atrasado .agenda-date-day{color:var(--red)}
+.agenda-tipo-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;font-size:.72em;font-weight:700}
+.tag-coleta{background:rgba(52,211,153,.12);color:var(--green)}
+.tag-entrega{background:rgba(79,142,247,.12);color:var(--accent)}
+.tag-visita{background:rgba(167,139,250,.12);color:var(--purple)}
+.agenda-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* MANUTENÇÃO */
+.manut-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.manut-card-header{padding:12px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;cursor:pointer}
+.manut-card-header:hover{background:var(--bg3)}
+.manut-veiculo-badge{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;font-size:.78em;font-weight:700;color:var(--text2);white-space:nowrap}
+.manut-tipo-icon{font-size:1.3em;margin-right:4px}
+.manut-status{display:flex;align-items:center;gap:6px}
+.badge-agendado{background:rgba(251,191,36,.12);color:var(--yellow)}
+.badge-realizado{background:rgba(52,211,153,.12);color:var(--green)}
+.badge-vencendo{background:rgba(248,113,113,.12);color:var(--red)}
+.veiculo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:16px}
+.veiculo-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .2s}
+.veiculo-card:hover{border-color:var(--border2);background:var(--surface)}
+.veiculo-icon{font-size:2em;margin-bottom:6px}
+.veiculo-nome{font-size:.85em;font-weight:700;color:var(--text)}
+.veiculo-prox{font-size:.72em;color:var(--text3);margin-top:3px}
+.veiculo-alerta{font-size:.72em;color:var(--yellow);font-weight:600;margin-top:2px}
+
 /* ESTOQUE */
 .estq-kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.estq-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.estq-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow-sm)}
 .estq-material{font-size:.75em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
 .estq-qty{font-size:1.6em;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)}
 .estq-unit{font-size:.72em;color:var(--text3);margin-top:3px}
@@ -274,8 +363,32 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 /* EDIT MODAL */
 .modal-edit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:14px}
 
+
+/* QUICK ACTIONS */
+.quick-action{border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 10px;cursor:pointer;transition:all .18s;background:var(--bg2);font-family:inherit;text-align:center;box-shadow:var(--shadow-sm)}
+.quick-action:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.qa-icon{font-size:1.6em;margin-bottom:6px}
+.qa-label{font-size:.78em;font-weight:700;color:var(--text2)}
+.qa-orange{border-color:rgba(234,88,12,.25);background:rgba(234,88,12,.04)}
+.qa-orange:hover{border-color:var(--orange);background:rgba(234,88,12,.08)}
+.qa-orange .qa-label{color:var(--orange)}
+.qa-green{border-color:rgba(5,150,105,.25);background:rgba(5,150,105,.04)}
+.qa-green:hover{border-color:var(--green);background:rgba(5,150,105,.08)}
+.qa-green .qa-label{color:var(--green)}
+.qa-blue{border-color:rgba(37,99,235,.25);background:rgba(37,99,235,.04)}
+.qa-blue:hover{border-color:var(--accent);background:rgba(37,99,235,.08)}
+.qa-blue .qa-label{color:var(--accent)}
+.qa-purple{border-color:rgba(124,58,237,.25);background:rgba(124,58,237,.04)}
+.qa-purple:hover{border-color:var(--purple);background:rgba(124,58,237,.08)}
+.qa-purple .qa-label{color:var(--purple)}
+
+/* PERIOD BTN - light */
+.period-btn{padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--bg2);color:var(--text3);font-size:.78em;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.period-btn:hover{border-color:var(--accent);color:var(--accent)}
+.period-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
 /* RESPONSIVE */
-@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.charts-grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)!important}.charts-grid{grid-template-columns:1fr}}
 @media(max-width:768px){.kpi-grid{grid-template-columns:1fr 1fr}.main{padding:14px}.charts-grid{grid-template-columns:1fr}}
 @media(max-width:500px){.kpi-grid{grid-template-columns:1fr 1fr}}
 
@@ -286,60 +399,128 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo">
+<!-- MOBILE OVERLAY -->
+<div class="mob-overlay" id="mobOverlay" onclick="toggleSidebar()"></div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
     <div class="logo-icon">⚙️</div>
-    <div>
+    <div class="logo-texts">
       <div class="logo-name">Ferro Velho Noroeste</div>
       <div class="logo-sub">Gestão Financeira</div>
     </div>
   </div>
-  <div class="header-right">
-    <div id="cloudBtn" class="cloud-btn" onclick="abrirModalNuvem()">
+
+  <div class="sidebar-nav">
+    <div class="nav-section">Operações</div>
+    <button class="nav-item c-orange" id="tabNovaCompra" onclick="showTab('novacompra',this)">
+      <span class="nav-icon">🛒</span><span class="nav-label">Nova Compra/Venda</span>
+    </button>
+    <button class="nav-item c-purple" id="tabAdiant" onclick="showTab('adiantamentos',this)">
+      <span class="nav-icon">💳</span><span class="nav-label">Adiantamentos</span>
+    </button>
+
+    <div class="nav-section">Financeiro</div>
+    <button class="nav-item active" onclick="showTab('dashboard',this)">
+      <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-item" onclick="showTab('lancamentos',this)">
+      <span class="nav-icon">📋</span><span class="nav-label">Lançamentos</span>
+      <span id="badgeVenc" class="nbadge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" onclick="showTab('vencimentos',this)">
+      <span class="nav-icon">📅</span><span class="nav-label">Vencimentos</span>
+    </button>
+    <button class="nav-item" onclick="showTab('graficos',this)">
+      <span class="nav-icon">📈</span><span class="nav-label">Gráficos</span>
+    </button>
+    <button class="nav-item c-green" onclick="showTab('contas_banco',this)">
+      <span class="nav-icon">🏦</span><span class="nav-label">Contas Bancárias</span>
+    </button>
+
+    <div class="nav-section">Análises</div>
+    <button class="nav-item" onclick="showTab('categorias',this)">
+      <span class="nav-icon">🏷️</span><span class="nav-label">Por Categoria</span>
+    </button>
+    <button class="nav-item" onclick="showTab('fornecedores_tab',this)">
+      <span class="nav-icon">👥</span><span class="nav-label">Fornecedores</span>
+    </button>
+    <button class="nav-item" onclick="showTab('recorrentes',this)">
+      <span class="nav-icon">🔄</span><span class="nav-label">Recorrentes</span>
+    </button>
+
+    <div class="nav-section">Estoque</div>
+    <button class="nav-item" onclick="showTab('estoque',this)">
+      <span class="nav-icon">📦</span><span class="nav-label">Movimentações</span>
+    </button>
+    <button class="nav-item" onclick="showTab('margem',this)">
+      <span class="nav-icon">📉</span><span class="nav-label">Margem / Análise</span>
+    </button>
+
+    <div class="nav-section">Frota</div>
+    <button class="nav-item c-cyan" onclick="showTab('agenda',this)">
+      <span class="nav-icon">📅</span><span class="nav-label">Agenda de Coletas</span>
+    </button>
+    <button class="nav-item" onclick="showTab('manutencao',this)" style="--icon-color:var(--orange)">
+      <span class="nav-icon" style="color:var(--orange)">🔧</span><span class="nav-label">Manutenção</span>
+    </button>
+  </div>
+
+  <div class="sidebar-foot">
+    <div id="cloudBtn" class="cloud-btn" onclick="abrirModalNuvem()" style="margin-bottom:6px">
       <div class="cloud-dot" id="cloudDot"></div>
-      <span id="cloudTxt">☁️ Nuvem</span>
+      <span class="cloud-label" id="cloudTxt">Nuvem</span>
     </div>
-    <button class="btn btn-ghost btn-sm" onclick="abrirModalConfig()">⚙️ Config</button>
+    <button class="btn btn-ghost btn-sm" onclick="abrirModalConfig()" style="width:100%;justify-content:center">
+      ⚙️ <span class="cloud-label">Configurações</span>
+    </button>
   </div>
-</div>
+</nav>
 
-<!-- NAV -->
-<div class="nav">
-  <button class="nav-tab" onclick="showTab('novacompra',this)" style="color:var(--orange);border-bottom-color:transparent" id="tabNovaCompra">🛒 Compra/Venda</button>
-  <button class="nav-tab" onclick="showTab('adiantamentos',this)" style="color:var(--purple);border-bottom-color:transparent" id="tabAdiant">💳 Adiantamentos</button>
-  <button class="nav-tab active" onclick="showTab('dashboard',this)">📊 Dashboard</button>
-  <button class="nav-tab" onclick="showTab('lancamentos',this)">📋 Lançamentos <span id="badgeVenc" class="nbadge" style="display:none">0</span></button>
-  <button class="nav-tab" onclick="showTab('vencimentos',this)">📅 Vencimentos</button>
-  <button class="nav-tab" onclick="showTab('graficos',this)">📈 Gráficos</button>
-  <button class="nav-tab" onclick="showTab('categorias',this)">🏷️ Categorias</button>
-  <button class="nav-tab" onclick="showTab('fornecedores_tab',this)">👥 Fornecedores</button>
-  <button class="nav-tab" onclick="showTab('recorrentes',this)">🔄 Recorrentes</button>
-  <button class="nav-tab" onclick="showTab('estoque',this)">📦 Estoque</button>
-  <button class="nav-tab" onclick="showTab('margem',this)">📉 Margem/Análise</button>
-  <button class="nav-tab" onclick="showTab('contas_banco',this)" style="color:var(--green);border-bottom-color:transparent">🏦 Contas</button>
-</div>
-
-<div class="main">
-
-<!-- SYNCBAR -->
-<div class="syncbar">
-  <div class="syncbar-l">
-    💾 <span>Local + Nuvem</span>
-    <strong id="totalInfo">0 lançamentos</strong>·
-    <span id="lastSaveTxt">—</span>
+<!-- CONTENT -->
+<div class="content" id="content">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="topbar-toggle" onclick="toggleSidebar()" title="Recolher menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <span class="topbar-info"><strong id="totalInfo">0</strong> lançamentos · <span id="lastSaveTxt">—</span></span>
+      <button class="btn btn-orange btn-sm" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'))">🛒 Nova Compra</button>
+      <button class="btn btn-ghost btn-sm" onclick="abrirModalImportar()">📂</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportarExcel()">📥</button>
+    </div>
   </div>
-  <div style="display:flex;gap:7px;flex-wrap:wrap">
-    <button class="btn btn-orange btn-sm" onclick="showTab('novacompra', document.getElementById('tabNovaCompra'))">🛒 Compra/Venda</button>
-    <button class="btn btn-ghost btn-sm" onclick="abrirModalImportar()">📂 Importar</button>
-    <button class="btn btn-ghost btn-sm" onclick="exportarExcel()">📥 Excel</button>
-    <button class="btn btn-orange btn-sm" onclick="abrirModalNuvem()">☁️ Nuvem</button>
-  </div>
-</div>
+
+  <div class="main">
 
 <!-- ===== DASHBOARD ===== -->
 <div id="dashboard" class="tab-content active">
-  <!-- PERIOD -->
+
+  <!-- QUICK ACTIONS -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+    <button class="quick-action qa-orange" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'));ncSetMode('compra')">
+      <div class="qa-icon">📥</div>
+      <div class="qa-label">Nova Compra</div>
+    </button>
+    <button class="quick-action qa-green" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'));ncSetMode('venda')">
+      <div class="qa-icon">📤</div>
+      <div class="qa-label">Nova Venda</div>
+    </button>
+    <button class="quick-action qa-blue" onclick="showTab('lancamentos',document.querySelector('[onclick*=\"lancamentos\"]'))">
+      <div class="qa-icon">📋</div>
+      <div class="qa-label">Lançamento</div>
+    </button>
+    <button class="quick-action qa-purple" onclick="showTab('adiantamentos',document.getElementById('tabAdiant'))">
+      <div class="qa-icon">💳</div>
+      <div class="qa-label">Adiantamento</div>
+    </button>
+  </div>
+
+  <!-- PERIOD FILTER -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <div class="period-bar" id="periodBar">
       <button class="period-btn" onclick="setPeriod('hoje',this)">Hoje</button>
@@ -349,7 +530,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <button class="period-btn" onclick="setPeriod('tudo',this)">Tudo</button>
     </div>
     <div style="display:flex;gap:8px">
-      <input type="month" id="mesReferencia" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit" onchange="setPeriod('custom',null)">
+      <input type="month" id="mesReferencia" style="padding:6px 10px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit" onchange="setPeriod('custom',null)">
     </div>
   </div>
 
@@ -373,14 +554,20 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
   <div id="alertasDiv" style="margin-bottom:16px"></div>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px">
     <div class="card" style="padding:18px">
       <div class="card-title">Top Categorias (Despesas)</div>
-      <table><thead><tr><th>Categoria</th><th>Valor</th><th>%</th></tr></thead><tbody id="topCatBody"></tbody></table>
+      <table style="width:100%">
+        <thead><tr><th>Categoria</th><th>Valor</th><th>%</th><th>Qtd</th></tr></thead>
+        <tbody id="topCatBody"></tbody>
+      </table>
     </div>
     <div class="card" style="padding:18px">
       <div class="card-title">Top Fornecedores</div>
-      <table><thead><tr><th>Fornecedor</th><th>A Pagar</th><th>Pago</th></tr></thead><tbody id="topFornBody"></tbody></table>
+      <table style="width:100%">
+        <thead><tr><th>Fornecedor</th><th>A Pagar</th><th>Pago</th><th>Total</th></tr></thead>
+        <tbody id="topFornBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -901,7 +1088,183 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
   </div>
 </div>
 
+
+<!-- ===== AGENDA ===== -->
+<div id="agenda" class="tab-content">
+
+  <div class="alert alert-info" style="margin-bottom:16px">
+    📅 <strong>Agenda de Coletas e Entregas:</strong> Agende as saídas dos caminhões. Ao marcar como <strong>Realizado</strong>, você pode abrir direto a Nova Compra/Venda já preenchida.
+  </div>
+
+  <!-- FORM NOVO EVENTO -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">➕ Novo Evento</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>Tipo *</label>
+        <select id="agTipo">
+          <option value="coleta">🟢 Coleta de Sucata</option>
+          <option value="entrega">🔵 Entrega de Material</option>
+          <option value="visita">🟣 Visita a Fornecedor</option>
+        </select>
+      </div>
+      <div class="fg"><label>Data *</label><input type="date" id="agData"></div>
+      <div class="fg"><label>Hora</label><input type="time" id="agHora" placeholder="08:00"></div>
+      <div class="fg">
+        <label>Veículo</label>
+        <select id="agVeiculo"><option value="">Selecione...</option></select>
+      </div>
+      <div class="fg"><label>Motorista</label><input type="text" id="agMotorista" placeholder="Nome do motorista..."></div>
+      <div class="fg"><label>Fornecedor / Cliente</label><input type="text" id="agPessoa" list="fornList" placeholder="Nome..."></div>
+      <div class="fg" style="grid-column:span 2"><label>Endereço / Local</label><input type="text" id="agEndereco" placeholder="Rua, número, bairro, cidade..."></div>
+      <div class="fg"><label>Material estimado</label><input type="text" id="agMaterial" placeholder="Ex: ~500kg ferro, 50kg cobre..."></div>
+      <div class="fg"><label>Observações</label><input type="text" id="agObs" placeholder="Obs..."></div>
+    </div>
+    <button class="btn btn-primary" onclick="adicionarEvento()">✓ Agendar</button>
+  </div>
+
+  <!-- FILTROS -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+    <select id="agFiltroStatus" onchange="renderAgenda()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+      <option value="">Todos os status</option>
+      <option value="agendado">Agendados</option>
+      <option value="realizado">Realizados</option>
+      <option value="cancelado">Cancelados</option>
+    </select>
+    <select id="agFiltroTipo" onchange="renderAgenda()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+      <option value="">Todos os tipos</option>
+      <option value="coleta">Coletas</option>
+      <option value="entrega">Entregas</option>
+      <option value="visita">Visitas</option>
+    </select>
+    <input type="month" id="agFiltroMes" onchange="renderAgenda()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+    <button class="btn btn-ghost btn-sm" onclick="exportarAgendaExcel()">📥 Exportar</button>
+  </div>
+
+  <div id="agendaLista"></div>
+</div>
+
+<!-- ===== MANUTENÇÃO ===== -->
+<div id="manutencao" class="tab-content">
+
+  <!-- VEÍCULOS/MÁQUINAS -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Frota e Máquinas</div>
+    <button class="btn btn-ghost btn-sm" onclick="abrirModalNovoVeiculo()">+ Cadastrar Veículo/Máquina</button>
+  </div>
+  <div class="veiculo-grid" id="veiculoGrid"></div>
+
+  <!-- FORM NOVA MANUTENÇÃO -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">🔧 Registrar Manutenção / Documento</div>
+    <div class="form-grid">
+      <div class="fg">
+        <label>Veículo / Máquina *</label>
+        <select id="mnVeiculo"><option value="">Selecione...</option></select>
+      </div>
+      <div class="fg">
+        <label>Tipo *</label>
+        <select id="mnTipo">
+          <option value="oleo">🛢️ Troca de Óleo</option>
+          <option value="pneu">🔄 Pneus</option>
+          <option value="freio">🔩 Freios / Suspensão</option>
+          <option value="hidraulica">💧 Hidráulica</option>
+          <option value="revisao">🔍 Revisão Geral</option>
+          <option value="ipva">📄 IPVA</option>
+          <option value="licenciamento">📋 Licenciamento</option>
+          <option value="outros">🔨 Outros Reparos</option>
+        </select>
+      </div>
+      <div class="fg"><label>Data / Vencimento *</label><input type="date" id="mnData"></div>
+      <div class="fg"><label>Valor (R$)</label><input type="number" id="mnValor" step="0.01" placeholder="0,00"></div>
+      <div class="fg"><label>Fornecedor / Oficina</label><input type="text" id="mnFornecedor" list="fornList" placeholder="Nome da oficina..."></div>
+      <div class="fg"><label>Km atual</label><input type="number" id="mnKm" placeholder="Ex: 85000"></div>
+      <div class="fg"><label>Próxima revisão em (Km)</label><input type="number" id="mnProxKm" placeholder="Ex: 90000"></div>
+      <div class="fg"><label>Observações</label><input type="text" id="mnObs" placeholder="Obs..."></div>
+      <div class="fg">
+        <label>Gerar conta a pagar?</label>
+        <select id="mnGerarConta">
+          <option value="sim">✅ Sim — gerar despesa</option>
+          <option value="nao">❌ Não</option>
+        </select>
+      </div>
+      <div class="fg"><label>Conta (de onde sai)</label><select id="mnConta"><option value="">Não vincular</option></select></div>
+    </div>
+    <button class="btn btn-primary" onclick="adicionarManutencao()">✓ Registrar</button>
+  </div>
+
+  <!-- FILTROS -->
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+    <select id="mnFiltroVeiculo" onchange="renderManutencao()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+      <option value="">Todos os veículos</option>
+    </select>
+    <select id="mnFiltroTipo" onchange="renderManutencao()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+      <option value="">Todos os tipos</option>
+      <option value="oleo">Troca de Óleo</option>
+      <option value="pneu">Pneus</option>
+      <option value="freio">Freios</option>
+      <option value="hidraulica">Hidráulica</option>
+      <option value="revisao">Revisão</option>
+      <option value="ipva">IPVA</option>
+      <option value="licenciamento">Licenciamento</option>
+      <option value="outros">Outros</option>
+    </select>
+    <input type="month" id="mnFiltroMes" onchange="renderManutencao()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
+    <button class="btn btn-ghost btn-sm" onclick="exportarManutencaoExcel()">📥 Exportar</button>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Data</th><th>Veículo</th><th>Tipo</th><th>Oficina/Forn.</th>
+        <th>Valor</th><th>Km</th><th>Próx. Km</th><th>Status</th><th>Obs</th><th>Ações</th>
+      </tr></thead>
+      <tbody id="manutBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL NOVO VEÍCULO -->
+<div id="modalNovoVeiculo" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title" id="veiculoModalTitle">🚛 Cadastrar Veículo / Máquina</div>
+    <input type="hidden" id="editVeiculoId">
+    <div style="display:grid;gap:12px;margin:16px 0">
+      <div class="fg"><label>Nome *</label><input type="text" id="nvNome" placeholder="Ex: Caminhão 1, Prensa..."></div>
+      <div class="fg"><label>Tipo</label>
+        <select id="nvTipo">
+          <option value="caminhao">🚛 Caminhão</option>
+          <option value="carro">🚗 Carro / Moto</option>
+          <option value="maquina">⚙️ Máquina</option>
+        </select>
+      </div>
+      <div class="fg"><label>Placa</label><input type="text" id="nvPlaca" placeholder="AAA-0000"></div>
+      <div class="fg"><label>Km atual</label><input type="number" id="nvKm" placeholder="0"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalNovoVeiculo').classList.remove('active')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarVeiculo()">✓ Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL MARCAR REALIZADO (Agenda) -->
+<div id="modalRealizado" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">✅ Marcar como Realizado</div>
+    <div class="modal-sub" id="realizadoSub">Confirme e decida se quer abrir a Nova Compra/Venda.</div>
+    <input type="hidden" id="realizadoEventoId">
+    <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:14px;margin:16px 0" id="realizadoResumo"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalRealizado').classList.remove('active')">Só marcar</button>
+      <button class="btn btn-success" onclick="realizadoEAbrirCompra()">✓ Marcar + Abrir Nova Compra/Venda</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /main -->
+</div><!-- /content -->
+</div><!-- /app -->
 
 <!-- MODAL QUITAR PAGAMENTO -->
 <div id="modalQuitar" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
@@ -1262,6 +1625,7 @@ async function carregarNuvem() {
     if (d.estoque)       { estoque=d.estoque; estqId=d.estqId||1; salvarEstoqueLocal(); }
     if (d.adiantamentos)  { adiantamentos=d.adiantamentos; adiantId=d.adiantId||1; salvarAdiantLocal(); }
     if (d.contasBanco)    { contasBanco=d.contasBanco; contaBancoId=d.contaBancoId||1; movCaixa=d.movCaixa||[]; movCaixaId=d.movCaixaId||1; salvarContasBancoLocal(); }
+    if (d.veiculos)       { veiculos=d.veiculos; veiculoId=d.veiculoId||12; manutencoes=d.manutencoes||[]; manutId=d.manutId||1; eventos=d.eventos||[]; eventoId=d.eventoId||1; salvarFrotaLocal(); }
     if (d.catsDesp) { catsDesp=d.catsDesp; setCfg('catsDesp',catsDesp); }
     if (d.catsRec)  { catsRec=d.catsRec;   setCfg('catsRec',catsRec); }
     if (d.formas)   { formas=d.formas;      setCfg('formas',formas); }
@@ -1278,7 +1642,7 @@ async function salvarNuvem() {
     const r = await fetch(`https://api.jsonbin.io/v3/b/${CFG.BIN_ID}`,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':CFG.API_KEY},
-      body:JSON.stringify({contas,contaId,estoque,estqId,adiantamentos,adiantId,contasBanco,contaBancoId,movCaixa,movCaixaId,catsDesp,catsRec,formas,ts:new Date().toISOString()})
+      body:JSON.stringify({contas,contaId,estoque,estqId,adiantamentos,adiantId,contasBanco,contaBancoId,movCaixa,movCaixaId,veiculos,veiculoId,manutencoes,manutId,eventos,eventoId,catsDesp,catsRec,formas,ts:new Date().toISOString()})
     });
     if (!r.ok) throw new Error(r.status);
     setCloud('ok','☁️ Sincronizado');
@@ -1314,6 +1678,7 @@ async function inicializar() {
   carregarEstoque();
   carregarAdiantamentos();
   carregarContasBanco();
+  carregarFrota();
   const local = localStorage.getItem('contas_v3');
   if (local) {
     contas = JSON.parse(local);
@@ -1333,6 +1698,10 @@ async function inicializar() {
   if (eDataEl) eDataEl.valueAsDate = new Date();
   const tfDataEl = document.getElementById('tfData');
   if (tfDataEl) tfDataEl.valueAsDate = new Date();
+  const agDataEl = document.getElementById('agData');
+  if (agDataEl) agDataEl.valueAsDate = new Date();
+  const mnDataEl = document.getElementById('mnData');
+  if (mnDataEl) mnDataEl.valueAsDate = new Date();
   document.getElementById('mesReferencia').value = new Date().toISOString().slice(0,7);
 
   if (CFG.BIN_ID && CFG.API_KEY) {
@@ -1426,6 +1795,8 @@ function showTab(name, el) {
   if (name === 'novacompra') ncInit();
   if (name === 'adiantamentos') renderAdiantamentos();
   if (name === 'contas_banco') renderContasBanco();
+  if (name === 'agenda') { popularSelectsVeiculos(); renderAgenda(); }
+  if (name === 'manutencao') { popularSelectsVeiculos(); renderManutencao(); }
   renderTudo();
 }
 
@@ -1505,6 +1876,10 @@ function limparForm() {
   if (eDataEl) eDataEl.valueAsDate = new Date();
   const tfDataEl = document.getElementById('tfData');
   if (tfDataEl) tfDataEl.valueAsDate = new Date();
+  const agDataEl = document.getElementById('agData');
+  if (agDataEl) agDataEl.valueAsDate = new Date();
+  const mnDataEl = document.getElementById('mnData');
+  if (mnDataEl) mnDataEl.valueAsDate = new Date();
 }
 
 async function marcarPago(id) {
@@ -1551,6 +1926,8 @@ function renderTudo() {
   atualizarStatus();
   renderDashboard();
   renderContasBanco();
+  renderAgenda();
+  renderManutencao();
   renderEstqKpi();
   renderEstoque();
   renderMargem();
@@ -1599,6 +1976,17 @@ function renderDashboard() {
   let al='';
   if (vencidas.length) al+=`<div class="alert alert-danger">⚠️ ${vencidas.length} conta(s) vencida(s) — ${R$(vencidas.reduce((s,c)=>s+c.valor,0))}</div>`;
   if (prox7.length) al+=`<div class="alert alert-warning">📌 ${prox7.length} conta(s) vencem em até 7 dias — ${R$(prox7.reduce((s,c)=>s+c.valor,0))}</div>`;
+  // Manutenção vencendo em 7 dias
+  const manutVencendo = manutencoes.filter(m=>{
+    if (m.status==='realizado') return false;
+    const d = diasV(m.data);
+    return d >= 0 && d <= 7;
+  });
+  if (manutVencendo.length) al+=`<div class="alert alert-warning" style="cursor:pointer" onclick="showTab('manutencao',document.querySelector('[onclick*=\'manutencao\']'))">🔧 ${manutVencendo.length} manutenção(ões) vencendo em até 7 dias — <strong>clique para ver</strong></div>`;
+  // Agenda hoje
+  const agendaHoje = eventos.filter(e=>e.status==='agendado'&&e.data===hoje());
+  if (agendaHoje.length) al+=`<div class="alert alert-info" style="cursor:pointer" onclick="showTab('agenda',document.querySelector('[onclick*=\'agenda\']'))">📅 ${agendaHoje.length} evento(s) agendado(s) para hoje — <strong>ver agenda</strong></div>`;
+
   const pendentesAlert = contas.filter(c=>c.status==='Pendente');
   if (pendentesAlert.length) al+=`<div class="alert alert-warning" style="cursor:pointer" onclick="document.getElementById('srchStatus').value='Pendente';showTab('lancamentos',document.querySelector('[onclick*=\'lancamentos\']'))">⏳ ${pendentesAlert.length} compra(s) pendente(s) de pagamento — ${R$(pendentesAlert.reduce((s,c)=>s+c.valor,0))} — <strong>clique para quitar</strong></div>`;
   if (!vencidas.length&&!prox7.length&&!pendentesAlert.length) al=`<div class="alert alert-success">✅ Nenhuma conta vencida, crítica ou pendente</div>`;
@@ -1607,10 +1995,10 @@ function renderDashboard() {
   // Top Categorias Despesa
   const cats={};
   desp.forEach(c=>{ cats[c.categoria]=(cats[c.categoria]||0)+c.valor; });
-  const topCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const topCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,8);
   document.getElementById('topCatBody').innerHTML = topCats.length ? topCats.map(([k,v])=>`
-    <tr><td>${k}</td><td class="mono">${R$(v)}</td><td style="color:var(--text3)">${totalDesp?((v/totalDesp)*100).toFixed(1):'0'}%</td></tr>
-  `).join('') : `<tr><td colspan="3"><div class="empty" style="padding:20px">Sem dados</div></td></tr>`;
+    <tr><td style="font-weight:500">${k}</td><td class="mono">${R$(v)}</td><td style="color:var(--text3)">${totalDesp?((v/totalDesp)*100).toFixed(1):'0'}%</td><td style="color:var(--text3)">${desp.filter(c=>c.categoria===k).length}</td></tr>
+  `).join('') : `<tr><td colspan="4"><div class="empty" style="padding:20px">Sem dados</div></td></tr>`;
 
   // Top Fornecedores
   const forns={};
@@ -1619,10 +2007,15 @@ function renderDashboard() {
     if(c.status==='Pago')forns[c.fornecedor].pago+=c.valor;
     else forns[c.fornecedor].pagar+=c.valor;
   });
-  const topF = Object.entries(forns).sort((a,b)=>(b[1].pagar+b[1].pago)-(a[1].pagar+a[1].pago)).slice(0,6);
+  const topF = Object.entries(forns).sort((a,b)=>(b[1].pagar+b[1].pago)-(a[1].pagar+a[1].pago)).slice(0,8);
   document.getElementById('topFornBody').innerHTML = topF.length ? topF.map(([k,v])=>`
-    <tr><td style="font-weight:600">${k}</td><td class="mono" style="color:var(--red)">${R$(v.pagar)}</td><td class="mono" style="color:var(--green)">${R$(v.pago)}</td></tr>
-  `).join('') : `<tr><td colspan="3"><div class="empty" style="padding:20px">Sem dados</div></td></tr>`;
+    <tr>
+      <td style="font-weight:600">${k}</td>
+      <td class="mono" style="color:var(--red)">${R$(v.pagar)}</td>
+      <td class="mono" style="color:var(--green)">${R$(v.pago)}</td>
+      <td class="mono" style="font-weight:700">${R$(v.pagar+v.pago)}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="4"><div class="empty" style="padding:20px">Sem dados</div></td></tr>`;
 }
 
 // =====================================================
@@ -3863,6 +4256,503 @@ async function confirmarQuitar() {
   renderTudo();
   document.getElementById('modalQuitar').classList.remove('active');
   toast(`✅ Pagamento de ${R$(c.valor)} quitado entre ${linhas.length} conta(s)!`, 'success');
+}
+
+
+// =====================================================
+// VEÍCULOS / MÁQUINAS
+// =====================================================
+const VEICULOS_PADRAO = [
+  {id:1,nome:'Caminhão 1',tipo:'caminhao',placa:'',km:0},
+  {id:2,nome:'Caminhão 2',tipo:'caminhao',placa:'',km:0},
+  {id:3,nome:'Caminhão 3',tipo:'caminhao',placa:'',km:0},
+  {id:4,nome:'Balança',tipo:'maquina',placa:'',km:0},
+  {id:5,nome:'Tesoura',tipo:'maquina',placa:'',km:0},
+  {id:6,nome:'Prensa de Papelão',tipo:'maquina',placa:'',km:0},
+  {id:7,nome:'Garra Grimaldi',tipo:'maquina',placa:'',km:0},
+  {id:8,nome:'Garra Hidrauguincho',tipo:'maquina',placa:'',km:0},
+  {id:9,nome:'Courier',tipo:'carro',placa:'',km:0},
+  {id:10,nome:'Montana',tipo:'carro',placa:'',km:0},
+  {id:11,nome:'Moto Fazer',tipo:'carro',placa:'',km:0},
+];
+const VEICULO_ICONS = {caminhao:'🚛',carro:'🚗',maquina:'⚙️'};
+const MANUT_TIPOS = {
+  oleo:'🛢️ Troca de Óleo', pneu:'🔄 Pneus', freio:'🔩 Freios/Suspensão',
+  hidraulica:'💧 Hidráulica', revisao:'🔍 Revisão Geral',
+  ipva:'📄 IPVA', licenciamento:'📋 Licenciamento', outros:'🔨 Outros'
+};
+
+let veiculos = [];
+let veiculoId = 1;
+let manutencoes = [];
+let manutId = 1;
+let eventos = [];
+let eventoId = 1;
+
+function carregarFrota() {
+  const s = localStorage.getItem('frota_v1');
+  if (s) {
+    const d = JSON.parse(s);
+    veiculos    = d.veiculos    || VEICULOS_PADRAO;
+    veiculoId   = d.veiculoId   || 12;
+    manutencoes = d.manutencoes || [];
+    manutId     = d.manutId     || 1;
+    eventos     = d.eventos     || [];
+    eventoId    = d.eventoId    || 1;
+  } else {
+    veiculos    = VEICULOS_PADRAO;
+    veiculoId   = 12;
+    manutencoes = [];
+    manutId     = 1;
+    eventos     = [];
+    eventoId    = 1;
+  }
+}
+
+function salvarFrotaLocal() {
+  localStorage.setItem('frota_v1', JSON.stringify({
+    veiculos, veiculoId, manutencoes, manutId, eventos, eventoId
+  }));
+}
+
+function popularSelectsVeiculos() {
+  const opts = '<option value="">Selecione...</option>' +
+    veiculos.map(v=>`<option value="${v.id}">${VEICULO_ICONS[v.tipo]||'🚛'} ${v.nome}${v.placa?' ('+v.placa+')':''}</option>`).join('');
+  ['agVeiculo','mnVeiculo','mnFiltroVeiculo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = el.value;
+    if (id === 'mnFiltroVeiculo') {
+      el.innerHTML = '<option value="">Todos os veículos</option>' +
+        veiculos.map(v=>`<option value="${v.id}">${VEICULO_ICONS[v.tipo]||'🚛'} ${v.nome}</option>`).join('');
+    } else el.innerHTML = opts;
+    el.value = v;
+  });
+  // mnConta
+  const mc = document.getElementById('mnConta');
+  if (mc) {
+    const v2 = mc.value;
+    mc.innerHTML = '<option value="">Não vincular</option>' +
+      contasBanco.map(c=>`<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`).join('');
+    mc.value = v2;
+  }
+}
+
+function abrirModalNovoVeiculo(id=null) {
+  const v = id ? veiculos.find(x=>x.id===id) : null;
+  document.getElementById('editVeiculoId').value = id||'';
+  document.getElementById('nvNome').value  = v?.nome||'';
+  document.getElementById('nvTipo').value  = v?.tipo||'caminhao';
+  document.getElementById('nvPlaca').value = v?.placa||'';
+  document.getElementById('nvKm').value    = v?.km||'';
+  document.getElementById('veiculoModalTitle').textContent = id ? '✏️ Editar Veículo' : '🚛 Cadastrar Veículo / Máquina';
+  document.getElementById('modalNovoVeiculo').classList.add('active');
+}
+
+async function salvarVeiculo() {
+  const nome  = document.getElementById('nvNome').value.trim();
+  const tipo  = document.getElementById('nvTipo').value;
+  const placa = document.getElementById('nvPlaca').value.trim().toUpperCase();
+  const km    = parseInt(document.getElementById('nvKm').value)||0;
+  const editId = document.getElementById('editVeiculoId').value;
+  if (!nome) { toast('Informe o nome','error'); return; }
+  if (editId) {
+    const v = veiculos.find(x=>x.id===parseInt(editId));
+    if (v) { v.nome=nome; v.tipo=tipo; v.placa=placa; v.km=km; }
+  } else {
+    veiculos.push({id:veiculoId++,nome,tipo,placa,km});
+  }
+  salvarFrotaLocal();
+  await salvarNuvem();
+  document.getElementById('modalNovoVeiculo').classList.remove('active');
+  renderManutencao();
+  renderAgenda();
+  toast(editId?'Veículo atualizado!':'Veículo cadastrado!','success');
+}
+
+async function excluirVeiculo(id) {
+  if (!confirm('Excluir este veículo?')) return;
+  veiculos = veiculos.filter(x=>x.id!==id);
+  salvarFrotaLocal();
+  await salvarNuvem();
+  renderManutencao();
+  toast('Veículo removido','info');
+}
+
+// ── RENDER VEÍCULOS GRID ──────────────────────────────
+function renderVeiculoGrid() {
+  const grid = document.getElementById('veiculoGrid');
+  if (!grid) return;
+  grid.innerHTML = veiculos.map(v => {
+    // Find next maintenance
+    const proxManut = manutencoes
+      .filter(m=>m.veiculoId===v.id && m.status==='agendado')
+      .sort((a,b)=>a.data.localeCompare(b.data))[0];
+    const diasProx = proxManut ? diasV(proxManut.data) : null;
+    const alertColor = diasProx !== null && diasProx <= 7 ? 'var(--yellow)' : 'var(--text3)';
+    return `
+    <div class="veiculo-card" onclick="abrirModalNovoVeiculo(${v.id})">
+      <div class="veiculo-icon">${VEICULO_ICONS[v.tipo]||'🚛'}</div>
+      <div class="veiculo-nome">${v.nome}</div>
+      ${v.placa?`<div style="font-size:.7em;color:var(--text3);margin-top:2px">${v.placa}</div>`:''}
+      ${proxManut
+        ? `<div class="veiculo-alerta" style="color:${alertColor}">⚠ ${proxManut.tipoLabel||MANUT_TIPOS[proxManut.tipo]||proxManut.tipo} em ${fmtD(proxManut.data)}</div>`
+        : `<div class="veiculo-prox">Sem manutenção agendada</div>`}
+    </div>`;
+  }).join('') + `
+    <div class="veiculo-card" style="border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:100px" onclick="abrirModalNovoVeiculo()">
+      <div style="font-size:1.5em;color:var(--text3)">+</div>
+      <div style="font-size:.78em;color:var(--text3);font-weight:600">Cadastrar</div>
+    </div>`;
+}
+
+// =====================================================
+// MANUTENÇÃO
+// =====================================================
+async function adicionarManutencao() {
+  const veiculoId2 = document.getElementById('mnVeiculo').value;
+  const tipo       = document.getElementById('mnTipo').value;
+  const data       = document.getElementById('mnData').value;
+  const valor      = parseFloat(document.getElementById('mnValor').value)||0;
+  const fornecedor = document.getElementById('mnFornecedor').value.trim();
+  const km         = parseInt(document.getElementById('mnKm').value)||0;
+  const proxKm     = parseInt(document.getElementById('mnProxKm').value)||0;
+  const obs        = document.getElementById('mnObs').value;
+  const gerarConta = document.getElementById('mnGerarConta').value;
+  const contaId2   = document.getElementById('mnConta').value;
+
+  if (!veiculoId2||!tipo||!data) { toast('Preencha: Veículo, Tipo e Data','error'); return; }
+
+  const v = veiculos.find(x=>x.id===parseInt(veiculoId2));
+  const tipoLabel = MANUT_TIPOS[tipo]||tipo;
+
+  manutencoes.push({
+    id: manutId++,
+    veiculoId: parseInt(veiculoId2),
+    veiculoNome: v?.nome||'',
+    tipo, tipoLabel, data, valor, fornecedor, km, proxKm, obs,
+    status: 'agendado'
+  });
+
+  // Gerar conta a pagar se solicitado
+  if (gerarConta === 'sim' && valor > 0) {
+    const isPendente = !contaId2;
+    contas.push({
+      id: contaId++,
+      tipo: 'despesa',
+      dataEmissao: hoje(),
+      dataVenc: data,
+      dataPag: '',
+      categoria: ['ipva','licenciamento'].includes(tipo) ? 'Impostos' : 'Manutenção',
+      fornecedor: fornecedor||v?.nome||'Manutenção',
+      descricao: `${tipoLabel} — ${v?.nome||''}`,
+      valor,
+      forma: '',
+      material: '',
+      obs,
+      contaId: contaId2 ? parseInt(contaId2) : null,
+      recorrente: '',
+      status: isPendente ? 'Pendente' : 'A Vencer'
+    });
+    if (contaId2) {
+      registrarMovCaixa(contaId2,'saida',valor,data,`${tipoLabel} — ${v?.nome||''}`,`Manut. #${manutId-1}`);
+    }
+  }
+
+  // Atualizar km do veículo
+  if (km > 0 && v) v.km = km;
+
+  salvarFrotaLocal();
+  await salvar();
+
+  // Limpar form
+  ['mnValor','mnFornecedor','mnKm','mnProxKm','mnObs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('mnData').valueAsDate = new Date();
+
+  renderManutencao();
+  renderVeiculoGrid();
+  toast(`${tipoLabel} registrada para ${v?.nome||''}!`, 'success');
+}
+
+async function excluirManutencao(id) {
+  if (!confirm('Excluir este registro?')) return;
+  manutencoes = manutencoes.filter(x=>x.id!==id);
+  salvarFrotaLocal();
+  await salvarNuvem();
+  renderManutencao();
+  toast('Registro removido','info');
+}
+
+async function marcarManutRealizada(id) {
+  const m = manutencoes.find(x=>x.id===id);
+  if (!m) return;
+  m.status = 'realizado';
+  m.dataRealizado = hoje();
+  salvarFrotaLocal();
+  await salvarNuvem();
+  renderManutencao();
+  renderVeiculoGrid();
+  toast('Marcado como realizado!','success');
+}
+
+function renderManutencao() {
+  popularSelectsVeiculos();
+  renderVeiculoGrid();
+
+  const filtVeiculo = document.getElementById('mnFiltroVeiculo')?.value||'';
+  const filtTipo    = document.getElementById('mnFiltroTipo')?.value||'';
+  const filtMes     = document.getElementById('mnFiltroMes')?.value||'';
+
+  let lista = [...manutencoes].sort((a,b)=>a.data.localeCompare(b.data));
+  if (filtVeiculo) lista = lista.filter(m=>m.veiculoId===parseInt(filtVeiculo));
+  if (filtTipo)    lista = lista.filter(m=>m.tipo===filtTipo);
+  if (filtMes)     lista = lista.filter(m=>m.data.startsWith(filtMes));
+
+  const body = document.getElementById('manutBody');
+  if (!body) return;
+
+  if (!lista.length) {
+    body.innerHTML = '<tr><td colspan="10"><div class="empty" style="padding:20px"><div class="empty-icon">🔧</div>Nenhuma manutenção registrada</div></td></tr>';
+    return;
+  }
+
+  body.innerHTML = lista.map(m => {
+    const dias = diasV(m.data);
+    const statusBadge = m.status==='realizado'
+      ? '<span class="badge badge-realizado">✅ Realizado</span>'
+      : dias < 0
+      ? '<span class="badge badge-vencendo">⚠ Vencida</span>'
+      : dias <= 7
+      ? `<span class="badge badge-agendado" style="color:var(--yellow)">⏰ ${dias}d</span>`
+      : `<span class="badge badge-agendado">📅 ${fmtD(m.data)}</span>`;
+
+    return `<tr class="${m.status==='realizado'?'':''}">
+      <td>${fmtD(m.data)}</td>
+      <td style="font-weight:600;color:var(--text)">${VEICULO_ICONS[veiculos.find(v=>v.id===m.veiculoId)?.tipo||'']||'🚛'} ${m.veiculoNome}</td>
+      <td>${m.tipoLabel||MANUT_TIPOS[m.tipo]||m.tipo}</td>
+      <td style="color:var(--text2)">${m.fornecedor||'—'}</td>
+      <td class="mono">${m.valor>0?R$(m.valor):'—'}</td>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:.82em">${m.km?m.km.toLocaleString('pt-BR')+' km':'—'}</td>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:.82em">${m.proxKm?m.proxKm.toLocaleString('pt-BR')+' km':'—'}</td>
+      <td>${statusBadge}</td>
+      <td style="color:var(--text3);font-size:.8em">${m.obs||'—'}</td>
+      <td><div style="display:flex;gap:4px">
+        ${m.status!=='realizado'?`<button class="btn btn-success btn-sm" onclick="marcarManutRealizada(${m.id})">✓</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="excluirManutencao(${m.id})">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportarManutencaoExcel() {
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['Data','Veículo','Tipo','Oficina/Forn.','Valor','Km','Próx. Km','Status','Obs'],
+    ...manutencoes.map(m=>[fmtD(m.data),m.veiculoNome,m.tipoLabel||m.tipo,m.fornecedor,m.valor,m.km,m.proxKm,m.status,m.obs])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [12,18,18,22,10,10,10,10,25].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Manutenção');
+  XLSX.writeFile(wb, `manutencao_${hoje()}.xlsx`);
+  toast('Exportado!','success');
+}
+
+// =====================================================
+// AGENDA
+// =====================================================
+const AG_TIPOS = {
+  coleta:'🟢 Coleta', entrega:'🔵 Entrega', visita:'🟣 Visita'
+};
+const AG_TAG_CLASS = {coleta:'tag-coleta', entrega:'tag-entrega', visita:'tag-visita'};
+
+async function adicionarEvento() {
+  const tipo      = document.getElementById('agTipo').value;
+  const data      = document.getElementById('agData').value;
+  const hora      = document.getElementById('agHora').value;
+  const veiculoId2= document.getElementById('agVeiculo').value;
+  const motorista = document.getElementById('agMotorista').value.trim();
+  const pessoa    = document.getElementById('agPessoa').value.trim();
+  const endereco  = document.getElementById('agEndereco').value.trim();
+  const material  = document.getElementById('agMaterial').value.trim();
+  const obs       = document.getElementById('agObs').value;
+
+  if (!data) { toast('Informe a data','error'); return; }
+
+  const v = veiculos.find(x=>x.id===parseInt(veiculoId2));
+  eventos.push({
+    id: eventoId++,
+    tipo, data, hora,
+    veiculoId: veiculoId2 ? parseInt(veiculoId2) : null,
+    veiculoNome: v?.nome||'',
+    motorista, pessoa, endereco, material, obs,
+    status: 'agendado'
+  });
+
+  salvarFrotaLocal();
+  await salvarNuvem();
+
+  // Limpar form
+  ['agHora','agMotorista','agPessoa','agEndereco','agMaterial','agObs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('agData').valueAsDate = new Date();
+
+  renderAgenda();
+  toast('Evento agendado!','success');
+}
+
+async function cancelarEvento(id) {
+  const e = eventos.find(x=>x.id===id);
+  if (!e||!confirm('Cancelar este evento?')) return;
+  e.status = 'cancelado';
+  salvarFrotaLocal();
+  await salvarNuvem();
+  renderAgenda();
+  toast('Evento cancelado','info');
+}
+
+async function excluirEvento(id) {
+  if (!confirm('Excluir este evento?')) return;
+  eventos = eventos.filter(x=>x.id!==id);
+  salvarFrotaLocal();
+  await salvarNuvem();
+  renderAgenda();
+  toast('Evento excluído','info');
+}
+
+function abrirModalRealizado(id) {
+  const e = eventos.find(x=>x.id===id);
+  if (!e) return;
+  document.getElementById('realizadoEventoId').value = id;
+  document.getElementById('realizadoSub').textContent =
+    `${AG_TIPOS[e.tipo]||e.tipo} em ${fmtD(e.data)}${e.hora?' às '+e.hora:''}`;
+  document.getElementById('realizadoResumo').innerHTML = `
+    <div style="display:grid;gap:6px;font-size:.85em">
+      ${e.veiculoNome?`<div><span style="color:var(--text3)">Veículo:</span> <strong>${e.veiculoNome}</strong></div>`:''}
+      ${e.pessoa?`<div><span style="color:var(--text3)">Pessoa:</span> <strong>${e.pessoa}</strong></div>`:''}
+      ${e.endereco?`<div><span style="color:var(--text3)">Local:</span> ${e.endereco}</div>`:''}
+      ${e.material?`<div><span style="color:var(--text3)">Material:</span> <strong style="color:var(--accent)">${e.material}</strong></div>`:''}
+    </div>`;
+  document.getElementById('modalRealizado').classList.add('active');
+}
+
+async function realizadoEAbrirCompra() {
+  const id = parseInt(document.getElementById('realizadoEventoId').value);
+  const e = eventos.find(x=>x.id===id);
+  if (!e) return;
+  e.status = 'realizado';
+  salvarFrotaLocal();
+  await salvarNuvem();
+  document.getElementById('modalRealizado').classList.remove('active');
+  renderAgenda();
+  toast('Marcado como realizado!','success');
+  // Pre-fill Nova Compra
+  setTimeout(() => {
+    showTab('novacompra', document.querySelector('[onclick*="novacompra"]'));
+    setTimeout(() => {
+      if (e.pessoa) document.getElementById('ncFornecedor').value = e.pessoa;
+      document.getElementById('ncData').valueAsDate = new Date(e.data+'T12:00:00');
+      if (e.material) toast(`Lembre de lançar: ${e.material}`,'info');
+    }, 300);
+  }, 400);
+}
+
+async function marcarEventoRealizado(id) {
+  const e = eventos.find(x=>x.id===id);
+  if (!e) return;
+  // if coleta, ask about opening Nova Compra
+  if (e.tipo === 'coleta' || e.tipo === 'entrega') {
+    abrirModalRealizado(id);
+  } else {
+    e.status = 'realizado';
+    salvarFrotaLocal();
+    await salvarNuvem();
+    renderAgenda();
+    toast('Evento realizado!','success');
+  }
+}
+
+function renderAgenda() {
+  popularSelectsVeiculos();
+  const filtStatus = document.getElementById('agFiltroStatus')?.value||'';
+  const filtTipo   = document.getElementById('agFiltroTipo')?.value||'';
+  const filtMes    = document.getElementById('agFiltroMes')?.value||'';
+
+  let lista = [...eventos].sort((a,b)=>a.data.localeCompare(b.data)||a.hora.localeCompare(b.hora));
+  // Default: show only agendado if no filter
+  if (!filtStatus) lista = lista.filter(e=>e.status!=='cancelado');
+  else lista = lista.filter(e=>e.status===filtStatus);
+  if (filtTipo) lista = lista.filter(e=>e.tipo===filtTipo);
+  if (filtMes)  lista = lista.filter(e=>e.data.startsWith(filtMes));
+
+  const container = document.getElementById('agendaLista');
+  if (!container) return;
+
+  if (!lista.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div>Nenhum evento encontrado</div>';
+    return;
+  }
+
+  const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
+  const MESES = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+
+  container.innerHTML = lista.map(e => {
+    const d = new Date(e.data+'T12:00:00');
+    const dia = d.getDate().toString().padStart(2,'0');
+    const mes = MESES[d.getMonth()];
+    const diasDiff = Math.floor((d-hoje2)/86400000);
+    const boxClass = diasDiff===0?'hoje':diasDiff<0&&e.status==='agendado'?'atrasado':'';
+    const tipoTag = `<span class="agenda-tipo-tag ${AG_TAG_CLASS[e.tipo]||''}">${AG_TIPOS[e.tipo]||e.tipo}</span>`;
+    const statusTag = e.status==='realizado'
+      ? '<span class="badge badge-realizado">✅ Realizado</span>'
+      : e.status==='cancelado'
+      ? '<span class="badge" style="background:rgba(255,255,255,.05);color:var(--text3)">✕ Cancelado</span>'
+      : diasDiff<0
+      ? '<span class="badge badge-vencida">⚠ Atrasado</span>'
+      : diasDiff===0
+      ? '<span class="badge badge-avencer" style="color:var(--accent)">📅 Hoje</span>'
+      : `<span class="badge badge-avencer">${diasDiff}d</span>`;
+
+    return `
+    <div class="agenda-event ${e.status}">
+      <div class="agenda-date-box ${boxClass}">
+        <div class="agenda-date-day">${dia}</div>
+        <div class="agenda-date-mon">${mes}</div>
+        ${e.hora?`<div style="font-size:.65em;color:var(--text3);margin-top:2px">${e.hora}</div>`:''}
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          ${tipoTag} ${statusTag}
+          ${e.veiculoNome?`<span style="font-size:.78em;color:var(--text3)">🚛 ${e.veiculoNome}</span>`:''}
+          ${e.motorista?`<span style="font-size:.78em;color:var(--text3)">👤 ${e.motorista}</span>`:''}
+        </div>
+        ${e.pessoa?`<div style="font-weight:700;color:var(--text);margin-bottom:3px">${e.pessoa}</div>`:''}
+        ${e.endereco?`<div style="font-size:.82em;color:var(--text2);margin-bottom:3px">📍 ${e.endereco}</div>`:''}
+        ${e.material?`<div style="font-size:.82em;color:var(--accent);font-weight:600">📦 ${e.material}</div>`:''}
+        ${e.obs?`<div style="font-size:.78em;color:var(--text3);margin-top:3px">${e.obs}</div>`:''}
+      </div>
+      <div class="agenda-actions">
+        ${e.status==='agendado'?`<button class="btn btn-success btn-sm" onclick="marcarEventoRealizado(${e.id})">✓</button>`:''}
+        ${e.status==='agendado'?`<button class="btn btn-ghost btn-sm" onclick="cancelarEvento(${e.id})">✕</button>`:''}
+        <button class="btn btn-danger btn-sm" onclick="excluirEvento(${e.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function exportarAgendaExcel() {
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['Data','Hora','Tipo','Veículo','Motorista','Pessoa','Endereço','Material','Status','Obs'],
+    ...eventos.map(e=>[fmtD(e.data),e.hora,AG_TIPOS[e.tipo]||e.tipo,e.veiculoNome,e.motorista,e.pessoa,e.endereco,e.material,e.status,e.obs])
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [12,6,10,16,16,22,28,20,10,20].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Agenda');
+  XLSX.writeFile(wb, `agenda_${hoje()}.xlsx`);
+  toast('Agenda exportada!','success');
 }
 
 // =====================================================
