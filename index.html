@@ -1543,6 +1543,58 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
   </div>
 </div>
 
+<!-- MODAL EDITAR VALOR RECORRENTE -->
+<div id="modalEditarValorRec" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">✏️ Alterar Valor da Conta</div>
+    <div class="modal-sub" id="editValRecSub">Escolha como alterar o valor desta conta recorrente.</div>
+    <input type="hidden" id="editValRecId">
+
+    <div style="background:var(--surface);border-radius:var(--radius-sm);padding:12px 14px;margin:14px 0;font-size:.85em">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="color:var(--text3)">Conta</span>
+        <strong id="editValRecNome" style="color:var(--text)">—</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="color:var(--text3)">Mês atual</span>
+        <span id="editValRecMes" style="color:var(--text2)">—</span>
+      </div>
+      <div style="display:flex;justify-content:space-between">
+        <span style="color:var(--text3)">Valor atual</span>
+        <strong id="editValRecAtual" style="color:var(--accent);font-family:'DM Mono',monospace">—</strong>
+      </div>
+    </div>
+
+    <div class="fg" style="margin-bottom:14px">
+      <label>Novo Valor (R$) *</label>
+      <input type="number" id="editValRecNovo" step="0.01" placeholder="0,00">
+    </div>
+
+    <div style="font-size:.78em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Aplicar em:</div>
+    <div style="display:grid;gap:8px;margin-bottom:4px">
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s" id="optSomenteEste">
+        <input type="radio" name="editValRecOpt" value="somente" style="margin-top:2px;flex-shrink:0">
+        <div>
+          <div style="font-weight:700;font-size:.88em;color:var(--text)">Somente este mês</div>
+          <div style="font-size:.78em;color:var(--text3);margin-top:2px">Altera só o lançamento selecionado. Os futuros continuam com o valor médio atual.</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s" id="optEsteFuturos">
+        <input type="radio" name="editValRecOpt" value="futuros">
+        <div>
+          <div style="font-weight:700;font-size:.88em;color:var(--text)">Este mês + todos os futuros</div>
+          <div style="font-size:.78em;color:var(--text3);margin-top:2px">Atualiza o valor médio. Útil quando houve reajuste permanente (ex: novo plano de internet).</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalEditarValorRec').classList.remove('active')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarEditarValorRec()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITAR NOME CONFIG -->
 <div id="modalRename" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
   <div class="modal" style="max-width:400px">
@@ -1719,7 +1771,14 @@ async function inicializar() {
   if (CFG.BIN_ID && CFG.API_KEY) {
     setCloud('sync','🔄 Conectando...');
     const ok = await carregarNuvem();
-    if (ok) { popularSelects(); renderTudo(); toast('Dados sincronizados!','success'); return; }
+    if (ok) {
+      popularSelects();
+      const ag = gerarRecorrentesAuto();
+      if (ag > 0) { salvarContas(); await salvarNuvem(); }
+      renderTudo();
+      toast('Dados sincronizados!' + (ag>0?` (${ag} recorrentes gerados)`:''), 'success');
+      return;
+    }
   } else {
     setCloud('disconnected','☁️ Nuvem');
   }
@@ -1927,13 +1986,8 @@ async function gerarProximaRecorrente(id) {
   }
 
   const nova = {...c, id:contaId++, dataPag:'', status:'A Vencer',
-    parcelaNum, dataEmissao:hoje()};
-  const d = new Date(c.dataVenc+'T12:00:00');
-  if (c.recorrente==='semanal')    d.setDate(d.getDate()+7);
-  else if (c.recorrente==='quinzenal') d.setDate(d.getDate()+15);
-  else if (c.recorrente==='mensal')    d.setMonth(d.getMonth()+1);
-  else if (c.recorrente==='anual')     d.setFullYear(d.getFullYear()+1);
-  nova.dataVenc = d.toISOString().split('T')[0];
+    parcelaNum, dataEmissao:hoje(),
+    dataVenc: proximaData(c.dataVenc, c.recorrente)};
   contas.push(nova);
   await salvar();
   renderTudo();
@@ -1942,52 +1996,78 @@ async function gerarProximaRecorrente(id) {
 }
 
 // Gera automaticamente todos os meses até hoje para recorrentes
+function proximaData(dataStr, periodicidade) {
+  const d = new Date(dataStr + 'T12:00:00');
+  if (periodicidade === 'semanal')    d.setDate(d.getDate() + 7);
+  else if (periodicidade === 'quinzenal') d.setDate(d.getDate() + 15);
+  else if (periodicidade === 'mensal')    d.setMonth(d.getMonth() + 1);
+  else if (periodicidade === 'anual')     d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString().split('T')[0];
+}
+
 function gerarRecorrentesAuto() {
-  const recorrentes = contas.filter(c => c.recorrente && !c.dataPag);
+  // Find all unique recurring groups
+  const grupos = {};
+  contas.forEach(c => {
+    if (!c.recorrente) return;
+    const k = `${c.fornecedor}|${c.categoria}|${c.recorrente}`;
+    if (!grupos[k]) grupos[k] = [];
+    grupos[k].push(c);
+  });
+
+  const limite = new Date();
+  limite.setMonth(limite.getMonth() + 3); // generate up to 3 months ahead
   let gerados = 0;
-  recorrentes.forEach(c => {
-    // Find the latest instance of this recurring
-    const grupo = `${c.fornecedor}|${c.categoria}|${c.recorrente}`;
-    const maisRecente = contas
-      .filter(x => `${x.fornecedor}|${x.categoria}|${x.recorrente}` === grupo)
-      .sort((a,b) => b.dataVenc.localeCompare(a.dataVenc))[0];
 
-    if (!maisRecente) return;
+  Object.entries(grupos).forEach(([k, lista]) => {
+    // Sort by date ascending
+    lista.sort((a, b) => a.dataVenc.localeCompare(b.dataVenc));
+    const template = lista[0]; // use first as template (has original config)
+    const periodicidade = template.recorrente;
+    const totalParcelas = template.totalParcelas || 0;
 
-    // Generate until 3 months ahead from today
-    const limite = new Date();
-    limite.setMonth(limite.getMonth() + 3);
-    let ultimo = new Date(maisRecente.dataVenc+'T12:00:00');
+    // Get all existing dates for this group
+    const datasExistentes = new Set(lista.map(c => c.dataVenc));
 
+    // Start from the most recent date in the group
+    let ultimaData = lista[lista.length - 1].dataVenc;
+    let parcelaAtual = lista.length; // current count of parcelas
+
+    // Keep generating while under the limit
     let safeCount = 0;
-    while (ultimo < limite && safeCount < 36) {
+    while (safeCount < 40) {
       safeCount++;
-      const proxData = new Date(ultimo);
-      if (maisRecente.recorrente==='semanal')    proxData.setDate(proxData.getDate()+7);
-      else if (maisRecente.recorrente==='quinzenal') proxData.setDate(proxData.getDate()+15);
-      else if (maisRecente.recorrente==='mensal')    proxData.setMonth(proxData.getMonth()+1);
-      else if (maisRecente.recorrente==='anual')     proxData.setFullYear(proxData.getFullYear()+1);
 
-      const proxStr = proxData.toISOString().split('T')[0];
+      // Check parcela limit BEFORE generating
+      if (totalParcelas > 0 && parcelaAtual >= totalParcelas) break;
 
-      // Check if this date already exists for this group
-      const jaExiste = contas.some(x =>
-        `${x.fornecedor}|${x.categoria}|${x.recorrente}` === grupo && x.dataVenc === proxStr
-      );
+      const proxStr = proximaData(ultimaData, periodicidade);
+      const proxDate = new Date(proxStr + 'T12:00:00');
 
-      if (!jaExiste) {
-        const parcelaNum = (maisRecente.parcelaNum||1) + 1;
-        // Respect total parcelas limit
-        if (maisRecente.totalParcelas && parcelaNum > maisRecente.totalParcelas) break;
+      // Stop if beyond 3-month horizon
+      if (proxDate > limite) break;
 
-        const nova = {...maisRecente, id:contaId++, dataPag:'', status:'A Vencer',
-          dataVenc: proxStr, dataEmissao: hoje(), parcelaNum};
+      // Only generate if doesn't exist yet
+      if (!datasExistentes.has(proxStr)) {
+        parcelaAtual++;
+        const nova = {
+          ...template,
+          id: contaId++,
+          dataPag: '',
+          status: 'A Vencer',
+          dataVenc: proxStr,
+          dataEmissao: hoje(),
+          parcelaNum: parcelaAtual
+        };
         contas.push(nova);
+        datasExistentes.add(proxStr);
         gerados++;
       }
-      ultimo = proxData;
+
+      ultimaData = proxStr;
     }
   });
+
   return gerados;
 }
 
@@ -4857,26 +4937,56 @@ function toggleParcelasField() {
   if (div) div.style.display = rec ? '' : 'none';
 }
 
-function editarValorRecorrente(id) {
+function abrirEditarValorRec(id) {
   const c = contas.find(x=>x.id===id);
   if (!c) return;
-  const novoValor = prompt(`Novo valor para "${c.fornecedor} — ${c.descricao}":\nAtual: ${R$(c.valor)}\n\nDigite o novo valor (somente número):`, c.valor);
-  if (novoValor === null) return;
-  const val = parseFloat(novoValor.replace(',','.'));
+  document.getElementById('editValRecId').value = id;
+  document.getElementById('editValRecNome').textContent = `${c.fornecedor} — ${c.descricao||c.categoria}`;
+  document.getElementById('editValRecMes').textContent = fmtD(c.dataVenc);
+  document.getElementById('editValRecAtual').textContent = R$(c.valor);
+  document.getElementById('editValRecNovo').value = c.valor;
+  document.getElementById('editValRecSub').textContent =
+    `Conta recorrente ${c.recorrente} de ${c.fornecedor}. Escolha como aplicar o novo valor:`;
+  // Default to "somente este"
+  document.querySelector('input[name="editValRecOpt"][value="somente"]').checked = true;
+  document.getElementById('modalEditarValorRec').classList.add('active');
+}
+
+// Alias for aba Recorrentes button
+function editarValorRecorrente(id) { abrirEditarValorRec(id); }
+
+async function confirmarEditarValorRec() {
+  const id  = parseInt(document.getElementById('editValRecId').value);
+  const c   = contas.find(x=>x.id===id);
+  const val = parseFloat(document.getElementById('editValRecNovo').value);
+  const opt = document.querySelector('input[name="editValRecOpt"]:checked')?.value || 'somente';
+
+  if (!c) return;
   if (!val || val <= 0) { toast('Valor inválido','error'); return; }
 
-  // Update only future (unpaid) instances of this group
-  const grupo = `${c.fornecedor}|${c.categoria}|${c.recorrente}`;
-  let atualizados = 0;
-  contas.forEach(x => {
-    if (`${x.fornecedor}|${x.categoria}|${x.recorrente}` === grupo && !x.dataPag) {
-      x.valor = val;
-      atualizados++;
-    }
-  });
-  salvar();
-  renderTudo();
-  toast(`Valor atualizado para ${R$(val)} em ${atualizados} lançamento(s) futuros!`, 'success');
+  if (opt === 'somente') {
+    // Only change this specific lancamento
+    c.valor = val;
+    await salvar();
+    renderTudo();
+    toast(`Valor de ${fmtD(c.dataVenc)} alterado para ${R$(val)}. Futuros mantêm o valor médio.`, 'success');
+  } else {
+    // Change this and all future unpaid of same group
+    const grupo = `${c.fornecedor}|${c.categoria}|${c.recorrente}`;
+    let n = 0;
+    contas.forEach(x => {
+      if (`${x.fornecedor}|${x.categoria}|${x.recorrente}` === grupo
+          && !x.dataPag
+          && x.dataVenc >= c.dataVenc) {
+        x.valor = val;
+        n++;
+      }
+    });
+    await salvar();
+    renderTudo();
+    toast(`Valor atualizado para ${R$(val)} neste e em ${n-1} lançamento(s) futuro(s).`, 'success');
+  }
+  document.getElementById('modalEditarValorRec').classList.remove('active');
 }
 
 // =====================================================
