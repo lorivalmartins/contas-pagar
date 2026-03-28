@@ -479,6 +479,9 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <button class="btn btn-ghost btn-sm" onclick="abrirModalConfig()" style="width:100%;justify-content:center">
       ⚙️ <span class="cloud-label">Configurações</span>
     </button>
+    <button class="btn btn-ghost btn-sm" onclick="abrirModalBackup()" style="width:100%;justify-content:center;margin-top:4px;color:var(--green);border-color:rgba(5,150,105,.25)">
+      💾 <span class="cloud-label">Backup</span>
+    </button>
   </div>
 </nav>
 
@@ -495,6 +498,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <button class="btn btn-orange btn-sm" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'))">🛒 Nova Compra</button>
       <button class="btn btn-ghost btn-sm" onclick="abrirModalImportar()">📂</button>
       <button class="btn btn-ghost btn-sm" onclick="exportarExcel()">📥</button>
+      <button class="btn btn-ghost btn-sm" onclick="abrirModalBackup()" title="Backup completo do sistema" style="color:var(--green);border-color:rgba(5,150,105,.3)">💾 Backup</button>
     </div>
   </div>
 
@@ -1322,6 +1326,73 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
   </div>
 </div>
 
+<!-- MODAL BACKUP -->
+<div id="modalBackup" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-title">💾 Backup Completo do Sistema</div>
+    <div class="modal-sub">Exporte todos os dados do sistema em um arquivo JSON. Para restaurar, importe o arquivo em qualquer computador.</div>
+
+    <!-- INFO BACKUP -->
+    <div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;font-size:.84em">
+      <div style="font-weight:700;color:var(--text);margin-bottom:8px">📦 O backup inclui:</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;color:var(--text2)">
+        <div>✅ Lançamentos financeiros</div>
+        <div>✅ Estoque</div>
+        <div>✅ Adiantamentos</div>
+        <div>✅ Contas bancárias</div>
+        <div>✅ Movimentações de caixa</div>
+        <div>✅ Veículos e máquinas</div>
+        <div>✅ Manutenções</div>
+        <div>✅ Agenda de coletas</div>
+        <div>✅ Categorias personalizadas</div>
+        <div>✅ Recorrências</div>
+      </div>
+    </div>
+
+    <!-- ULTIMO BACKUP -->
+    <div style="font-size:.78em;color:var(--text3);margin-bottom:16px" id="ultimoBackupInfo"></div>
+
+    <!-- EXPORTAR -->
+    <div style="margin-bottom:20px">
+      <div style="font-size:.78em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Exportar</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-success" onclick="exportarBackupJSON()" style="flex:1;justify-content:center">
+          ⬇️ Baixar Backup JSON
+        </button>
+        <button class="btn btn-ghost" onclick="copiarBackupClipboard()" style="flex:1;justify-content:center">
+          📋 Copiar para Área de Transferência
+        </button>
+      </div>
+    </div>
+
+    <!-- IMPORTAR/RESTAURAR -->
+    <div style="border-top:1px solid var(--border);padding-top:16px">
+      <div style="font-size:.78em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Restaurar Backup</div>
+      <div class="alert alert-warning" style="margin-bottom:10px;font-size:.8em">
+        ⚠️ <strong>Atenção:</strong> Restaurar irá substituir TODOS os dados atuais pelo conteúdo do backup.
+      </div>
+      <div class="drop-zone" onclick="document.getElementById('backupFileIn').click()"
+        ondragover="event.preventDefault();this.classList.add('dragover')"
+        ondragleave="this.classList.remove('dragover')"
+        ondrop="onDropBackup(event)" style="padding:20px;margin-bottom:10px">
+        <div style="font-size:1.5em;margin-bottom:6px">📂</div>
+        <div style="font-size:.85em;color:var(--text2)">Clique ou arraste o arquivo .json de backup</div>
+      </div>
+      <input type="file" id="backupFileIn" accept=".json" style="display:none" onchange="processarBackupImport(event)">
+      <div id="backupImportPreview" style="display:none">
+        <div class="alert alert-info" id="backupImportInfo" style="margin-bottom:8px"></div>
+        <button class="btn btn-danger" onclick="confirmarRestaurarBackup()" style="width:100%;justify-content:center">
+          🔄 Confirmar Restauração
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalBackup').classList.remove('active')">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- ====== MODAL NUVEM / JSONBIN ====== -->
 <div id="modalNuvem" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
   <div class="modal modal-lg">
@@ -1770,6 +1841,8 @@ async function inicializar() {
   const mnDataEl = document.getElementById('mnData');
   if (mnDataEl) mnDataEl.valueAsDate = new Date();
   document.getElementById('mesReferencia').value = new Date().toISOString().slice(0,7);
+
+  checarLembreteBackup();
 
   if (CFG.BIN_ID && CFG.API_KEY) {
     setCloud('sync','🔄 Conectando...');
@@ -4992,6 +5065,195 @@ async function confirmarEditarValorRec() {
   document.getElementById('modalEditarValorRec').classList.remove('active');
 }
 
+
+
+// =====================================================
+// BACKUP COMPLETO DO SISTEMA
+// =====================================================
+
+function coletarTodosOsDados() {
+  return {
+    versao: '1.0',
+    exportadoEm: new Date().toISOString(),
+    sistema: 'Ferro Velho Noroeste',
+    dados: {
+      // Financeiro
+      contas,
+      contaId,
+      // Estoque
+      estoque,
+      estqId,
+      // Adiantamentos
+      adiantamentos,
+      adiantId,
+      // Contas bancárias e caixa
+      contasBanco,
+      contaBancoId,
+      movCaixa,
+      movCaixaId,
+      // Frota
+      veiculos,
+      veiculoId,
+      manutencoes,
+      manutId,
+      eventos,
+      eventoId,
+      // Configurações
+      catsDesp,
+      catsRec,
+      formas
+    }
+  };
+}
+
+function abrirModalBackup() {
+  // Show last backup info
+  const last = localStorage.getItem('lastBackup');
+  const infoEl = document.getElementById('ultimoBackupInfo');
+  if (last) {
+    const d = new Date(last);
+    infoEl.textContent = `Último backup exportado: ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}`;
+    infoEl.style.color = 'var(--green)';
+  } else {
+    infoEl.textContent = '⚠️ Nenhum backup exportado ainda.';
+    infoEl.style.color = 'var(--yellow)';
+  }
+  document.getElementById('backupImportPreview').style.display = 'none';
+  document.getElementById('modalBackup').classList.add('active');
+}
+
+function exportarBackupJSON() {
+  const dados = coletarTodosOsDados();
+  const json = JSON.stringify(dados, null, 2);
+  const blob = new Blob([json], {type: 'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dataStr = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `fvn_backup_${dataStr}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('lastBackup', new Date().toISOString());
+  // Update UI
+  const infoEl = document.getElementById('ultimoBackupInfo');
+  if (infoEl) {
+    infoEl.textContent = `✅ Backup exportado agora: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}`;
+    infoEl.style.color = 'var(--green)';
+  }
+  toast('✅ Backup exportado! Guarde o arquivo em local seguro.', 'success');
+}
+
+async function copiarBackupClipboard() {
+  const dados = coletarTodosOsDados();
+  const json = JSON.stringify(dados, null, 2);
+  try {
+    await navigator.clipboard.writeText(json);
+    toast('✅ Backup copiado para a área de transferência!', 'success');
+  } catch(e) {
+    toast('Não foi possível copiar. Use "Baixar Backup JSON".', 'error');
+  }
+}
+
+// ── IMPORTAR / RESTAURAR ──────────────────────────
+let backupParaRestaurar = null;
+
+function onDropBackup(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) processarBackupImportObj(f);
+}
+
+function processarBackupImport(e) {
+  const f = e.target.files[0];
+  if (f) processarBackupImportObj(f);
+}
+
+function processarBackupImportObj(file) {
+  if (!file.name.endsWith('.json')) {
+    toast('Selecione um arquivo .json de backup', 'error');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const dados = JSON.parse(e.target.result);
+      // Validate structure
+      if (!dados.dados || !dados.versao) throw new Error('Arquivo inválido');
+      backupParaRestaurar = dados;
+      const d = new Date(dados.exportadoEm);
+      const contasN = dados.dados.contas?.length || 0;
+      const estoqueN = dados.dados.estoque?.length || 0;
+      const veiculosN = dados.dados.veiculos?.length || 0;
+      document.getElementById('backupImportInfo').innerHTML =
+        `<strong>Backup válido!</strong> Exportado em ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}<br>
+        Contém: <strong>${contasN}</strong> lançamentos · <strong>${estoqueN}</strong> movim. estoque · <strong>${veiculosN}</strong> veículos`;
+      document.getElementById('backupImportPreview').style.display = 'block';
+    } catch(err) {
+      toast('Arquivo de backup inválido ou corrompido', 'error');
+      backupParaRestaurar = null;
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+async function confirmarRestaurarBackup() {
+  if (!backupParaRestaurar) return;
+  if (!confirm('⚠️ ATENÇÃO: Todos os dados atuais serão substituídos pelo backup. Confirma?')) return;
+
+  const d = backupParaRestaurar.dados;
+
+  // Restore all data
+  contas        = d.contas        || [];
+  contaId       = d.contaId       || 1;
+  estoque       = d.estoque       || [];
+  estqId        = d.estqId        || 1;
+  adiantamentos = d.adiantamentos || [];
+  adiantId      = d.adiantId      || 1;
+  contasBanco   = d.contasBanco   || [];
+  contaBancoId  = d.contaBancoId  || 1;
+  movCaixa      = d.movCaixa      || [];
+  movCaixaId    = d.movCaixaId    || 1;
+  veiculos      = d.veiculos      || [];
+  veiculoId     = d.veiculoId     || 1;
+  manutencoes   = d.manutencoes   || [];
+  manutId       = d.manutId       || 1;
+  eventos       = d.eventos       || [];
+  eventoId      = d.eventoId      || 1;
+
+  // Restore config if present
+  if (d.catsDesp) { catsDesp = d.catsDesp; setCfg('catsDesp', catsDesp); }
+  if (d.catsRec)  { catsRec  = d.catsRec;  setCfg('catsRec',  catsRec); }
+  if (d.formas)   { formas   = d.formas;   setCfg('formas',   formas); }
+
+  // Save everything locally
+  salvarContas();
+  salvarEstoqueLocal();
+  salvarAdiantLocal();
+  salvarContasBancoLocal();
+  salvarFrotaLocal();
+
+  // Sync to cloud if connected
+  await salvarNuvem();
+
+  document.getElementById('modalBackup').classList.remove('active');
+  popularSelects();
+  renderTudo();
+  toast(`✅ Backup restaurado com sucesso! ${contas.length} lançamentos recuperados.`, 'success');
+  backupParaRestaurar = null;
+}
+
+// ── LEMBRETE DIÁRIO DE BACKUP ─────────────────────
+function checarLembreteBackup() {
+  const last = localStorage.getItem('lastBackup');
+  if (!last) return; // Never backed up — don't nag
+  const diasSemBackup = Math.floor((Date.now() - new Date(last)) / 86400000);
+  if (diasSemBackup >= 7) {
+    setTimeout(() => {
+      toast(`⚠️ Último backup há ${diasSemBackup} dias. Recomendamos fazer backup semanal!`, 'warning');
+    }, 3000);
+  }
+}
 
 // =====================================================
 // START
