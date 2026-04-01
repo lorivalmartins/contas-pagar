@@ -684,8 +684,11 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 <!-- ===== RECORRENTES ===== -->
 <div id="recorrentes" class="tab-content">
-  <div class="alert alert-info" style="margin-bottom:16px">
-    🔄 <strong>Contas Recorrentes:</strong> Lançamentos marcados como recorrentes. O sistema os exibe aqui para que você possa gerar a próxima parcela com um clique.
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+    <div class="alert alert-info" style="margin-bottom:0;flex:1">
+      🔄 <strong>Contas Recorrentes:</strong> Lançamentos marcados como recorrentes. O sistema os exibe aqui para que você possa gerar a próxima parcela com um clique.
+    </div>
+    <button class="btn btn-danger btn-sm" onclick="apagarTodasRecorrencias()">🗑️ Apagar todas recorrências</button>
   </div>
   <div class="tbl-wrap">
     <table>
@@ -763,7 +766,10 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <div style="font-size:.75em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Saldo Total Consolidado</div>
       <div id="saldoConsolidado" style="font-family:'DM Mono',monospace;font-size:2em;font-weight:700;color:var(--green)">R$ 0,00</div>
     </div>
-    <button class="btn btn-primary" onclick="abrirModalNovaConta()">+ Nova Conta</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-danger btn-sm" onclick="apagarMovimentacoesConta()">🗑️ Limpar movimentações</button>
+      <button class="btn btn-primary" onclick="abrirModalNovaConta()">+ Nova Conta</button>
+    </div>
   </div>
 
   <!-- CARDS DAS CONTAS -->
@@ -1263,7 +1269,10 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
         </div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-ghost" onclick="fecharConfig()">Fechar</button></div>
+    <div class="modal-footer" style="justify-content:space-between">
+      <button class="btn btn-danger btn-sm" onclick="apagarTudoConfirmacao()">🗑️ Apagar todos os dados</button>
+      <button class="btn btn-ghost" onclick="fecharConfig()">Fechar</button>
+    </div>
   </div>
 </div>
 
@@ -4371,6 +4380,63 @@ function exportarProjecaoExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Projeção');
   XLSX.writeFile(wb, `projecao_${hoje.toISOString().slice(0,7)}.xlsx`);
   toast('Projeção exportada!','success');
+}
+
+
+// =====================================================
+// FUNÇÕES DE LIMPEZA
+// =====================================================
+
+// Apagar TODOS os dados (configurações → botão vermelho)
+async function apagarTudoConfirmacao() {
+  if (!confirm('⚠️ ATENÇÃO: Apagar TODOS os dados do sistema?\n\nIsso inclui lançamentos, contas, adiantamentos, movimentações, agenda e manutenções.\n\nEssa ação não pode ser desfeita!')) return;
+  if (!confirm('Tem certeza absoluta? Faça um backup antes!')) return;
+
+  // Reset everything
+  contas = []; contaId = 1;
+  adiantamentos = []; adiantId = 1;
+  contasBanco = CONTAS_PADRAO.map((c,i) => ({...c}));
+  contaBancoId = 6;
+  movCaixa = []; movCaixaId = 1;
+  veiculos = VEICULOS_PADRAO.map(v => ({...v}));
+  veiculoId = 12;
+  manutencoes = []; manutId = 1;
+  eventos = []; eventoId = 1;
+
+  salvarContas();
+  salvarAdiantLocal();
+  salvarContasBancoLocal();
+  salvarFrotaLocal();
+  await salvarNuvem();
+
+  document.getElementById('modalConfig').classList.remove('active');
+  renderTudo();
+  toast('✅ Todos os dados foram apagados.', 'info');
+}
+
+// Apagar todas as recorrências (mantém os lançamentos não-recorrentes)
+async function apagarTodasRecorrencias() {
+  const recorrentes = contas.filter(c => c.recorrente);
+  if (!recorrentes.length) { toast('Nenhuma recorrência encontrada.', 'info'); return; }
+  if (!confirm(`Apagar ${recorrentes.length} lançamento(s) recorrentes?\n\nOs lançamentos já pagos e os não-recorrentes serão mantidos.`)) return;
+
+  contas = contas.filter(c => !c.recorrente);
+  salvarContas();
+  await salvarNuvem();
+  renderTudo();
+  toast(`✅ ${recorrentes.length} lançamento(s) recorrentes removidos.`, 'success');
+}
+
+// Apagar movimentações de caixa vinculadas às contas bancárias
+async function apagarMovimentacoesConta() {
+  if (!movCaixa.length) { toast('Nenhuma movimentação para apagar.', 'info'); return; }
+  if (!confirm(`Apagar TODAS as ${movCaixa.length} movimentações do extrato bancário?\n\nOs saldos iniciais das contas serão mantidos. Os lançamentos financeiros NÃO serão afetados.`)) return;
+
+  movCaixa = []; movCaixaId = 1;
+  salvarContasBancoLocal();
+  await salvarNuvem();
+  renderContasBanco();
+  toast('✅ Todas as movimentações bancárias foram apagadas.', 'success');
 }
 
 // =====================================================
