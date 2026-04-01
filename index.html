@@ -255,23 +255,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 
 
-/* NOVA COMPRA */
-.compra-header{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm)}
-.compra-materiais{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
-.compra-mat-header{padding:12px 16px;background:var(--surface);border-bottom:1px solid var(--border);font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between}
-.compra-mat-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);align-items:end}
-.compra-mat-row:last-child{border-bottom:none}
-.compra-mat-row .fg label{font-size:.7em}
-.compra-total-bar{background:var(--surface);border-top:1.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.compra-total-val{font-family:'DM Mono',monospace;font-size:1.4em;font-weight:700;color:var(--accent)}
-.compra-total-diff{font-size:.82em;font-weight:600}
-.compra-total-diff.ok{color:var(--green)}
-.compra-total-diff.over{color:var(--red)}
-.compra-total-diff.under{color:var(--yellow)}
-.compra-summary{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:none}
-.compra-summary h4{font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:10px}
-.compra-summary-row{display:flex;justify-content:space-between;font-size:.85em;padding:4px 0;border-bottom:1px solid var(--border)}
-.compra-summary-row:last-child{border-bottom:none;font-weight:700;padding-top:8px}
 
 
 /* ADIANTAMENTOS */
@@ -285,10 +268,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .adiant-saldo{font-family:'DM Mono',monospace;font-size:1.5em;font-weight:700;margin-bottom:4px}
 .adiant-sub{font-size:.75em;color:var(--text3)}
 
-/* MARGEM */
-.margem-pos{color:var(--green);font-weight:700}
-.margem-neg{color:var(--red);font-weight:700}
-.margem-zero{color:var(--text3);font-weight:600}
 
 
 /* CONTAS BANCÁRIAS */
@@ -351,14 +330,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .veiculo-prox{font-size:.72em;color:var(--text3);margin-top:3px}
 .veiculo-alerta{font-size:.72em;color:var(--yellow);font-weight:600;margin-top:2px}
 
-/* ESTOQUE */
-.estq-kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
-.estq-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow-sm)}
-.estq-material{font-size:.75em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.estq-qty{font-size:1.6em;font-weight:700;font-family:'DM Mono',monospace;color:var(--accent)}
-.estq-unit{font-size:.72em;color:var(--text3);margin-top:3px}
-.estq-entrada{color:var(--green);font-size:.78em;margin-top:4px}
-.estq-saida{color:var(--red);font-size:.78em}
 
 /* EDIT MODAL */
 .modal-edit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:14px}
@@ -418,9 +389,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
   <div class="sidebar-nav">
     <div class="nav-section">Operações</div>
-    <button class="nav-item c-orange" id="tabNovaCompra" onclick="showTab('novacompra',this)">
-      <span class="nav-icon">🛒</span><span class="nav-label">Nova Compra/Venda</span>
-    </button>
     <button class="nav-item c-purple" id="tabAdiant" onclick="showTab('adiantamentos',this)">
       <span class="nav-icon">💳</span><span class="nav-label">Adiantamentos</span>
     </button>
@@ -428,6 +396,9 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <div class="nav-section">Financeiro</div>
     <button class="nav-item active" onclick="showTab('dashboard',this)">
       <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+    </button>
+    <button class="nav-item c-green" onclick="showTab('projecao',this)">
+      <span class="nav-icon">🔮</span><span class="nav-label">Projeção Futura</span>
     </button>
     <button class="nav-item" id="navLancamentos" onclick="showTab('lancamentos',this)">
       <span class="nav-icon">📋</span><span class="nav-label">Lançamentos</span>
@@ -454,13 +425,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <span class="nav-icon">🔄</span><span class="nav-label">Recorrentes</span>
     </button>
 
-    <div class="nav-section">Estoque</div>
-    <button class="nav-item" onclick="showTab('estoque',this)">
-      <span class="nav-icon">📦</span><span class="nav-label">Movimentações</span>
-    </button>
-    <button class="nav-item" onclick="showTab('margem',this)">
-      <span class="nav-icon">📉</span><span class="nav-label">Margem / Análise</span>
-    </button>
 
     <div class="nav-section">Frota</div>
     <button class="nav-item c-cyan" onclick="showTab('agenda',this)">
@@ -469,6 +433,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <button class="nav-item" onclick="showTab('manutencao',this)" style="--icon-color:var(--orange)">
       <span class="nav-icon" style="color:var(--orange)">🔧</span><span class="nav-label">Manutenção</span>
     </button>
+
   </div>
 
   <div class="sidebar-foot">
@@ -495,7 +460,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <div class="topbar-title" id="topbarTitle">Dashboard</div>
     <div class="topbar-actions">
       <span class="topbar-info"><strong id="totalInfo">0</strong> lançamentos · <span id="lastSaveTxt">—</span></span>
-      <button class="btn btn-orange btn-sm" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'))">🛒 Nova Compra</button>
       <button class="btn btn-ghost btn-sm" onclick="abrirModalImportar()">📂</button>
       <button class="btn btn-ghost btn-sm" onclick="exportarExcel()">📥</button>
       <button class="btn btn-ghost btn-sm" onclick="abrirModalBackup()" title="Backup completo do sistema" style="color:var(--green);border-color:rgba(5,150,105,.3)">💾 Backup</button>
@@ -508,15 +472,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 <div id="dashboard" class="tab-content active">
 
   <!-- QUICK ACTIONS -->
-  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-    <button class="quick-action qa-orange" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'));ncSetMode('compra')">
-      <div class="qa-icon">📥</div>
-      <div class="qa-label">Nova Compra</div>
-    </button>
-    <button class="quick-action qa-green" onclick="showTab('novacompra',document.getElementById('tabNovaCompra'));ncSetMode('venda')">
-      <div class="qa-icon">📤</div>
-      <div class="qa-label">Nova Venda</div>
-    </button>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px">
     <button class="quick-action qa-blue" onclick="showTab('lancamentos',document.getElementById('navLancamentos'))">
       <div class="qa-icon">📋</div>
       <div class="qa-label">Lançamento</div>
@@ -603,17 +559,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
           <option value="">Não vincular agora</option>
         </select>
       </div>
-      <div class="fg"><label>Material (sucata)</label><select id="fMaterial"><option value="">Nenhum</option><option>Ferro</option><option>Alumínio</option><option>Cobre</option><option>Papelão</option><option>Plástico</option><option>Inox</option><option>Bronze</option><option>Outros</option></select></div>
-      <div class="fg"><label>Observações</label><input type="text" id="fObs" placeholder="Obs..."></div>
-      <div class="fg"><label>Recorrente?</label>
-        <select id="fRecorrente" onchange="toggleParcelasField()">
-          <option value="">Não</option>
-          <option value="mensal">Mensal</option>
-          <option value="quinzenal">Quinzenal</option>
-          <option value="semanal">Semanal</option>
-          <option value="anual">Anual</option>
-        </select>
-      </div>
       <div class="fg" id="fParcelasDiv" style="display:none">
         <label>Total de Parcelas</label>
         <input type="number" id="fParcelas" placeholder="Ex: 24 (vazio = indeterminado)" min="1">
@@ -644,7 +589,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <table>
       <thead><tr>
         <th>Tipo</th><th>Vencimento</th><th>Fornecedor/Pagador</th><th>Categoria</th>
-        <th>Material</th><th>Descrição</th><th>Valor</th><th>Forma</th>
+        <th>Descrição</th><th>Valor</th><th>Forma</th>
         <th>Status</th><th>Dias</th><th>Ações</th>
       </tr></thead>
       <tbody id="lancBody"></tbody>
@@ -748,208 +693,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <tbody id="recBody"></tbody>
     </table>
   </div>
-</div>
-
-
-<!-- ===== ESTOQUE ===== -->
-<div id="estoque" class="tab-content">
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title">📦 Registrar Movimentação de Estoque</div>
-    <div class="form-grid" id="estqFormGrid">
-      <div class="fg"><label>Data *</label><input type="date" id="eData"></div>
-      <div class="fg"><label>Tipo *</label>
-        <select id="eTipo" onchange="estqTipoChange()">
-          <option value="entrada">📥 Entrada (Compra)</option>
-          <option value="saida">📤 Saída (Venda)</option>
-          <option value="ajuste">🔧 Ajuste</option>
-        </select>
-      </div>
-      <div class="fg"><label>Material *</label>
-        <select id="eMaterial">
-          <option value="">Selecione...</option>
-          <option>Ferro</option><option>Alumínio</option><option>Cobre</option>
-          <option>Papelão</option><option>Plástico</option><option>Inox</option>
-          <option>Bronze</option><option>Bateria</option><option>Motor Elétrico</option><option>Outros</option>
-        </select>
-      </div>
-      <div class="fg"><label>Quantidade *</label><input type="number" id="eQtd" step="0.01" placeholder="0,00"></div>
-      <div class="fg"><label>Unidade</label>
-        <select id="eUnidade">
-          <option value="kg">kg</option>
-          <option value="un">Unidade</option>
-          <option value="ton">Tonelada</option>
-          <option value="fardo">Fardo</option>
-          <option value="saco">Saco</option>
-        </select>
-      </div>
-      <div class="fg"><label>Preço por Unidade (R$)</label><input type="number" id="ePrecoUnit" step="0.01" placeholder="0,00"></div>
-      <div class="fg estq-forn-field"><label>Fornecedor / Cliente</label><input type="text" id="eFornecedor" list="fornList" placeholder="Nome..."></div>
-      <div class="fg"><label>Observações</label><input type="text" id="eObs" placeholder="Obs..."></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn btn-primary" onclick="adicionarEstoque()">✓ Registrar</button>
-      <button class="btn btn-ghost" onclick="limparFormEstoque()">✕ Limpar</button>
-    </div>
-  </div>
-
-  <!-- KPI SALDO POR MATERIAL -->
-  <div class="card-title" style="margin-bottom:12px;font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Saldo em Estoque por Material</div>
-  <div class="estq-kpi" id="estqKpi"></div>
-
-  <!-- FILTRO + TABELA -->
-  <div class="filtros" style="margin-bottom:12px">
-    <input type="text" id="estqSrch" placeholder="🔍 Buscar material, fornecedor..." oninput="renderEstoque()">
-    <select id="estqTipoFiltro" onchange="renderEstoque()">
-      <option value="">Todas movimentações</option>
-      <option value="entrada">Entradas</option>
-      <option value="saida">Saídas</option>
-      <option value="ajuste">Ajustes</option>
-    </select>
-    <select id="estqMatFiltro" onchange="renderEstoque()">
-      <option value="">Todos materiais</option>
-      <option>Ferro</option><option>Alumínio</option><option>Cobre</option>
-      <option>Papelão</option><option>Plástico</option><option>Inox</option>
-      <option>Bronze</option><option>Bateria</option><option>Motor Elétrico</option><option>Outros</option>
-    </select>
-    <input type="month" id="estqMes" onchange="renderEstoque()">
-    <button class="btn btn-ghost btn-sm" onclick="abrirModalImportarEstoque()">📂 Importar</button>
-    <button class="btn btn-ghost btn-sm" onclick="exportarEstoqueExcel()">📥 Exportar</button>
-  </div>
-
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr>
-        <th>Data</th><th>Tipo</th><th>Material</th><th>Qtd</th><th>Unidade</th>
-        <th>Preço/Un.</th><th>Total</th><th>Fornecedor/Cliente</th><th>Obs</th><th>Ações</th>
-      </tr></thead>
-      <tbody id="estqBody"></tbody>
-    </table>
-  </div>
-</div>
-
-
-<!-- ===== MARGEM / ANÁLISE ===== -->
-<div id="margem" class="tab-content">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
-    <div class="period-bar" id="margemPeriodBar">
-      <button class="period-btn" onclick="setMargemPeriod('mes',this)">Este Mês</button>
-      <button class="period-btn active" onclick="setMargemPeriod('trimestre',this)">Trimestre</button>
-      <button class="period-btn" onclick="setMargemPeriod('ano',this)">Ano</button>
-      <button class="period-btn" onclick="setMargemPeriod('tudo',this)">Tudo</button>
-    </div>
-    <input type="month" id="margemMes" onchange="setMargemPeriod('custom',null)" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit">
-  </div>
-
-  <!-- PREÇO MÉDIO POR MATERIAL -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title">⚖️ Preço Médio de Compra por Material</div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th>Material</th><th>Total Comprado</th><th>Qtd Total (kg/un)</th>
-          <th>Preço Médio/Un.</th><th>Maior Preço</th><th>Menor Preço</th><th>Compras</th>
-        </tr></thead>
-        <tbody id="precoMedioBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- MARGEM POR MATERIAL -->
-  <div class="card">
-    <div class="card-title">📉 Margem por Material — Compra vs Venda</div>
-    <div class="alert alert-info" style="margin-bottom:14px;font-size:.82em">
-      ℹ️ Baseado nos lançamentos financeiros marcados com material. Compras = despesas, Vendas = receitas.
-    </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th>Material</th>
-          <th>Total Comprado (R$)</th><th>Qtd Entrada (kg)</th>
-          <th>Total Vendido (R$)</th><th>Qtd Saída (kg)</th>
-          <th>Margem R$</th><th>Margem %</th><th>Status</th>
-        </tr></thead>
-        <tbody id="margemBody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-
-<!-- ===== NOVA COMPRA / VENDA ===== -->
-<div id="novacompra" class="tab-content">
-
-  <!-- TOGGLE COMPRA/VENDA -->
-  <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;max-width:400px">
-    <button class="tipo-btn active-despesa" id="ncModeCompra" onclick="ncSetMode('compra')" style="flex:1;padding:12px;font-size:.95em">📥 Nova Compra</button>
-    <button class="tipo-btn" id="ncModeVenda" onclick="ncSetMode('venda')" style="flex:1;padding:12px;font-size:.95em">📤 Nova Venda</button>
-  </div>
-
-  <!-- ALERTA CONTEXTUAL -->
-  <div id="ncAlerta" class="alert alert-info" style="margin-bottom:16px">
-    🛒 <strong>Compra:</strong> Registra a entrada dos materiais no estoque + despesa financeira em um único lançamento.
-  </div>
-
-  <!-- CABEÇALHO DA COMPRA/VENDA -->
-  <div class="compra-header">
-    <div class="card-title" style="margin-bottom:14px" id="ncFormTitle">📋 Dados da Compra</div>
-    <div class="form-grid">
-      <div class="fg"><label>Data *</label><input type="date" id="ncData"></div>
-      <div class="fg"><label id="ncFornLabel">Fornecedor *</label><input type="text" id="ncFornecedor" list="fornList" placeholder="Ex: Márcio Borges ou Diversos"></div>
-      <div class="fg"><label>Forma de Pagamento</label><select id="ncForma"><option value="">Selecione...</option></select></div>
-      <div class="fg"><label>Valor Total Pago (R$) *</label><input type="number" id="ncValorTotal" step="0.01" placeholder="0,00" oninput="ncAtualizarTotal()"></div>
-      <div class="fg"><label>Observações</label><input type="text" id="ncObs" placeholder="Obs..."></div>
-      <div class="fg">
-        <label>Pagamento</label>
-        <select id="ncPagMode" onchange="ncTogglePagMode()">
-          <option value="pendente">⏳ Pagar depois (Pendente)</option>
-          <option value="conta">💳 Pagar agora — vincular conta</option>
-        </select>
-      </div>
-      <div class="fg" id="ncContaDiv" style="display:none"><label>Conta (de onde sai/entra)</label><select id="fConta"><option value="">Selecione...</option></select></div>
-      <div class="fg"><label>Categoria Financeira</label><select id="ncCategoria"><option value="Compra Sucata">Compra Sucata</option></select></div>
-      <div class="fg" id="ncAdiantDiv" style="display:none">
-        <label>Abater Adiantamento?</label>
-        <select id="ncAdiantSel">
-          <option value="">Não / Pagamento direto</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- MATERIAIS -->
-  <div class="compra-materiais">
-    <div class="compra-mat-header">
-      <span id="ncMatTitle">⚖️ Materiais Comprados</span>
-      <button class="btn btn-primary btn-sm" onclick="ncAdicionarLinha()">+ Adicionar Material</button>
-    </div>
-    <div id="ncLinhas">
-      <!-- linhas geradas por JS -->
-    </div>
-    <div class="compra-total-bar">
-      <div>
-        <div style="font-size:.75em;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Total calculado pelos materiais</div>
-        <div class="compra-total-val" id="ncTotalMateriais">R$ 0,00</div>
-      </div>
-      <div id="ncDiffMsg" class="compra-total-diff"></div>
-      <div style="font-size:.75em;color:var(--text3);text-align:right">
-        Valor total pago: <strong id="ncValorTotalDisplay" style="color:var(--text)">R$ 0,00</strong><br>
-        <span style="font-size:.9em">Preencha o preço/kg de cada material<br>ou deixe em branco para distribuir proporcional</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PREVIEW ANTES DE CONFIRMAR -->
-  <div class="compra-summary" id="ncSummary">
-    <h4>✅ Resumo — o que será criado</h4>
-    <div id="ncSummaryContent"></div>
-  </div>
-
-  <div style="display:flex;gap:10px;flex-wrap:wrap">
-    <button class="btn btn-primary" style="font-size:1em;padding:11px 24px" onclick="ncPreview()">👁 Visualizar Resumo</button>
-    <button class="btn btn-success" style="font-size:1em;padding:11px 24px" id="ncConfirmarBtn" onclick="ncConfirmar()" disabled>✓ Confirmar e Lançar</button>
-    <button class="btn btn-ghost" onclick="ncLimpar()">✕ Limpar</button>
-  </div>
-
 </div>
 
 
@@ -1268,9 +1011,72 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <div style="background:var(--bg3);border-radius:var(--radius-sm);padding:14px;margin:16px 0" id="realizadoResumo"></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="document.getElementById('modalRealizado').classList.remove('active')">Só marcar</button>
-      <button class="btn btn-success" onclick="realizadoEAbrirCompra()">✓ Marcar + Abrir Nova Compra/Venda</button>
+      <button class="btn btn-success" onclick="marcarEventoRealizadoDireto()">✓ Marcar como Realizado</button>
     </div>
   </div>
+</div>
+
+
+<!-- ===== PROJEÇÃO FUTURA ===== -->
+<div id="projecao" class="tab-content">
+
+  <!-- CONTROLS -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <div style="font-size:.82em;color:var(--text3);margin-bottom:4px">Horizonte de projeção</div>
+      <div style="display:flex;gap:6px">
+        <button class="period-btn" onclick="setProjecaoHorizonte(6,this)">6 meses</button>
+        <button class="period-btn active" onclick="setProjecaoHorizonte(12,this)">12 meses</button>
+        <button class="period-btn" onclick="setProjecaoHorizonte(24,this)">24 meses</button>
+        <button class="period-btn" onclick="setProjecaoHorizonte(36,this)">36 meses</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <div class="fg" style="margin:0">
+        <label style="font-size:.72em;font-weight:700;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">Meta de receita mensal (R$)</label>
+        <input type="number" id="projecaoMeta" placeholder="Ex: 50000" step="1000"
+          style="padding:7px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit;width:180px"
+          oninput="renderProjecao()">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="exportarProjecaoExcel()">📥 Exportar</button>
+    </div>
+  </div>
+
+  <!-- RESUMO KPIs -->
+  <div id="projecaoKpis" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:20px"></div>
+
+  <!-- ALERTAS DE MESES NEGATIVOS -->
+  <div id="projecaoAlertas" style="margin-bottom:16px"></div>
+
+  <!-- GRÁFICO -->
+  <div class="card" style="margin-bottom:16px;padding:20px">
+    <div class="card-title">📈 Saldo Projetado Mês a Mês</div>
+    <div style="font-size:.78em;color:var(--text3);margin-bottom:14px">
+      Linha azul = saldo acumulado projetado · Verde = meses positivos · Vermelho = meses negativos
+    </div>
+    <div style="position:relative;height:280px"><canvas id="chartProjecao"></canvas></div>
+  </div>
+
+  <!-- TABELA DETALHADA -->
+  <div class="card" style="padding:20px">
+    <div class="card-title">📋 Detalhamento Mensal</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Mês</th>
+          <th>Receitas Previstas</th>
+          <th>Despesas Previstas</th>
+          <th>Saldo do Mês</th>
+          <th>Saldo Acumulado</th>
+          <th>Meta Receita</th>
+          <th>Precisa Faturar</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody id="projecaoBody"></tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 </div><!-- /main -->
@@ -1539,84 +1345,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
   </div>
 </div>
 
-<!-- ====== MODAL IMPORTAR ESTOQUE ====== -->
-<div id="modalImportarEstoque" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
-  <div class="modal">
-    <div class="modal-title">📂 Importar Estoque</div>
-    <div class="modal-sub">Importe um CSV ou Excel de movimentações de estoque. Colunas: <strong>Data | Tipo | Material | Quantidade | Unidade | Preço/Un. | Fornecedor/Cliente | Obs</strong></div>
-    <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap">
-      <button class="btn btn-ghost btn-sm" onclick="baixarTemplateEstoque()">⬇️ Template CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="baixarTemplateEstoqueXlsx()">⬇️ Template Excel</button>
-    </div>
-    <div class="drop-zone" onclick="document.getElementById('fileEstqIn').click()"
-      ondragover="event.preventDefault();this.classList.add('dragover')"
-      ondragleave="this.classList.remove('dragover')"
-      ondrop="onDropEstoque(event)">
-      <div style="font-size:2em;margin-bottom:8px">📦</div>
-      <div style="font-size:.88em;color:var(--text2)">Clique ou arraste o arquivo aqui</div>
-      <div style="font-size:.78em;color:var(--text3);margin-top:4px">CSV, XLSX, XLS</div>
-    </div>
-    <input type="file" id="fileEstqIn" accept=".csv,.xlsx,.xls" style="display:none" onchange="processarArquivoEstoque(event)">
-    <div id="estqImportPreview" style="display:none">
-      <div class="alert alert-info" id="estqImportInfo"></div>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <select id="estqImportMode" style="padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
-          <option value="append">Adicionar às existentes</option>
-          <option value="replace">Substituir todas</option>
-        </select>
-        <button class="btn btn-primary" onclick="confirmarImportEstoque()">✓ Confirmar</button>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('modalImportarEstoque').classList.remove('active')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL EDITAR ESTOQUE -->
-<div id="modalEditarEstoque" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
-  <div class="modal">
-    <div class="modal-title">✏️ Editar Movimentação de Estoque</div>
-    <div class="modal-sub">Altere os campos e clique em Salvar.</div>
-    <input type="hidden" id="editEstqId">
-    <div class="modal-edit-grid">
-      <div class="fg"><label>Data *</label><input type="date" id="editEstqData"></div>
-      <div class="fg"><label>Tipo *</label>
-        <select id="editEstqTipo">
-          <option value="entrada">📥 Entrada (Compra)</option>
-          <option value="saida">📤 Saída (Venda)</option>
-          <option value="ajuste">🔧 Ajuste</option>
-        </select>
-      </div>
-      <div class="fg"><label>Material *</label>
-        <select id="editEstqMaterial">
-          <option value="">Selecione...</option>
-          <option>Ferro</option><option>Alumínio</option><option>Cobre</option>
-          <option>Papelão</option><option>Plástico</option><option>Inox</option>
-          <option>Bronze</option><option>Bateria</option><option>Motor Elétrico</option><option>Outros</option>
-        </select>
-      </div>
-      <div class="fg"><label>Quantidade *</label><input type="number" id="editEstqQtd" step="0.001" placeholder="0,000"></div>
-      <div class="fg"><label>Unidade</label>
-        <select id="editEstqUnidade">
-          <option value="kg">kg</option>
-          <option value="un">Unidade</option>
-          <option value="ton">Tonelada</option>
-          <option value="fardo">Fardo</option>
-          <option value="saco">Saco</option>
-        </select>
-      </div>
-      <div class="fg"><label>Preço por Unidade (R$)</label><input type="number" id="editEstqPreco" step="0.01" placeholder="0,00"></div>
-      <div class="fg"><label>Fornecedor / Cliente</label><input type="text" id="editEstqForn" list="fornList" placeholder="Nome..."></div>
-      <div class="fg"><label>Observações</label><input type="text" id="editEstqObs" placeholder="Obs..."></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="document.getElementById('modalEditarEstoque').classList.remove('active')">Cancelar</button>
-      <button class="btn btn-primary" onclick="salvarEdicaoEstoque()">💾 Salvar</button>
-    </div>
-  </div>
-</div>
-
 <!-- MODAL EDITAR VALOR RECORRENTE -->
 <div id="modalEditarValorRec" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
   <div class="modal" style="max-width:440px">
@@ -1752,7 +1480,6 @@ async function carregarNuvem() {
     const d = (await r.json()).record;
     contas = d.contas||[];
     contaId = d.contaId || (contas.length ? Math.max(...contas.map(c=>c.id))+1 : 1);
-    if (d.estoque)       { estoque=d.estoque; estqId=d.estqId||1; salvarEstoqueLocal(); }
     if (d.adiantamentos)  { adiantamentos=d.adiantamentos; adiantId=d.adiantId||1; salvarAdiantLocal(); }
     if (d.contasBanco)    { contasBanco=d.contasBanco; contaBancoId=d.contaBancoId||1; movCaixa=d.movCaixa||[]; movCaixaId=d.movCaixaId||1; salvarContasBancoLocal(); }
     if (d.veiculos)       { veiculos=d.veiculos; veiculoId=d.veiculoId||12; manutencoes=d.manutencoes||[]; manutId=d.manutId||1; eventos=d.eventos||[]; eventoId=d.eventoId||1; salvarFrotaLocal(); }
@@ -1772,7 +1499,7 @@ async function salvarNuvem() {
     const r = await fetch(`https://api.jsonbin.io/v3/b/${CFG.BIN_ID}`,{
       method:'PUT',
       headers:{'Content-Type':'application/json','X-Master-Key':CFG.API_KEY},
-      body:JSON.stringify({contas,contaId,estoque,estqId,adiantamentos,adiantId,contasBanco,contaBancoId,movCaixa,movCaixaId,veiculos,veiculoId,manutencoes,manutId,eventos,eventoId,catsDesp,catsRec,formas,ts:new Date().toISOString()})
+      body:JSON.stringify({contas,contaId,adiantamentos,adiantId,contasBanco,contaBancoId,movCaixa,movCaixaId,veiculos,veiculoId,manutencoes,manutId,eventos,eventoId,catsDesp,catsRec,formas,ts:new Date().toISOString()})
     });
     if (!r.ok) throw new Error(r.status);
     setCloud('ok','☁️ Sincronizado');
@@ -1810,7 +1537,6 @@ function setCloud(state, txt) {
 // INIT
 // =====================================================
 async function inicializar() {
-  carregarEstoque();
   carregarAdiantamentos();
   carregarContasBanco();
   carregarFrota();
@@ -1939,11 +1665,11 @@ function showTab(name, el) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   if(el) el.classList.add('active');
   document.getElementById(name).classList.add('active');
-  if (name === 'novacompra') ncInit();
   if (name === 'adiantamentos') renderAdiantamentos();
   if (name === 'contas_banco') renderContasBanco();
   if (name === 'agenda') { popularSelectsVeiculos(); renderAgenda(); }
   if (name === 'manutencao') { popularSelectsVeiculos(); renderManutencao(); }
+  if (name === 'projecao') renderProjecao();
   renderTudo();
 }
 
@@ -1992,7 +1718,7 @@ async function adicionarLancamento() {
     descricao: document.getElementById('fDescricao').value,
     valor: val,
     forma: document.getElementById('fForma').value,
-    material: document.getElementById('fMaterial').value,
+    material: '',
     obs: document.getElementById('fObs').value,
     contaId: document.getElementById('fContaLanc')?.value ? parseInt(document.getElementById('fContaLanc').value) : null,
     recorrente: document.getElementById('fRecorrente').value,
@@ -2016,7 +1742,7 @@ async function adicionarLancamento() {
 }
 
 function limparForm() {
-  ['fDataVenc','fCategoria','fFornecedor','fDescricao','fValor','fForma','fMaterial','fObs','fRecorrente','fContaLanc','fParcelas'].forEach(id=>{
+  ['fDataVenc','fCategoria','fFornecedor','fDescricao','fValor','fForma','fObs','fRecorrente','fContaLanc','fParcelas'].forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.value='';
   });
@@ -2156,11 +1882,9 @@ function renderTudo() {
   renderContasBanco();
   renderAgenda();
   renderManutencao();
-  renderEstqKpi();
-  renderEstoque();
-  renderMargem();
   renderAdiantamentos();
   renderLancamentos();
+  renderProjecao();
   renderVencimentos();
   renderGraficos();
   renderCategorias();
@@ -2280,7 +2004,6 @@ function renderLancamentos() {
       <td>${fmtD(c.dataVenc)}</td>
       <td style="font-weight:600;color:var(--text)">${c.fornecedor}</td>
       <td style="font-size:.8em;color:var(--text3)">${c.categoria}</td>
-      <td style="font-size:.8em;color:var(--text3)">${c.material||'—'}</td>
       <td style="color:var(--text2)">${c.descricao} ${recTag}</td>
       <td class="mono" style="color:${c.tipo==='receita'?'var(--green)':'var(--text)'}">${R$(c.valor)}</td>
       <td style="font-size:.8em;color:var(--text3)">${c.forma||'—'}</td>
@@ -3002,557 +2725,6 @@ function toast(msg, type='info') {
 
 
 // =====================================================
-// ESTOQUE
-// =====================================================
-let estoque = [];
-let estqId = 1;
-let editTipoAtual = 'despesa';
-
-function carregarEstoque() {
-  const s = localStorage.getItem('estoque_v1');
-  if (s) { const d = JSON.parse(s); estoque=d.itens||[]; estqId=d.nextId||1; }
-}
-
-function salvarEstoqueLocal() {
-  localStorage.setItem('estoque_v1', JSON.stringify({itens:estoque, nextId:estqId}));
-}
-
-function estqTipoChange() {
-  // no extra logic needed for now
-}
-
-function limparFormEstoque() {
-  ['eData','eMaterial','eQtd','ePrecoUnit','eFornecedor','eObs'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('eTipo').value='entrada';
-  document.getElementById('eUnidade').value='kg';
-  document.getElementById('eData').valueAsDate=new Date();
-}
-
-async function adicionarEstoque() {
-  const data = document.getElementById('eData').value;
-  const tipo = document.getElementById('eTipo').value;
-  const mat  = document.getElementById('eMaterial').value;
-  const qtd  = parseFloat(document.getElementById('eQtd').value);
-  if (!data||!mat||!qtd||qtd<=0) { toast('Preencha: Data, Material e Quantidade','error'); return; }
-
-  estoque.push({
-    id: estqId++,
-    data,
-    tipo,
-    material: mat,
-    qtd,
-    unidade: document.getElementById('eUnidade').value,
-    precoUnit: parseFloat(document.getElementById('ePrecoUnit').value)||0,
-    fornecedor: document.getElementById('eFornecedor').value.trim(),
-    obs: document.getElementById('eObs').value
-  });
-
-  salvarEstoqueLocal();
-  // sync to cloud together with contas
-  await salvarNuvem();
-  limparFormEstoque();
-  renderEstoque();
-  renderEstqKpi();
-  toast('Movimentação registrada!','success');
-}
-
-async function excluirEstoque(id) {
-  if (!confirm('Excluir esta movimentação?')) return;
-  estoque = estoque.filter(e=>e.id!==id);
-  salvarEstoqueLocal();
-  await salvarNuvem();
-  renderEstoque();
-  renderEstqKpi();
-  toast('Movimentação excluída','info');
-}
-
-function renderEstqKpi() {
-  const saldos = {};
-  estoque.forEach(e => {
-    if (!saldos[e.material]) saldos[e.material] = {entrada:0,saida:0,unidade:e.unidade};
-    if (e.tipo==='entrada') saldos[e.material].entrada += e.qtd;
-    else if (e.tipo==='saida') saldos[e.material].saida += e.qtd;
-    else { /* ajuste — não soma no saldo */ }
-    saldos[e.material].unidade = e.unidade;
-  });
-
-  const kpiDiv = document.getElementById('estqKpi');
-  if (!kpiDiv) return;
-  const mats = Object.keys(saldos);
-  if (!mats.length) { kpiDiv.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📦</div>Nenhum material registrado</div>'; return; }
-
-  kpiDiv.innerHTML = mats.sort().map(m => {
-    const s = saldos[m];
-    const saldo = s.entrada - s.saida;
-    const color = saldo > 0 ? 'var(--accent)' : saldo===0 ? 'var(--text3)' : 'var(--red)';
-    return `<div class="estq-card">
-      <div class="estq-material">${m}</div>
-      <div class="estq-qty" style="color:${color}">${saldo.toLocaleString('pt-BR',{maximumFractionDigits:2})}</div>
-      <div class="estq-unit">${s.unidade}</div>
-      <div class="estq-entrada">▲ ${s.entrada.toLocaleString('pt-BR',{maximumFractionDigits:2})} entrada</div>
-      <div class="estq-saida">▼ ${s.saida.toLocaleString('pt-BR',{maximumFractionDigits:2})} saída</div>
-    </div>`;
-  }).join('');
-}
-
-function renderEstoque() {
-  const srch = (document.getElementById('estqSrch')?.value||'').toLowerCase();
-  const tipoF = document.getElementById('estqTipoFiltro')?.value||'';
-  const matF  = document.getElementById('estqMatFiltro')?.value||'';
-  const mesF  = document.getElementById('estqMes')?.value||'';
-
-  let lista = [...estoque].sort((a,b)=>new Date(b.data)-new Date(a.data));
-  if (srch) lista=lista.filter(e=>e.material.toLowerCase().includes(srch)||e.fornecedor.toLowerCase().includes(srch)||e.obs.toLowerCase().includes(srch));
-  if (tipoF) lista=lista.filter(e=>e.tipo===tipoF);
-  if (matF) lista=lista.filter(e=>e.material===matF);
-  if (mesF) lista=lista.filter(e=>e.data.startsWith(mesF));
-
-  const body = document.getElementById('estqBody');
-  if (!body) return;
-
-  if (!lista.length) {
-    body.innerHTML=`<tr><td colspan="10"><div class="empty"><div class="empty-icon">📦</div>Nenhuma movimentação encontrada</div></td></tr>`;
-    return;
-  }
-
-  const tipoLabel = {entrada:'📥 Entrada',saida:'📤 Saída',ajuste:'🔧 Ajuste'};
-  const tipoColor = {entrada:'var(--green)',saida:'var(--red)',ajuste:'var(--yellow)'};
-
-  body.innerHTML = lista.map(e => {
-    const total = e.qtd * e.precoUnit;
-    return `<tr>
-      <td>${fmtD(e.data)}</td>
-      <td style="color:${tipoColor[e.tipo]};font-weight:600">${tipoLabel[e.tipo]}</td>
-      <td style="font-weight:600;color:var(--text)">${e.material}</td>
-      <td class="mono">${e.qtd.toLocaleString('pt-BR',{maximumFractionDigits:3})}</td>
-      <td style="color:var(--text3)">${e.unidade}</td>
-      <td class="mono">${e.precoUnit ? R$(e.precoUnit)+'/'+e.unidade : '—'}</td>
-      <td class="mono">${total ? R$(total) : '—'}</td>
-      <td style="color:var(--text2)">${e.fornecedor||'—'}</td>
-      <td style="color:var(--text3);font-size:.8em">${e.obs||'—'}</td>
-      <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-sm" onclick="duplicarEstoque(${e.id})" title="Duplicar">⧉</button><button class="btn btn-ghost btn-sm" onclick="abrirEditarEstoque(${e.id})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirEstoque(${e.id})">🗑</button></div></td>
-    </tr>`;
-  }).join('');
-}
-
-function exportarEstoqueExcel() {
-  const wb = XLSX.utils.book_new();
-  const data = [
-    ['Data','Tipo','Material','Quantidade','Unidade','Preço/Un.','Total','Fornecedor/Cliente','Obs'],
-    ...estoque.map(e=>[fmtD(e.data),e.tipo,e.material,e.qtd,e.unidade,e.precoUnit,e.qtd*e.precoUnit,e.fornecedor,e.obs])
-  ];
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [12,10,14,10,8,12,12,25,20].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws, 'Estoque');
-  XLSX.writeFile(wb, `estoque_ferro_velho_${hoje()}.xlsx`);
-  toast('Estoque exportado!','success');
-}
-
-// =====================================================
-// EDITAR LANÇAMENTO
-// =====================================================
-function abrirEditar(id) {
-  const c = contas.find(x=>x.id===id);
-  if (!c) return;
-
-  editTipoAtual = c.tipo;
-  document.getElementById('editId').value = id;
-  document.getElementById('editDataEmissao').value = c.dataEmissao||'';
-  document.getElementById('editDataVenc').value = c.dataVenc||'';
-  document.getElementById('editDataPag').value = c.dataPag||'';
-  document.getElementById('editFornecedor').value = c.fornecedor||'';
-  document.getElementById('editDescricao').value = c.descricao||'';
-  document.getElementById('editValor').value = c.valor||'';
-  document.getElementById('editMaterial').value = c.material||'';
-  document.getElementById('editRecorrente').value = c.recorrente||'';
-  document.getElementById('editObs').value = c.obs||'';
-
-  // Tipo toggle
-  setEditTipo(c.tipo);
-
-  // Preencher selects de categoria e forma
-  const cats = c.tipo==='receita' ? catsRec : catsDesp;
-  document.getElementById('editCategoria').innerHTML = cats.map(cat=>`<option${cat===c.categoria?' selected':''}>${cat}</option>`).join('');
-  document.getElementById('editForma').innerHTML = formas.map(f=>`<option${f===c.forma?' selected':''}>${f}</option>`).join('');
-  document.getElementById('editConta').innerHTML = '<option value="">Não vinculada</option>' +
-    contasBanco.map(ct=>`<option value="${ct.id}"${ct.id===c.contaId?' selected':''}>${ICONES_CONTA[ct.tipo]||'🏦'} ${ct.nome}</option>`).join('');
-
-  document.getElementById('modalEditar').classList.add('active');
-}
-
-function setEditTipo(t) {
-  editTipoAtual = t;
-  document.getElementById('editBtnDesp').className = 'tipo-btn'+(t==='despesa'?' active-despesa':'');
-  document.getElementById('editBtnRec').className  = 'tipo-btn'+(t==='receita' ?' active-receita':'');
-  // Atualiza categorias conforme tipo
-  const cats = t==='receita' ? catsRec : catsDesp;
-  const sel = document.getElementById('editCategoria');
-  const cur = sel.value;
-  sel.innerHTML = cats.map(c=>`<option${c===cur?' selected':''}>${c}</option>`).join('');
-}
-
-async function salvarEdicao() {
-  const id = parseInt(document.getElementById('editId').value);
-  const c = contas.find(x=>x.id===id);
-  if (!c) return;
-
-  const dv = document.getElementById('editDataVenc').value;
-  const forn = document.getElementById('editFornecedor').value.trim();
-  const val = parseFloat(document.getElementById('editValor').value);
-  if (!dv||!forn||!val||val<=0) { toast('Preencha: Vencimento, Fornecedor e Valor','error'); return; }
-
-  c.tipo = editTipoAtual;
-  c.dataEmissao = document.getElementById('editDataEmissao').value;
-  c.dataVenc = dv;
-  c.dataPag = document.getElementById('editDataPag').value;
-  c.categoria = document.getElementById('editCategoria').value;
-  c.fornecedor = forn;
-  c.descricao = document.getElementById('editDescricao').value;
-  c.valor = val;
-  c.forma = document.getElementById('editForma').value;
-  c.material = document.getElementById('editMaterial').value;
-  c.recorrente = document.getElementById('editRecorrente').value;
-  c.obs     = document.getElementById('editObs').value;
-  const newContaId = document.getElementById('editConta')?.value;
-  if (newContaId && newContaId !== (c.contaId?.toString()||'')) {
-    // Register mov if conta changed or newly assigned
-    const tipoMov = c.tipo === 'receita' ? 'entrada' : 'saida';
-    registrarMovCaixa(newContaId, tipoMov, c.valor, c.dataVenc||hoje(),
-      `${c.fornecedor} — ${c.descricao||c.categoria}`, `Edit Lanç. #${c.id}`);
-    c.contaId = parseInt(newContaId);
-  }
-  c.status = c.dataPag ? 'Pago' : diasV(c.dataVenc)<0 ? 'Vencida' : 'A Vencer';
-
-  await salvar();
-  document.getElementById('modalEditar').classList.remove('active');
-  renderTudo();
-  toast('Lançamento atualizado!','success');
-}
-
-
-
-// =====================================================
-// DUPLICAR LANÇAMENTO
-// =====================================================
-function duplicarLancamento(id) {
-  const c = contas.find(x=>x.id===id);
-  if (!c) return;
-  // Pre-fill the form with duplicated data and switch to lancamentos tab
-  setTipo(c.tipo);
-  document.getElementById('fDataEmissao').value = hoje();
-  document.getElementById('fDataVenc').value    = c.dataVenc;
-  document.getElementById('fCategoria').value   = c.categoria;
-  document.getElementById('fFornecedor').value  = c.fornecedor;
-  document.getElementById('fDescricao').value   = c.descricao;
-  document.getElementById('fValor').value        = c.valor;
-  document.getElementById('fForma').value        = c.forma;
-  document.getElementById('fMaterial').value     = c.material||'';
-  document.getElementById('fObs').value          = c.obs||'';
-  document.getElementById('fRecorrente').value   = c.recorrente||'';
-  // Switch to lancamentos tab and scroll to form
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelector('[onclick*="lancamentos"]').classList.add('active');
-  document.getElementById('lancamentos').classList.add('active');
-  document.getElementById('fFornecedor').focus();
-  document.getElementById('fFornecedor').scrollIntoView({behavior:'smooth', block:'center'});
-  toast('Lançamento duplicado no formulário — ajuste e confirme!', 'info');
-}
-
-// =====================================================
-// DUPLICAR ESTOQUE
-// =====================================================
-function duplicarEstoque(id) {
-  const e = estoque.find(x=>x.id===id);
-  if (!e) return;
-  document.getElementById('eData').value       = hoje();
-  document.getElementById('eTipo').value        = e.tipo;
-  document.getElementById('eMaterial').value    = e.material;
-  document.getElementById('eQtd').value         = e.qtd;
-  document.getElementById('eUnidade').value     = e.unidade;
-  document.getElementById('ePrecoUnit').value   = e.precoUnit||'';
-  document.getElementById('eFornecedor').value  = e.fornecedor||'';
-  document.getElementById('eObs').value         = e.obs||'';
-  // Switch to estoque tab
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelector('[onclick*="estoque"]').classList.add('active');
-  document.getElementById('estoque').classList.add('active');
-  document.getElementById('eQtd').focus();
-  document.getElementById('eQtd').scrollIntoView({behavior:'smooth', block:'center'});
-  toast('Movimentação duplicada no formulário — ajuste e confirme!', 'info');
-}
-
-// =====================================================
-// MARGEM / ANÁLISE
-// =====================================================
-let margemPeriod = 'trimestre';
-
-function setMargemPeriod(p, btn) {
-  margemPeriod = p;
-  document.querySelectorAll('#margemPeriodBar .period-btn').forEach(b=>b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  renderMargem();
-}
-
-function filtrarMargem(lista) {
-  const h = new Date(); h.setHours(0,0,0,0);
-  const mesCustom = document.getElementById('margemMes')?.value||'';
-  return lista.filter(c => {
-    const d = new Date(c.dataVenc || c.data);
-    if (margemPeriod==='mes')       return (c.dataVenc||c.data||'').startsWith(new Date().toISOString().slice(0,7));
-    if (margemPeriod==='trimestre') { const t=new Date(h); t.setMonth(t.getMonth()-3); return d>=t; }
-    if (margemPeriod==='ano')       return d.getFullYear()===h.getFullYear();
-    if (margemPeriod==='custom')    return mesCustom && (c.dataVenc||c.data||'').startsWith(mesCustom);
-    return true;
-  });
-}
-
-function renderMargem() {
-  // ── PREÇO MÉDIO (baseado no estoque) ──────────────────────────────────────
-  const estqFilt = filtrarMargem(estoque).filter(e=>e.tipo==='entrada' && e.qtd>0);
-  const pmats = {};
-  estqFilt.forEach(e => {
-    if (!e.material) return;
-    if (!pmats[e.material]) pmats[e.material] = {totalR:0, totalQtd:0, maxP:0, minP:Infinity, count:0, unidade:e.unidade};
-    const total = e.qtd * (e.precoUnit||0);
-    pmats[e.material].totalR   += total;
-    pmats[e.material].totalQtd += e.qtd;
-    if (e.precoUnit > pmats[e.material].maxP) pmats[e.material].maxP = e.precoUnit;
-    if (e.precoUnit < pmats[e.material].minP && e.precoUnit > 0) pmats[e.material].minP = e.precoUnit;
-    pmats[e.material].count++;
-    pmats[e.material].unidade = e.unidade;
-  });
-
-  const pmBody = document.getElementById('precoMedioBody');
-  if (pmBody) {
-    const keys = Object.keys(pmats).sort();
-    if (!keys.length) {
-      pmBody.innerHTML = '<tr><td colspan="7"><div class="empty" style="padding:20px">Nenhuma entrada de estoque com preço no período</div></td></tr>';
-    } else {
-      pmBody.innerHTML = keys.map(m => {
-        const d = pmats[m];
-        const avg = d.totalQtd > 0 ? d.totalR / d.totalQtd : 0;
-        return `<tr>
-          <td style="font-weight:700;color:var(--text)">${m}</td>
-          <td class="mono">${R$(d.totalR)}</td>
-          <td class="mono">${d.totalQtd.toLocaleString('pt-BR',{maximumFractionDigits:2})} ${d.unidade}</td>
-          <td class="mono" style="color:var(--accent);font-weight:700">${R$(avg)}/${d.unidade}</td>
-          <td class="mono" style="color:var(--red)">${R$(d.maxP)}/${d.unidade}</td>
-          <td class="mono" style="color:var(--green)">${d.minP===Infinity?'—':R$(d.minP)+'/'+d.unidade}</td>
-          <td style="color:var(--text3)">${d.count}</td>
-        </tr>`;
-      }).join('');
-    }
-  }
-
-  // ── MARGEM POR MATERIAL (baseado em lançamentos financeiros) ──────────────
-  const lancFilt = filtrarMargem(contas);
-  const mgmats = {};
-  lancFilt.forEach(c => {
-    if (!c.material) return;
-    if (!mgmats[c.material]) mgmats[c.material] = {compraR:0, vendaR:0, compraQtd:0, vendaQtd:0};
-    // Para quantidade, tentamos pegar do estoque (referência cruzada não automática, usamos 0)
-    if (c.tipo==='despesa') { mgmats[c.material].compraR += c.valor; }
-    if (c.tipo==='receita') { mgmats[c.material].vendaR  += c.valor; }
-  });
-
-  // Enriquecer com quantidades do estoque filtrado
-  filtrarMargem(estoque).forEach(e => {
-    if (!e.material) return;
-    if (!mgmats[e.material]) mgmats[e.material] = {compraR:0, vendaR:0, compraQtd:0, vendaQtd:0};
-    if (e.tipo==='entrada') mgmats[e.material].compraQtd += e.qtd;
-    if (e.tipo==='saida')   mgmats[e.material].vendaQtd  += e.qtd;
-  });
-
-  const mgBody = document.getElementById('margemBody');
-  if (mgBody) {
-    const keys = Object.keys(mgmats).sort();
-    if (!keys.length) {
-      mgBody.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:20px">Nenhum lançamento com material no período</div></td></tr>';
-    } else {
-      // Totais
-      let totCompra=0, totVenda=0;
-      keys.forEach(m=>{ totCompra+=mgmats[m].compraR; totVenda+=mgmats[m].vendaR; });
-
-      mgBody.innerHTML = keys.map(m => {
-        const d = mgmats[m];
-        const margem = d.vendaR - d.compraR;
-        const pct = d.compraR > 0 ? ((margem / d.compraR) * 100) : 0;
-        const cls = margem > 0 ? 'margem-pos' : margem < 0 ? 'margem-neg' : 'margem-zero';
-        const status = margem > 0
-          ? `<span class="badge badge-pago">✓ Lucro</span>`
-          : margem < 0
-          ? `<span class="badge badge-vencida">⚠ Prejuízo</span>`
-          : `<span class="badge badge-avencer">— Neutro</span>`;
-        return `<tr>
-          <td style="font-weight:700;color:var(--text)">${m}</td>
-          <td class="mono" style="color:var(--red)">${R$(d.compraR)}</td>
-          <td class="mono" style="color:var(--text3)">${d.compraQtd>0?d.compraQtd.toLocaleString('pt-BR',{maximumFractionDigits:2})+' kg':'—'}</td>
-          <td class="mono" style="color:var(--green)">${R$(d.vendaR)}</td>
-          <td class="mono" style="color:var(--text3)">${d.vendaQtd>0?d.vendaQtd.toLocaleString('pt-BR',{maximumFractionDigits:2})+' kg':'—'}</td>
-          <td class="mono ${cls}">${margem>=0?'+':''}${R$(margem)}</td>
-          <td class="${cls}">${pct>=0?'+':''}${pct.toFixed(1)}%</td>
-          <td>${status}</td>
-        </tr>`;
-      }).join('') + `<tr class="sub-row">
-        <td>TOTAL GERAL</td>
-        <td class="mono">${R$(totCompra)}</td><td></td>
-        <td class="mono">${R$(totVenda)}</td><td></td>
-        <td class="mono ${(totVenda-totCompra)>=0?'margem-pos':'margem-neg'}">${(totVenda-totCompra)>=0?'+':''}${R$(totVenda-totCompra)}</td>
-        <td class="${(totVenda-totCompra)>=0?'margem-pos':'margem-neg'}">${totCompra>0?(((totVenda-totCompra)/totCompra)*100).toFixed(1)+'%':'—'}</td>
-        <td></td>
-      </tr>`;
-    }
-  }
-}
-
-
-// =====================================================
-// IMPORTAR ESTOQUE
-// =====================================================
-let estqImportados = [];
-
-function abrirModalImportarEstoque() {
-  document.getElementById('estqImportPreview').style.display = 'none';
-  estqImportados = [];
-  document.getElementById('fileEstqIn').value = '';
-  document.getElementById('modalImportarEstoque').classList.add('active');
-}
-
-function onDropEstoque(e) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('dragover');
-  const f = e.dataTransfer.files[0];
-  if (f) processarArquivoEstoqueObj(f);
-}
-
-function processarArquivoEstoque(e) {
-  const f = e.target.files[0];
-  if (f) processarArquivoEstoqueObj(f);
-}
-
-function processarArquivoEstoqueObj(file) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  const reader = new FileReader();
-  reader.onload = ev => {
-    let rows = [];
-    if (ext === 'csv') {
-      const txt = new TextDecoder('utf-8').decode(new Uint8Array(ev.target.result));
-      rows = txt.trim().split('\n').slice(1).map(l => {
-        const cols = []; let cur = ''; let inQ = false;
-        for (let i = 0; i < l.length; i++) {
-          if (l[i] === '"') { inQ = !inQ; }
-          else if (l[i] === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-          else cur += l[i];
-        }
-        cols.push(cur.trim());
-        return cols;
-      });
-    } else {
-      const wb = XLSX.read(ev.target.result, {type:'array'});
-      rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], {header:1, raw:false}).slice(1);
-    }
-
-    function pd(d) {
-      if (!d || d === '') return '';
-      d = d.toString().trim();
-      if (d.includes('/')) {
-        const parts = d.split('/');
-        if (parts.length === 3) {
-          const [dia, m, a] = parts;
-          return `${a.length===2?'20'+a:a}-${m.padStart(2,'0')}-${dia.padStart(2,'0')}`;
-        }
-      }
-      if (d.match(/^\d{4}-\d{2}-\d{2}/)) return d.slice(0,10);
-      return hoje();
-    }
-
-    function parseNum(v) {
-      if (!v) return 0;
-      return parseFloat(v.toString().replace(/\./g,'').replace(',','.')) || 0;
-    }
-
-    // Export cols: Data(0) | Tipo(1) | Material(2) | Quantidade(3) | Unidade(4)
-    //              Preço/Un.(5) | Total(6) | Fornecedor(7) | Obs(8)
-    // Template:    Data(0) | Tipo(1) | Material(2) | Quantidade(3) | Unidade(4)
-    //              Preço/Un.(5) | Fornecedor(6) | Obs(7)
-    estqImportados = rows.filter(r => r && r.length >= 3 && r[2]).map((r, i) => {
-      const hasTotal = r.length >= 9; // full export has Total column
-      return {
-        id: estqId + i,
-        data:       pd(r[0]) || hoje(),
-        tipo:       (r[1]||'entrada').toString().toLowerCase().includes('sa') ? 'saida'
-                  : (r[1]||'entrada').toString().toLowerCase().includes('aj') ? 'ajuste'
-                  : 'entrada',
-        material:   r[2]?.toString() || '',
-        qtd:        parseNum(r[3]),
-        unidade:    r[4]?.toString() || 'kg',
-        precoUnit:  parseNum(r[5]),
-        fornecedor: (hasTotal ? r[7] : r[6])?.toString() || '',
-        obs:        (hasTotal ? r[8] : r[7])?.toString() || ''
-      };
-    }).filter(e => e.material && e.qtd > 0);
-
-    const info = document.getElementById('estqImportInfo');
-    info.innerHTML = estqImportados.length > 0
-      ? `<strong>${estqImportados.length} movimentações</strong> encontradas em "${file.name}"`
-      : `<strong style="color:var(--red)">0 movimentações encontradas</strong> em "${file.name}" — use o template para o formato correto.`;
-    document.getElementById('estqImportPreview').style.display = 'block';
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-async function confirmarImportEstoque() {
-  if (!estqImportados.length) { toast('Nenhum dado para importar','error'); return; }
-  const mode = document.getElementById('estqImportMode').value;
-  if (mode === 'replace') {
-    if (!confirm(`Substituir todas as ${estoque.length} movimentações?`)) return;
-    estoque = estqImportados;
-    estqId = Math.max(...estoque.map(e=>e.id)) + 1;
-  } else {
-    estqImportados.forEach((e, i) => e.id = estqId + i);
-    estqId += estqImportados.length;
-    estoque = [...estoque, ...estqImportados];
-  }
-  salvarEstoqueLocal();
-  await salvarNuvem();
-  renderEstoque();
-  renderEstqKpi();
-  document.getElementById('modalImportarEstoque').classList.remove('active');
-  toast(`${estqImportados.length} movimentações importadas!`, 'success');
-  estqImportados = [];
-}
-
-function baixarTemplateEstoque() {
-  const csv = '\uFEFFData,Tipo,Material,Quantidade,Unidade,Preco por Unidade,Fornecedor/Cliente,Observacoes\n' +
-    '10/04/2026,entrada,Ferro,500,kg,0.80,João Silva,Compra semanal\n' +
-    '11/04/2026,saida,Ferro,300,kg,1.20,Siderúrgica ABC,Venda lote\n' +
-    '12/04/2026,entrada,Cobre,50,kg,15.00,Márcio Sucata,\n';
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-  a.download = 'template_estoque.csv';
-  a.click();
-}
-
-function baixarTemplateEstoqueXlsx() {
-  const wb = XLSX.utils.book_new();
-  const data = [
-    ['Data','Tipo','Material','Quantidade','Unidade','Preco por Unidade','Fornecedor/Cliente','Observacoes'],
-    ['10/04/2026','entrada','Ferro',500,'kg',0.80,'João Silva','Compra semanal'],
-    ['11/04/2026','saida','Ferro',300,'kg',1.20,'Siderúrgica ABC','Venda lote'],
-    ['12/04/2026','entrada','Cobre',50,'kg',15.00,'Márcio Sucata',''],
-  ];
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [12,10,14,10,8,16,25,20].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws, 'Template Estoque');
-  XLSX.writeFile(wb, 'template_estoque.xlsx');
-}
-
-
-// =====================================================
 // EDITAR ESTOQUE
 // =====================================================
 function abrirEditarEstoque(id) {
@@ -3592,290 +2764,11 @@ async function salvarEdicaoEstoque() {
   e.fornecedor = document.getElementById('editEstqForn').value.trim();
   e.obs        = document.getElementById('editEstqObs').value;
 
-  salvarEstoqueLocal();
   await salvarNuvem();
   document.getElementById('modalEditarEstoque').classList.remove('active');
-  renderEstoque();
-  renderEstqKpi();
   toast('Movimentação atualizada!', 'success');
 }
 
-
-// =====================================================
-// NOVA COMPRA — LANÇAMENTO UNIFICADO
-// =====================================================
-const MATERIAIS_LISTA = ['Ferro','Alumínio','Cobre','Papelão','Plástico','Inox','Bronze','Bateria','Motor Elétrico','Outros'];
-let ncLinhaId = 0;
-let ncProntoParaConfirmar = false;
-
-function ncInit() {
-  // Popular forma de pagamento
-  const sel = document.getElementById('ncForma');
-  if (sel) {
-    sel.innerHTML = '<option value="">Selecione...</option>' + formas.map(f=>`<option>${f}</option>`).join('');
-  }
-  // Popular categoria
-  const cat = document.getElementById('ncCategoria');
-  if (cat) {
-    cat.innerHTML = catsDesp.map(c=>`<option${c==='Compra Sucata'?' selected':''}>${c}</option>`).join('');
-  }
-  // Populate fConta
-  const fcEl2 = document.getElementById('fConta');
-  if (fcEl2) {
-    fcEl2.innerHTML = '<option value="">Selecione...</option>' +
-      contasBanco.map(c=>`<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`).join('');
-  }
-  // Default to pendente mode
-  const ncPM = document.getElementById('ncPagMode');
-  if (ncPM && !ncPM.value) ncPM.value = 'pendente';
-  ncTogglePagMode();
-  // Adicionar 1 linha inicial
-  if (document.getElementById('ncLinhas') && document.getElementById('ncLinhas').children.length === 0) {
-    ncAdicionarLinha();
-  }
-  // Set today
-  const d = document.getElementById('ncData');
-  if (d && !d.value) d.valueAsDate = new Date();
-}
-
-function ncAdicionarLinha() {
-  const id = ++ncLinhaId;
-  const div = document.createElement('div');
-  div.className = 'compra-mat-row';
-  div.id = 'ncRow_' + id;
-  div.innerHTML = `
-    <div class="fg">
-      <label>Material *</label>
-      <select id="ncMat_${id}" onchange="ncAtualizarTotal()">
-        <option value="">Selecione...</option>
-        ${MATERIAIS_LISTA.map(m=>`<option>${m}</option>`).join('')}
-      </select>
-    </div>
-    <div class="fg">
-      <label>Quantidade *</label>
-      <input type="number" id="ncQtd_${id}" step="0.001" placeholder="0,000" oninput="ncAtualizarTotal()">
-    </div>
-    <div class="fg">
-      <label>Unidade</label>
-      <select id="ncUn_${id}" onchange="ncAtualizarTotal()">
-        <option value="kg">kg</option>
-        <option value="un">Unidade</option>
-        <option value="ton">Tonelada</option>
-        <option value="fardo">Fardo</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label>Preço/Un. (R$)</label>
-      <input type="number" id="ncPreco_${id}" step="0.01" placeholder="0,00 (opcional)" oninput="ncAtualizarTotal()">
-    </div>
-    <div style="padding-bottom:4px">
-      <button class="btn btn-danger btn-sm" onclick="ncRemoverLinha(${id})" title="Remover" style="margin-top:22px">✕</button>
-    </div>
-  `;
-  document.getElementById('ncLinhas').appendChild(div);
-  ncProntoParaConfirmar = false;
-  document.getElementById('ncConfirmarBtn').disabled = true;
-  document.getElementById('ncSummary').style.display = 'none';
-}
-
-function ncRemoverLinha(id) {
-  const el = document.getElementById('ncRow_' + id);
-  if (el) el.remove();
-  ncAtualizarTotal();
-  ncProntoParaConfirmar = false;
-  document.getElementById('ncConfirmarBtn').disabled = true;
-  document.getElementById('ncSummary').style.display = 'none';
-}
-
-function ncGetLinhas() {
-  const rows = document.getElementById('ncLinhas').querySelectorAll('.compra-mat-row');
-  const result = [];
-  rows.forEach(row => {
-    const id = row.id.replace('ncRow_', '');
-    const mat   = document.getElementById('ncMat_'+id)?.value;
-    const qtd   = parseFloat(document.getElementById('ncQtd_'+id)?.value) || 0;
-    const un    = document.getElementById('ncUn_'+id)?.value || 'kg';
-    const preco = parseFloat(document.getElementById('ncPreco_'+id)?.value) || 0;
-    if (mat && qtd > 0) result.push({id, mat, qtd, un, preco, subtotal: qtd * preco});
-  });
-  return result;
-}
-
-function ncAtualizarTotal() {
-  const linhas = ncGetLinhas();
-  const totalMat = linhas.reduce((s, l) => s + l.subtotal, 0);
-  const totalPago = parseFloat(document.getElementById('ncValorTotal')?.value) || 0;
-
-  document.getElementById('ncTotalMateriais').textContent = R$(totalMat);
-  document.getElementById('ncValorTotalDisplay').textContent = R$(totalPago);
-
-  const diffEl = document.getElementById('ncDiffMsg');
-  if (totalPago > 0 && totalMat > 0) {
-    const diff = totalPago - totalMat;
-    if (Math.abs(diff) < 0.01) {
-      diffEl.className = 'compra-total-diff ok';
-      diffEl.textContent = '✓ Valores conferem';
-    } else if (diff > 0) {
-      diffEl.className = 'compra-total-diff under';
-      diffEl.textContent = `⚠ Faltam ${R$(diff)} nos materiais`;
-    } else {
-      diffEl.className = 'compra-total-diff over';
-      diffEl.textContent = `⚠ Materiais excedem em ${R$(Math.abs(diff))}`;
-    }
-  } else {
-    diffEl.textContent = '';
-  }
-
-  ncProntoParaConfirmar = false;
-  document.getElementById('ncConfirmarBtn').disabled = true;
-  document.getElementById('ncSummary').style.display = 'none';
-}
-
-function ncPreview() {
-  const forn  = document.getElementById('ncFornecedor').value.trim();
-  const data  = document.getElementById('ncData').value;
-  const total = parseFloat(document.getElementById('ncValorTotal').value) || 0;
-  const forma = document.getElementById('ncForma').value;
-  const cat   = document.getElementById('ncCategoria').value;
-  const linhas = ncGetLinhas();
-
-  if (!forn)        { toast('Preencha o Fornecedor', 'error'); return; }
-  if (!data)        { toast('Preencha a Data', 'error'); return; }
-  if (!total || total <= 0) { toast('Preencha o Valor Total Pago', 'error'); return; }
-  if (!linhas.length) { toast('Adicione pelo menos um material com quantidade', 'error'); return; }
-
-  // Build preview
-  let rows = linhas.map(l => `
-    <div class="compra-summary-row">
-      <span>📦 Estoque: ${l.mat} — ${l.qtd.toLocaleString('pt-BR',{maximumFractionDigits:3})} ${l.un}</span>
-      <span style="color:var(--text3)">${l.preco > 0 ? R$(l.preco)+'/'+l.un+' = '+R$(l.subtotal) : 'sem preço/un.'}</span>
-    </div>
-  `).join('');
-
-  rows += `
-    <div class="compra-summary-row" style="margin-top:8px">
-      <span>💰 Financeiro: Despesa para <strong>${forn}</strong></span>
-      <span style="color:var(--red);font-family:'DM Mono',monospace">${R$(total)}</span>
-    </div>
-    <div class="compra-summary-row">
-      <span style="color:var(--text3)">Categoria: ${cat} | Forma: ${forma||'—'} | Data: ${fmtD(data)}</span>
-      <span></span>
-    </div>
-  `;
-
-  document.getElementById('ncSummaryContent').innerHTML = rows;
-  document.getElementById('ncSummary').style.display = 'block';
-  document.getElementById('ncSummary').scrollIntoView({behavior:'smooth', block:'nearest'});
-
-  ncProntoParaConfirmar = true;
-  document.getElementById('ncConfirmarBtn').disabled = false;
-}
-
-async function ncConfirmar() {
-  if (!ncProntoParaConfirmar) { ncPreview(); return; }
-
-  const forn   = document.getElementById('ncFornecedor').value.trim();
-  const isPendente = document.getElementById('ncPagMode')?.value === 'pendente';
-  const data   = document.getElementById('ncData').value;
-  const total  = parseFloat(document.getElementById('ncValorTotal').value) || 0;
-  const forma  = document.getElementById('ncForma').value;
-  const cat    = document.getElementById('ncCategoria').value;
-  const obs    = document.getElementById('ncObs').value;
-  const linhas = ncGetLinhas();
-  const isVenda = ncMode === 'venda';
-  const adiantPessoa = document.getElementById('ncAdiantSel')?.value || '';
-
-  if (!forn || !data || !total || !linhas.length) { toast('Preencha todos os campos obrigatórios', 'error'); return; }
-
-  const descMateriais = linhas.map(l=>`${l.mat} ${l.qtd.toLocaleString('pt-BR',{maximumFractionDigits:1})}${l.un}`).join(', ');
-
-  // 1. Lançamento financeiro
-  const ncContaId = document.getElementById('fConta')?.value || '';
-  const obsFinal = adiantPessoa ? `${obs} [abate:${adiantPessoa}]`.trim() : obs;
-  contas.push({
-    id: contaId++,
-    tipo: isVenda ? 'receita' : 'despesa',
-    dataEmissao: data,
-    dataVenc: data,
-    dataPag: isVenda ? data : (isPendente ? '' : ''),
-    pagamentoPartes: [],  // filled when quitar
-    categoria: cat,
-    fornecedor: forn,
-    descricao: descMateriais,
-    valor: total,
-    forma,
-    material: linhas.length === 1 ? linhas[0].mat : 'Diversos',
-    obs: obsFinal,
-    recorrente: '',
-    status: isVenda ? 'Pago' : (isPendente ? 'Pendente' : 'A Vencer')
-  });
-
-  // Register in conta bancária if selected
-  if (ncContaId) {
-    const tipoMov = isVenda ? 'entrada' : 'saida';
-    registrarMovCaixa(ncContaId, tipoMov, total, data,
-      `${isVenda?'Venda':'Compra'}: ${forn}`, `NC #${contaId-1}`);
-  }
-
-  // 2. Estoque: entrada na compra, saída na venda
-  linhas.forEach(l => {
-    estoque.push({
-      id: estqId++,
-      data,
-      tipo: isVenda ? 'saida' : 'entrada',
-      material: l.mat,
-      qtd: l.qtd,
-      unidade: l.un,
-      precoUnit: l.preco || 0,
-      fornecedor: forn,
-      obs: obs || `${isVenda?'Venda':'Compra'} unificada — ${fmtD(data)}`
-    });
-  });
-
-  // 3. Se abatendo adiantamento, registrar referência
-  if (adiantPessoa) {
-    const ad = adiantamentos.filter(a=>a.pessoa===adiantPessoa&&a.tipo==='recebido');
-    if (ad.length) {
-      ad[ad.length-1].ref = `Venda ${fmtD(data)} — ${R$(total)}`;
-    }
-    salvarAdiantLocal();
-  }
-
-  await salvar();
-  renderTudo();
-  renderAdiantamentos();
-
-  const msg = isVenda
-    ? `✅ Venda lançada! ${linhas.length} material(is) saíram do estoque + receita de ${R$(total)}${adiantPessoa?' — abatido de '+adiantPessoa:''}`
-    : `✅ ${linhas.length} material(is) entraram no estoque + despesa de ${R$(total)} criada!`;
-  toast(msg, 'success');
-  ncLimpar(false);
-
-  setTimeout(() => {
-    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    const target = isVenda ? 'estoque' : 'lancamentos';
-    document.querySelector(`[onclick*="${target}"]`).classList.add('active');
-    document.getElementById(target).classList.add('active');
-  }, 1800);
-}
-
-function ncLimpar(resetMode=true) {
-  document.getElementById('ncFornecedor').value = '';
-  document.getElementById('ncValorTotal').value = '';
-  document.getElementById('ncForma').value = '';
-  document.getElementById('ncObs').value = '';
-  document.getElementById('ncData').valueAsDate = new Date();
-  document.getElementById('ncLinhas').innerHTML = '';
-  document.getElementById('ncSummary').style.display = 'none';
-  document.getElementById('ncTotalMateriais').textContent = 'R$ 0,00';
-  document.getElementById('ncValorTotalDisplay').textContent = 'R$ 0,00';
-  document.getElementById('ncDiffMsg').textContent = '';
-  document.getElementById('ncConfirmarBtn').disabled = true;
-  ncLinhaId = 0;
-  ncProntoParaConfirmar = false;
-  if (resetMode) { ncMode='compra'; ncSetMode('compra'); } else ncAdicionarLinha();
-}
 
 
 // =====================================================
@@ -4186,10 +3079,12 @@ function calcSaldoConta(contaId) {
   const conta = contasBanco.find(c => c.id === contaId);
   if (!conta) return 0;
   let saldo = conta.saldoInicial || 0;
+  // Only count REALIZED movements (movCaixa = already happened)
   movCaixa.forEach(m => {
     if (m.contaId === contaId) saldo += m.tipo === 'entrada' ? m.valor : -m.valor;
-    if (m.contaDestinoId === contaId) saldo += m.valor; // recebe transferência
+    if (m.contaDestinoId === contaId) saldo += m.valor;
   });
+  // NOTE: future/pending lancamentos are NOT counted here — only actual movements
   return saldo;
 }
 
@@ -4870,6 +3765,14 @@ async function excluirEvento(id) {
   toast('Evento excluído','info');
 }
 
+function marcarEventoRealizadoDireto() {
+  const id = parseInt(document.getElementById('realizadoEventoId').value);
+  const e = eventos.find(x=>x.id===id);
+  if (e) { e.status='realizado'; salvarFrotaLocal(); salvarNuvem(); renderAgenda(); }
+  document.getElementById('modalRealizado').classList.remove('active');
+  toast('Evento marcado como realizado!','success');
+}
+
 function abrirModalRealizado(id) {
   const e = eventos.find(x=>x.id===id);
   if (!e) return;
@@ -5228,7 +4131,6 @@ async function confirmarRestaurarBackup() {
 
   // Save everything locally
   salvarContas();
-  salvarEstoqueLocal();
   salvarAdiantLocal();
   salvarContasBancoLocal();
   salvarFrotaLocal();
@@ -5253,6 +4155,222 @@ function checarLembreteBackup() {
       toast(`⚠️ Último backup há ${diasSemBackup} dias. Recomendamos fazer backup semanal!`, 'warning');
     }, 3000);
   }
+}
+
+
+// =====================================================
+// PROJEÇÃO FUTURA
+// =====================================================
+let projecaoHorizonte = 12;
+let chartProjecao = null;
+
+function setProjecaoHorizonte(meses, btn) {
+  projecaoHorizonte = meses;
+  document.querySelectorAll('#projecao .period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderProjecao();
+}
+
+function renderProjecao() {
+  const hoje = new Date();
+  hoje.setDate(1);
+  hoje.setHours(0,0,0,0);
+  const meta = parseFloat(document.getElementById('projecaoMeta')?.value)||0;
+
+  // Build monthly data for horizonte months
+  const meses = [];
+  for (let i = 0; i < projecaoHorizonte; i++) {
+    const d = new Date(hoje);
+    d.setMonth(d.getMonth() + i);
+    const mesStr = d.toISOString().slice(0,7);
+    const label  = d.toLocaleDateString('pt-BR', {month:'short', year:'2-digit'});
+
+    // Filter lancamentos for this month
+    const doMes = contas.filter(c => c.dataVenc && c.dataVenc.startsWith(mesStr));
+    const rec   = doMes.filter(c => c.tipo === 'receita').reduce((s,c) => s+c.valor, 0);
+    const desp  = doMes.filter(c => c.tipo === 'despesa').reduce((s,c) => s+c.valor, 0);
+    const saldo = rec - desp;
+
+    meses.push({ mesStr, label, rec, desp, saldo });
+  }
+
+  // Compute cumulative saldo starting from real current bank balance
+  const saldoAtual = calcSaldoConsolidado();
+  let acum = saldoAtual;
+  meses.forEach(m => { acum += m.saldo; m.acumulado = acum; });
+
+  // ── KPIs ──────────────────────────────────────────
+  const totalRec  = meses.reduce((s,m) => s+m.rec,  0);
+  const totalDesp = meses.reduce((s,m) => s+m.desp, 0);
+  const mesesNeg  = meses.filter(m => m.saldo < 0).length;
+  const saldoFinal= meses[meses.length-1]?.acumulado || 0;
+  const recMedioNec = totalDesp > totalRec
+    ? (totalDesp - totalRec) / projecaoHorizonte
+    : 0;
+
+  const kpisEl = document.getElementById('projecaoKpis');
+  if (kpisEl) {
+    kpisEl.innerHTML = `
+      <div class="kpi green"><div class="kpi-label">Receitas Projetadas</div><div class="kpi-val">${R$(totalRec)}</div><div class="kpi-sub">${projecaoHorizonte} meses</div></div>
+      <div class="kpi red"><div class="kpi-label">Despesas Projetadas</div><div class="kpi-val">${R$(totalDesp)}</div><div class="kpi-sub">${projecaoHorizonte} meses</div></div>
+      <div class="kpi ${saldoFinal>=0?'green':'red'}"><div class="kpi-label">Saldo ao Final</div><div class="kpi-val">${R$(saldoFinal)}</div><div class="kpi-sub">Em ${meses[meses.length-1]?.label||''}</div></div>
+      <div class="kpi ${mesesNeg===0?'green':'red'}"><div class="kpi-label">Meses Negativos</div><div class="kpi-val">${mesesNeg}</div><div class="kpi-sub">de ${projecaoHorizonte} meses</div></div>
+      ${recMedioNec>0?`<div class="kpi yellow"><div class="kpi-label">Faturar Adicional/Mês</div><div class="kpi-val">${R$(recMedioNec)}</div><div class="kpi-sub">Para equilibrar o período</div></div>`:'<div class="kpi green"><div class="kpi-label">Situação</div><div class="kpi-val" style="font-size:1.1em">✅ Superávit</div><div class="kpi-sub">Receitas > Despesas</div></div>'}
+    `;
+  }
+
+  // ── ALERTAS ───────────────────────────────────────
+  const alertasEl = document.getElementById('projecaoAlertas');
+  if (alertasEl) {
+    let al = '';
+    const negativos = meses.filter(m => m.saldo < 0);
+    const acumNeg   = meses.filter(m => m.acumulado < 0);
+    if (negativos.length) {
+      al += `<div class="alert alert-warning">⚠️ <strong>${negativos.length} mês(es) com déficit</strong>: ${negativos.map(m=>`${m.label} (${R$(m.saldo)})`).join(', ')}</div>`;
+    }
+    if (acumNeg.length) {
+      al += `<div class="alert alert-danger">🚨 Saldo acumulado fica negativo em <strong>${acumNeg[0].label}</strong> — precisará de capital adicional de <strong>${R$(Math.abs(Math.min(...acumNeg.map(m=>m.acumulado))))}</strong></div>`;
+    }
+    if (meta > 0) {
+      const abaixoMeta = meses.filter(m => m.rec < meta);
+      if (abaixoMeta.length) {
+        al += `<div class="alert alert-info">📊 <strong>${abaixoMeta.length} mês(es)</strong> com receita abaixo da meta de ${R$(meta)}: ${abaixoMeta.map(m=>m.label).join(', ')}</div>`;
+      } else {
+        al += `<div class="alert alert-success">✅ Todos os meses atingem a meta de ${R$(meta)}</div>`;
+      }
+    }
+    if (!negativos.length && !acumNeg.length && !meta) {
+      al = `<div class="alert alert-success">✅ Projeção saudável para os próximos ${projecaoHorizonte} meses</div>`;
+    }
+    alertasEl.innerHTML = al;
+  }
+
+  // ── CHART ─────────────────────────────────────────
+  const ctx = document.getElementById('chartProjecao');
+  if (ctx) {
+    if (chartProjecao) { chartProjecao.destroy(); chartProjecao = null; }
+    chartProjecao = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: meses.map(m => m.label),
+        datasets: [
+          {
+            label: 'Saldo Acumulado',
+            data: meses.map(m => m.acumulado),
+            borderColor: '#2563eb',
+            backgroundColor: ctx2 => {
+              const g = ctx2.chart.ctx.createLinearGradient(0,0,0,280);
+              g.addColorStop(0, 'rgba(37,99,235,.15)');
+              g.addColorStop(1, 'rgba(37,99,235,.0)');
+              return g;
+            },
+            fill: true, tension: 0.4, borderWidth: 2.5,
+            pointRadius: 4, pointHoverRadius: 7,
+            pointBackgroundColor: meses.map(m => m.acumulado >= 0 ? '#059669' : '#dc2626'),
+            segment: { borderColor: ctx2 => ctx2.p1.parsed.y >= 0 ? '#2563eb' : '#dc2626' }
+          },
+          {
+            label: 'Receitas',
+            data: meses.map(m => m.rec),
+            borderColor: '#059669', borderDash: [5,4],
+            backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2
+          },
+          {
+            label: 'Despesas',
+            data: meses.map(m => m.desp),
+            borderColor: '#dc2626', borderDash: [5,4],
+            backgroundColor: 'transparent',
+            tension: 0.3, borderWidth: 1.5, pointRadius: 2
+          },
+          ...(meta > 0 ? [{
+            label: `Meta ${R$(meta)}`,
+            data: meses.map(() => meta),
+            borderColor: '#f59e0b', borderDash: [8,4],
+            backgroundColor: 'transparent',
+            borderWidth: 1.5, pointRadius: 0
+          }] : [])
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: '#4a5168', font: { size: 11 }, boxWidth: 14 } },
+          tooltip: {
+            callbacks: {
+              label: ctx2 => `${ctx2.dataset.label}: ${R$(ctx2.parsed.y)}`
+            }
+          }
+        },
+        scales: {
+          x: { ticks: { color: '#8892a4', maxRotation: 45 }, grid: { color: '#e2e5eb' } },
+          y: {
+            ticks: { color: '#8892a4', callback: v => 'R$'+v.toLocaleString('pt-BR',{maximumFractionDigits:0}) },
+            grid: { color: '#e2e5eb' },
+            afterDataLimits(scale) { const r=Math.abs(scale.max)*0.05; scale.max+=r; scale.min-=r; }
+          }
+        }
+      }
+    });
+  }
+
+  // ── TABELA ────────────────────────────────────────
+  const body = document.getElementById('projecaoBody');
+  if (body) {
+    body.innerHTML = meses.map((m, i) => {
+      const isNeg    = m.saldo < 0;
+      const acumNeg  = m.acumulado < 0;
+      const precisaFaturar = meta > 0 && m.rec < meta ? meta - m.rec : (isNeg ? Math.abs(m.saldo) : 0);
+      const statusBadge = acumNeg
+        ? '<span class="badge badge-vencida">🚨 Caixa Negativo</span>'
+        : isNeg
+        ? '<span class="badge badge-pendente">⚠ Déficit</span>'
+        : '<span class="badge badge-pago">✅ Superávit</span>';
+
+      return `<tr style="${acumNeg?'background:rgba(220,38,38,.04)':isNeg?'background:rgba(251,191,36,.04)':''}">
+        <td style="font-weight:700;color:var(--text)">${m.label}</td>
+        <td class="mono" style="color:var(--green)">${R$(m.rec)}</td>
+        <td class="mono" style="color:var(--red)">${R$(m.desp)}</td>
+        <td class="mono" style="color:${isNeg?'var(--red)':'var(--green)'};font-weight:700">${isNeg?'':'+'}${R$(m.saldo)}</td>
+        <td class="mono" style="color:${acumNeg?'var(--red)':m.acumulado>0?'var(--green)':'var(--text3)'};font-weight:700">${R$(m.acumulado)}</td>
+        <td class="mono" style="color:var(--text3)">${meta>0?R$(meta):'—'}</td>
+        <td class="mono" style="color:${precisaFaturar>0?'var(--yellow)':'var(--text3)'};font-weight:${precisaFaturar>0?'700':'400'}">${precisaFaturar>0?'+'+R$(precisaFaturar):'—'}</td>
+        <td>${statusBadge}</td>
+      </tr>`;
+    }).join('') + `<tr class="sub-row">
+      <td>TOTAL</td>
+      <td class="mono">${R$(totalRec)}</td>
+      <td class="mono">${R$(totalDesp)}</td>
+      <td class="mono" style="color:${totalRec-totalDesp>=0?'var(--green)':'var(--red)'};font-weight:700">${R$(totalRec-totalDesp)}</td>
+      <td class="mono" style="font-weight:700">${R$(saldoFinal)}</td>
+      <td colspan="3"></td>
+    </tr>`;
+  }
+}
+
+function exportarProjecaoExcel() {
+  const meta = parseFloat(document.getElementById('projecaoMeta')?.value)||0;
+  const hoje = new Date(); hoje.setDate(1); hoje.setHours(0,0,0,0);
+  let acum = calcSaldoConsolidado();
+  const rows = [['Mês','Receitas','Despesas','Saldo Mês','Saldo Acumulado','Meta','Precisa Faturar','Status']];
+  for (let i = 0; i < projecaoHorizonte; i++) {
+    const d = new Date(hoje); d.setMonth(d.getMonth()+i);
+    const mesStr = d.toISOString().slice(0,7);
+    const label  = d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    const doMes  = contas.filter(c => c.dataVenc?.startsWith(mesStr));
+    const rec    = doMes.filter(c=>c.tipo==='receita').reduce((s,c)=>s+c.valor,0);
+    const desp   = doMes.filter(c=>c.tipo==='despesa').reduce((s,c)=>s+c.valor,0);
+    acum += rec - desp;
+    const pf = meta>rec ? meta-rec : 0;
+    rows.push([label, rec, desp, rec-desp, acum, meta||'', pf||'', acum<0?'Caixa Negativo':rec-desp<0?'Déficit':'Superávit']);
+  }
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [10,14,14,14,16,12,14,14].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Projeção');
+  XLSX.writeFile(wb, `projecao_${hoje.toISOString().slice(0,7)}.xlsx`);
+  toast('Projeção exportada!','success');
 }
 
 // =====================================================
