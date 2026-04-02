@@ -1738,7 +1738,7 @@ async function adicionarLancamento() {
     const tipoMov = tipoAtual === 'receita' ? 'entrada' : 'saida';
     registrarMovCaixa(fContaId, tipoMov, val, dv,
       document.getElementById('fDescricao').value || cat,
-      `Lanç. #${contaId-1}`);
+      `Lanç. #${contaId-1}`, null, contaId-1);
   }
   await salvar();
   limparForm();
@@ -1774,9 +1774,14 @@ async function excluir(id) {
   const c = contas.find(x=>x.id===id);
   if(!c||!confirm(`Excluir lançamento de ${c.fornecedor} (${R$(c.valor)})?`)) return;
   contas = contas.filter(x=>x.id!==id);
+  // Remove movimentações bancárias vinculadas a este lançamento
+  const antes = movCaixa.length;
+  movCaixa = movCaixa.filter(m => m.lancId !== id);
+  const removidos = antes - movCaixa.length;
+  salvarContasBancoLocal();
   await salvar();
   renderTudo();
-  toast('Excluído','info');
+  toast('Excluído' + (removidos > 0 ? ` (+ ${removidos} mov. bancária${removidos>1?'s':''} removida${removidos>1?'s':''})` : ''), 'info');
 }
 
 async function gerarProximaRecorrente(id) {
@@ -3085,7 +3090,7 @@ function renderExtrato() {
 }
 
 // ── Registrar movimentação em conta ──────────────────
-function registrarMovCaixa(contaId, tipo, valor, data, descricao, ref, contaDestinoId=null) {
+function registrarMovCaixa(contaId, tipo, valor, data, descricao, ref, contaDestinoId=null, lancId=null) {
   if (!contaId || !valor) return;
   movCaixa.push({
     id: movCaixaId++,
@@ -3095,7 +3100,8 @@ function registrarMovCaixa(contaId, tipo, valor, data, descricao, ref, contaDest
     valor,
     data,
     descricao,
-    ref: ref || ''
+    ref: ref || '',
+    lancId: lancId || null  // vínculo com lançamento — exclusão em cascata
   });
   salvarContasBancoLocal();
 }
@@ -3276,13 +3282,12 @@ async function confirmarQuitar() {
     return;
   }
 
-  // Register exit from each conta
+  // Register exit from each conta (com lancId para exclusão em cascata)
   linhas.forEach(l => {
-    const conta = contasBanco.find(x => x.id === l.contaId);
     registrarMovCaixa(
       l.contaId, 'saida', l.valor, data,
       `${c.fornecedor} — ${c.descricao||c.categoria}`,
-      `Quitação Lanç. #${lancId}`
+      `Quitação Lanç. #${lancId}`, null, lancId
     );
   });
 
@@ -4062,8 +4067,11 @@ async function salvarEdicao() {
   const em=document.getElementById('editMaterial'); if (em) c.material=em.value;
   const newCId=document.getElementById('editConta')?.value;
   if (newCId && newCId!==(c.contaId?.toString()||'')) {
+    // Remove movimentações antigas vinculadas a este lançamento antes de criar nova
+    movCaixa = movCaixa.filter(m => m.lancId !== c.id);
+    salvarContasBancoLocal();
     registrarMovCaixa(newCId,c.tipo==='receita'?'entrada':'saida',c.valor,c.dataVenc||hoje(),
-      c.fornecedor+' — '+(c.descricao||c.categoria),'Edit #'+c.id);
+      c.fornecedor+' — '+(c.descricao||c.categoria),'Edit #'+c.id, null, c.id);
     c.contaId=parseInt(newCId);
   }
   c.status=c.dataPag?'Pago':diasV(c.dataVenc)<0?'Vencida':'A Vencer';
