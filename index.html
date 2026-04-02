@@ -847,7 +847,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <table>
       <thead><tr>
         <th>Data</th><th>Conta</th><th>Tipo</th><th>Descrição</th>
-        <th>Entrada</th><th>Saída</th><th>Saldo Após</th><th>Ref.</th>
+        <th>Entrada</th><th>Saída</th><th>Saldo Após</th><th>Ref.</th><th></th>
       </tr></thead>
       <tbody id="extratoBody"></tbody>
     </table>
@@ -3267,7 +3267,7 @@ function renderExtrato() {
   if (filtMes)   movs = movs.filter(m => m.data.startsWith(filtMes));
 
   if (!movs.length) {
-    body.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:20px">Nenhuma movimentação encontrada</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="9"><div class="empty" style="padding:20px">Nenhuma movimentação encontrada</div></td></tr>';
     return;
   }
 
@@ -3292,6 +3292,9 @@ function renderExtrato() {
     const tipoLabel = isTransf ? `↔️ Transf. → ${contaDest?.nome||'?'}` : isEntrada ? '📥 Entrada' : '📤 Saída';
     const tipoColor = isTransf ? 'var(--accent)' : isEntrada ? 'var(--green)' : 'var(--red)';
 
+    const origemTag = m.lancId
+      ? `<span style="font-size:.68em;color:var(--text3)" title="Vinculado ao lançamento #${m.lancId}">🔗 Lanç.</span>`
+      : '';
     return `<tr>
       <td>${fmtD(m.data)}</td>
       <td style="font-weight:600;color:var(--text)">${conta?.nome||'?'}</td>
@@ -3300,9 +3303,30 @@ function renderExtrato() {
       <td class="mono" style="color:var(--green)">${isEntrada&&!isTransf ? R$(m.valor) : '—'}</td>
       <td class="mono" style="color:var(--red)">${(!isEntrada||isTransf) ? R$(m.valor) : '—'}</td>
       <td class="mono" style="color:${saldoAtual>=0?'var(--text)':'var(--red)'};font-weight:600">${R$(saldoAtual)}</td>
-      <td style="font-size:.78em;color:var(--text3)">${m.ref||'—'}</td>
+      <td style="font-size:.78em;color:var(--text3)">${m.ref||'—'} ${origemTag}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="excluirMovCaixa(${m.id})" title="Excluir esta movimentação">🗑</button></td>
     </tr>`;
   }).join('');
+}
+
+// ── Excluir movimentação bancária individual ──────────
+async function excluirMovCaixa(id) {
+  const m = movCaixa.find(x => x.id === id);
+  if (!m) return;
+
+  const conta = contasBanco.find(c => c.id === m.contaId)?.nome || '?';
+  const tipo  = m.tipo === 'entrada' ? 'Entrada' : m.tipo === 'saida' ? 'Saída' : 'Transferência';
+  const aviso = m.lancId
+    ? `\n\n⚠️ Esta movimentação foi gerada por um lançamento (#${m.lancId}).\nSó remova se o lançamento já foi apagado ou é um registro duplicado.`
+    : '';
+
+  if (!confirm(`Excluir movimentação de ${R$(m.valor)} (${tipo}) na conta ${conta}?${aviso}`)) return;
+
+  movCaixa = movCaixa.filter(x => x.id !== id);
+  salvarContasBancoLocal();
+  await salvarNuvem();
+  renderContasBanco();
+  toast('Movimentação bancária excluída.', 'info');
 }
 
 // ── Registrar movimentação em conta ──────────────────
