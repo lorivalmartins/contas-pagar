@@ -257,6 +257,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 
 
+
 /* ADIANTAMENTOS */
 .adiant-kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:4px}
 .adiant-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm)}
@@ -267,6 +268,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .adiant-tipo{font-size:.72em;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
 .adiant-saldo{font-family:'DM Mono',monospace;font-size:1.5em;font-weight:700;margin-bottom:4px}
 .adiant-sub{font-size:.75em;color:var(--text3)}
+
 
 
 
@@ -329,6 +331,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .veiculo-nome{font-size:.85em;font-weight:700;color:var(--text)}
 .veiculo-prox{font-size:.72em;color:var(--text3);margin-top:3px}
 .veiculo-alerta{font-size:.72em;color:var(--yellow);font-weight:600;margin-top:2px}
+
 
 
 /* EDIT MODAL */
@@ -433,7 +436,6 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <button class="nav-item" onclick="showTab('manutencao',this)" style="--icon-color:var(--orange)">
       <span class="nav-icon" style="color:var(--orange)">🔧</span><span class="nav-label">Manutenção</span>
     </button>
-
   </div>
 
   <div class="sidebar-foot">
@@ -460,6 +462,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <div class="topbar-title" id="topbarTitle">Dashboard</div>
     <div class="topbar-actions">
       <span class="topbar-info"><strong id="totalInfo">0</strong> lançamentos · <span id="lastSaveTxt">—</span></span>
+      <button class="btn btn-orange btn-sm" onclick="showTab('novacompra',document.getElementById('navLancamentos'))">🛒 Nova Compra</button>
       <button class="btn btn-ghost btn-sm" onclick="abrirModalImportar()">📂</button>
       <button class="btn btn-ghost btn-sm" onclick="exportarExcel()">📥</button>
       <button class="btn btn-ghost btn-sm" onclick="abrirModalBackup()" title="Backup completo do sistema" style="color:var(--green);border-color:rgba(5,150,105,.3)">💾 Backup</button>
@@ -559,6 +562,16 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
           <option value="">Não vincular agora</option>
         </select>
       </div>
+      <div class="fg"><label>Observações</label><input type="text" id="fObs" placeholder="Obs..."></div>
+      <div class="fg"><label>Recorrente?</label>
+        <select id="fRecorrente" onchange="toggleParcelasField()">
+          <option value="">Não</option>
+          <option value="mensal">Mensal</option>
+          <option value="quinzenal">Quinzenal</option>
+          <option value="semanal">Semanal</option>
+          <option value="anual">Anual</option>
+        </select>
+      </div>
       <div class="fg" id="fParcelasDiv" style="display:none">
         <label>Total de Parcelas</label>
         <input type="number" id="fParcelas" placeholder="Ex: 24 (vazio = indeterminado)" min="1">
@@ -589,7 +602,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     <table>
       <thead><tr>
         <th>Tipo</th><th>Vencimento</th><th>Fornecedor/Pagador</th><th>Categoria</th>
-        <th>Descrição</th><th>Valor</th><th>Forma</th>
+        <th>Material</th><th>Descrição</th><th>Valor</th><th>Forma</th>
         <th>Status</th><th>Dias</th><th>Ações</th>
       </tr></thead>
       <tbody id="lancBody"></tbody>
@@ -684,11 +697,10 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 <!-- ===== RECORRENTES ===== -->
 <div id="recorrentes" class="tab-content">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-    <div class="alert alert-info" style="margin-bottom:0;flex:1">
-      🔄 <strong>Contas Recorrentes:</strong> Lançamentos marcados como recorrentes. O sistema os exibe aqui para que você possa gerar a próxima parcela com um clique.
-    </div>
-    <button class="btn btn-danger btn-sm" onclick="apagarTodasRecorrencias()">🗑️ Apagar todas recorrências</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:8px">
+    <div class="alert alert-info" style="margin-bottom:0;flex:1">🔄 <strong>Contas Recorrentes:</strong> Lançamentos marcados como recorrentes. O sistema os exibe aqui para que você possa gerar a próxima parcela com um clique.
+  </div>
+    <button class="btn btn-danger btn-sm" onclick="apagarTodasRecorrencias()">🗑️ Apagar recorrencias</button>
   </div>
   <div class="tbl-wrap">
     <table>
@@ -767,7 +779,7 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <div id="saldoConsolidado" style="font-family:'DM Mono',monospace;font-size:2em;font-weight:700;color:var(--green)">R$ 0,00</div>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-danger btn-sm" onclick="apagarMovimentacoesConta()">🗑️ Limpar movimentações</button>
+      <button class="btn btn-danger btn-sm" onclick="apagarMovimentacoesConta()">🗑️ Limpar movimentacoes</button>
       <button class="btn btn-primary" onclick="abrirModalNovaConta()">+ Nova Conta</button>
     </div>
   </div>
@@ -1025,64 +1037,49 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 <!-- ===== PROJEÇÃO FUTURA ===== -->
 <div id="projecao" class="tab-content">
-
-  <!-- CONTROLS -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
       <div style="font-size:.82em;color:var(--text3);margin-bottom:4px">Horizonte de projeção</div>
-      <div style="display:flex;gap:6px">
+      <div class="period-bar">
         <button class="period-btn" onclick="setProjecaoHorizonte(6,this)">6 meses</button>
         <button class="period-btn active" onclick="setProjecaoHorizonte(12,this)">12 meses</button>
         <button class="period-btn" onclick="setProjecaoHorizonte(24,this)">24 meses</button>
         <button class="period-btn" onclick="setProjecaoHorizonte(36,this)">36 meses</button>
       </div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
       <div class="fg" style="margin:0">
         <label style="font-size:.72em;font-weight:700;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:4px">Meta de receita mensal (R$)</label>
         <input type="number" id="projecaoMeta" placeholder="Ex: 50000" step="1000"
-          style="padding:7px 11px;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit;width:180px"
+          style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.87em;font-family:inherit;width:180px"
           oninput="renderProjecao()">
       </div>
       <button class="btn btn-ghost btn-sm" onclick="exportarProjecaoExcel()">📥 Exportar</button>
     </div>
   </div>
 
-  <!-- RESUMO KPIs -->
   <div id="projecaoKpis" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:20px"></div>
-
-  <!-- ALERTAS DE MESES NEGATIVOS -->
   <div id="projecaoAlertas" style="margin-bottom:16px"></div>
 
-  <!-- GRÁFICO -->
   <div class="card" style="margin-bottom:16px;padding:20px">
     <div class="card-title">📈 Saldo Projetado Mês a Mês</div>
-    <div style="font-size:.78em;color:var(--text3);margin-bottom:14px">
-      Linha azul = saldo acumulado projetado · Verde = meses positivos · Vermelho = meses negativos
-    </div>
+    <div style="font-size:.78em;color:var(--text3);margin-bottom:14px">Linha azul = saldo acumulado · Verde = meses positivos · Vermelho = negativos</div>
     <div style="position:relative;height:280px"><canvas id="chartProjecao"></canvas></div>
   </div>
 
-  <!-- TABELA DETALHADA -->
   <div class="card" style="padding:20px">
     <div class="card-title">📋 Detalhamento Mensal</div>
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Mês</th>
-          <th>Receitas Previstas</th>
-          <th>Despesas Previstas</th>
-          <th>Saldo do Mês</th>
-          <th>Saldo Acumulado</th>
-          <th>Meta Receita</th>
-          <th>Precisa Faturar</th>
-          <th>Status</th>
+          <th>Mês</th><th>Receitas</th><th>Despesas</th>
+          <th>Saldo Mês</th><th>Saldo Acumulado</th>
+          <th>Meta</th><th>Precisa Faturar</th><th>Status</th>
         </tr></thead>
         <tbody id="projecaoBody"></tbody>
       </table>
     </div>
   </div>
-
 </div>
 
 </div><!-- /main -->
@@ -1562,13 +1559,10 @@ async function inicializar() {
   document.getElementById('totalInfo').textContent = contas.length+' lançamentos';
 
   popularSelects();
-  ncInit();
   // Auto-generate recurring entries up to 3 months ahead
   const autoGerados = gerarRecorrentesAuto();
   if (autoGerados > 0) salvarContas();
   document.getElementById('fDataEmissao').valueAsDate = new Date();
-  const eDataEl = document.getElementById('eData');
-  if (eDataEl) eDataEl.valueAsDate = new Date();
   const tfDataEl = document.getElementById('tfData');
   if (tfDataEl) tfDataEl.valueAsDate = new Date();
   const agDataEl = document.getElementById('agData');
@@ -1648,19 +1642,21 @@ function popularSelects() {
   const fsv = fs.value;
   fs.innerHTML = '<option value="">Selecione...</option>' + formas.map(f=>`<option${f===fsv?' selected':''}>${f}</option>`).join('');
 
-  // fConta (Nova Compra) + fContaLanc (Lançamentos)
-  const fcEl = document.getElementById('fConta');
-  if (fcEl) {
-    const fcv = fcEl.value;
-    fcEl.innerHTML = '<option value="">Não vincular</option>' + contasBanco.map(c=>`<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`).join('');
-    fcEl.value = fcv;
-  }
   const fcLanc = document.getElementById('fContaLanc');
   if (fcLanc) {
     const fcv2 = fcLanc.value;
     fcLanc.innerHTML = '<option value="">Não vincular agora</option>' + contasBanco.map(c=>`<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`).join('');
     fcLanc.value = fcv2;
   }
+
+  // adForma
+  const adFormaEl = document.getElementById('adForma');
+  if (adFormaEl) { const v=adFormaEl.value; adFormaEl.innerHTML='<option value="">Selecione...</option>'+formas.map(f=>`<option>${f}</option>`).join(''); adFormaEl.value=v; }
+
+  // adConta
+  const adContaEl = document.getElementById('adConta');
+  if (adContaEl) { const v=adContaEl.value; adContaEl.innerHTML='<option value="">Nao vincular</option>'+contasBanco.map(c=>`<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`).join(''); adContaEl.value=v; }
+
   // fornList datalist
   const nomes = [...new Set(contas.map(c=>c.fornecedor))].sort();
   document.getElementById('fornList').innerHTML = nomes.map(n=>`<option value="${n}">`).join('');
@@ -1676,9 +1672,9 @@ function showTab(name, el) {
   document.getElementById(name).classList.add('active');
   if (name === 'adiantamentos') renderAdiantamentos();
   if (name === 'contas_banco') renderContasBanco();
+  if (name === 'projecao') renderProjecao();
   if (name === 'agenda') { popularSelectsVeiculos(); renderAgenda(); }
   if (name === 'manutencao') { popularSelectsVeiculos(); renderManutencao(); }
-  if (name === 'projecao') renderProjecao();
   renderTudo();
 }
 
@@ -1756,8 +1752,6 @@ function limparForm() {
     if(el) el.value='';
   });
   document.getElementById('fDataEmissao').valueAsDate = new Date();
-  const eDataEl = document.getElementById('eData');
-  if (eDataEl) eDataEl.valueAsDate = new Date();
   const tfDataEl = document.getElementById('tfData');
   if (tfDataEl) tfDataEl.valueAsDate = new Date();
   const agDataEl = document.getElementById('agData');
@@ -1893,7 +1887,6 @@ function renderTudo() {
   renderManutencao();
   renderAdiantamentos();
   renderLancamentos();
-  renderProjecao();
   renderVencimentos();
   renderGraficos();
   renderCategorias();
@@ -2734,53 +2727,6 @@ function toast(msg, type='info') {
 
 
 // =====================================================
-// EDITAR ESTOQUE
-// =====================================================
-function abrirEditarEstoque(id) {
-  const e = estoque.find(x => x.id === id);
-  if (!e) return;
-  document.getElementById('editEstqId').value       = id;
-  document.getElementById('editEstqData').value     = e.data || '';
-  document.getElementById('editEstqTipo').value     = e.tipo || 'entrada';
-  document.getElementById('editEstqMaterial').value = e.material || '';
-  document.getElementById('editEstqQtd').value      = e.qtd || '';
-  document.getElementById('editEstqUnidade').value  = e.unidade || 'kg';
-  document.getElementById('editEstqPreco').value    = e.precoUnit || '';
-  document.getElementById('editEstqForn').value     = e.fornecedor || '';
-  document.getElementById('editEstqObs').value      = e.obs || '';
-  document.getElementById('modalEditarEstoque').classList.add('active');
-}
-
-async function salvarEdicaoEstoque() {
-  const id  = parseInt(document.getElementById('editEstqId').value);
-  const e   = estoque.find(x => x.id === id);
-  if (!e) return;
-
-  const data = document.getElementById('editEstqData').value;
-  const mat  = document.getElementById('editEstqMaterial').value;
-  const qtd  = parseFloat(document.getElementById('editEstqQtd').value);
-  if (!data || !mat || !qtd || qtd <= 0) {
-    toast('Preencha: Data, Material e Quantidade', 'error');
-    return;
-  }
-
-  e.data       = data;
-  e.tipo       = document.getElementById('editEstqTipo').value;
-  e.material   = mat;
-  e.qtd        = qtd;
-  e.unidade    = document.getElementById('editEstqUnidade').value;
-  e.precoUnit  = parseFloat(document.getElementById('editEstqPreco').value) || 0;
-  e.fornecedor = document.getElementById('editEstqForn').value.trim();
-  e.obs        = document.getElementById('editEstqObs').value;
-
-  await salvarNuvem();
-  document.getElementById('modalEditarEstoque').classList.remove('active');
-  toast('Movimentação atualizada!', 'success');
-}
-
-
-
-// =====================================================
 // ADIANTAMENTOS
 // =====================================================
 let adiantamentos = [];
@@ -2991,57 +2937,6 @@ function renderAdiantamentos() {
   }
 }
 
-// =====================================================
-// NOVA VENDA + UPDATE MODO COMPRA/VENDA
-// =====================================================
-let ncMode = 'compra'; // 'compra' | 'venda'
-
-function ncSetMode(mode) {
-  ncMode = mode;
-  const isVenda = mode === 'venda';
-
-  document.getElementById('ncModeCompra').className = 'tipo-btn' + (!isVenda ? ' active-despesa' : '');
-  document.getElementById('ncModeVenda').className  = 'tipo-btn' + (isVenda  ? ' active-receita' : '');
-
-  document.getElementById('ncFormTitle').textContent  = isVenda ? '📋 Dados da Venda'   : '📋 Dados da Compra';
-  document.getElementById('ncFornLabel').textContent  = isVenda ? 'Cliente *'            : 'Fornecedor *';
-  document.getElementById('ncMatTitle').textContent   = isVenda ? '⚖️ Materiais Vendidos' : '⚖️ Materiais Comprados';
-  document.getElementById('ncAlerta').innerHTML       = isVenda
-    ? '📤 <strong>Venda:</strong> Registra a saída dos materiais do estoque + receita financeira em um único lançamento.'
-    : '📥 <strong>Compra:</strong> Registra a entrada dos materiais no estoque + despesa financeira em um único lançamento.';
-  document.getElementById('ncAlerta').className       = isVenda ? 'alert alert-success' : 'alert alert-info';
-
-  // Show/hide adiantamento selector for vendas
-  const adDiv = document.getElementById('ncAdiantDiv');
-  if (adDiv) {
-    if (isVenda) {
-      adDiv.style.display = '';
-      ncPopularAdiantSel();
-    } else {
-      adDiv.style.display = 'none';
-    }
-  }
-
-  // Update categoria options
-  const cat = document.getElementById('ncCategoria');
-  if (cat) {
-    const cats = isVenda ? catsRec : catsDesp;
-    const def  = isVenda ? 'Venda Sucata' : 'Compra Sucata';
-    cat.innerHTML = cats.map(c=>`<option${c===def?' selected':''}>${c}</option>`).join('');
-  }
-
-  ncLimpar(false); // reset form but keep mode
-}
-
-function ncPopularAdiantSel() {
-  const sel = document.getElementById('ncAdiantSel');
-  if (!sel) return;
-  const saldos = calcSaldos();
-  const comSaldo = Object.entries(saldos).filter(([,d])=>d.tipo==='recebido'&&(d.adiantado-d.abatido)>0.01);
-  sel.innerHTML = '<option value="">Não / Receita direta</option>' +
-    comSaldo.map(([p,d])=>`<option value="${p}">${p} — saldo ${R$(d.adiantado-d.abatido)}</option>`).join('');
-}
-
 
 // =====================================================
 // CONTAS BANCÁRIAS / CAIXA
@@ -3088,12 +2983,10 @@ function calcSaldoConta(contaId) {
   const conta = contasBanco.find(c => c.id === contaId);
   if (!conta) return 0;
   let saldo = conta.saldoInicial || 0;
-  // Only count REALIZED movements (movCaixa = already happened)
   movCaixa.forEach(m => {
     if (m.contaId === contaId) saldo += m.tipo === 'entrada' ? m.valor : -m.valor;
-    if (m.contaDestinoId === contaId) saldo += m.valor;
+    if (m.contaDestinoId === contaId) saldo += m.valor; // recebe transferência
   });
-  // NOTE: future/pending lancamentos are NOT counted here — only actual movements
   return saldo;
 }
 
@@ -3286,11 +3179,6 @@ function renderSaldoContasDashboard() {
 // =====================================================
 let quitarLinhaId = 0;
 
-function ncTogglePagMode() {
-  const mode = document.getElementById('ncPagMode')?.value;
-  const div  = document.getElementById('ncContaDiv');
-  if (div) div.style.display = mode === 'conta' ? '' : 'none';
-}
 
 function abrirQuitar(id) {
   const c = contas.find(x => x.id === id);
@@ -3774,14 +3662,6 @@ async function excluirEvento(id) {
   toast('Evento excluído','info');
 }
 
-function marcarEventoRealizadoDireto() {
-  const id = parseInt(document.getElementById('realizadoEventoId').value);
-  const e = eventos.find(x=>x.id===id);
-  if (e) { e.status='realizado'; salvarFrotaLocal(); salvarNuvem(); renderAgenda(); }
-  document.getElementById('modalRealizado').classList.remove('active');
-  toast('Evento marcado como realizado!','success');
-}
-
 function abrirModalRealizado(id) {
   const e = eventos.find(x=>x.id===id);
   if (!e) return;
@@ -3798,26 +3678,6 @@ function abrirModalRealizado(id) {
   document.getElementById('modalRealizado').classList.add('active');
 }
 
-async function realizadoEAbrirCompra() {
-  const id = parseInt(document.getElementById('realizadoEventoId').value);
-  const e = eventos.find(x=>x.id===id);
-  if (!e) return;
-  e.status = 'realizado';
-  salvarFrotaLocal();
-  await salvarNuvem();
-  document.getElementById('modalRealizado').classList.remove('active');
-  renderAgenda();
-  toast('Marcado como realizado!','success');
-  // Pre-fill Nova Compra
-  setTimeout(() => {
-    showTab('novacompra', document.querySelector('[onclick*="novacompra"]'));
-    setTimeout(() => {
-      if (e.pessoa) document.getElementById('ncFornecedor').value = e.pessoa;
-      document.getElementById('ncData').valueAsDate = new Date(e.data+'T12:00:00');
-      if (e.material) toast(`Lembre de lançar: ${e.material}`,'info');
-    }, 300);
-  }, 400);
-}
 
 async function marcarEventoRealizado(id) {
   const e = eventos.find(x=>x.id===id);
@@ -3979,196 +3839,9 @@ async function confirmarEditarValorRec() {
 
 
 
-// =====================================================
-// BACKUP COMPLETO DO SISTEMA
-// =====================================================
-
-function coletarTodosOsDados() {
-  return {
-    versao: '1.0',
-    exportadoEm: new Date().toISOString(),
-    sistema: 'Ferro Velho Noroeste',
-    dados: {
-      // Financeiro
-      contas,
-      contaId,
-      // Estoque
-      estoque,
-      estqId,
-      // Adiantamentos
-      adiantamentos,
-      adiantId,
-      // Contas bancárias e caixa
-      contasBanco,
-      contaBancoId,
-      movCaixa,
-      movCaixaId,
-      // Frota
-      veiculos,
-      veiculoId,
-      manutencoes,
-      manutId,
-      eventos,
-      eventoId,
-      // Configurações
-      catsDesp,
-      catsRec,
-      formas
-    }
-  };
-}
-
-function abrirModalBackup() {
-  // Show last backup info
-  const last = localStorage.getItem('lastBackup');
-  const infoEl = document.getElementById('ultimoBackupInfo');
-  if (last) {
-    const d = new Date(last);
-    infoEl.textContent = `Último backup exportado: ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}`;
-    infoEl.style.color = 'var(--green)';
-  } else {
-    infoEl.textContent = '⚠️ Nenhum backup exportado ainda.';
-    infoEl.style.color = 'var(--yellow)';
-  }
-  document.getElementById('backupImportPreview').style.display = 'none';
-  document.getElementById('modalBackup').classList.add('active');
-}
-
-function exportarBackupJSON() {
-  const dados = coletarTodosOsDados();
-  const json = JSON.stringify(dados, null, 2);
-  const blob = new Blob([json], {type: 'application/json;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const dataStr = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `fvn_backup_${dataStr}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  localStorage.setItem('lastBackup', new Date().toISOString());
-  // Update UI
-  const infoEl = document.getElementById('ultimoBackupInfo');
-  if (infoEl) {
-    infoEl.textContent = `✅ Backup exportado agora: ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})}`;
-    infoEl.style.color = 'var(--green)';
-  }
-  toast('✅ Backup exportado! Guarde o arquivo em local seguro.', 'success');
-}
-
-async function copiarBackupClipboard() {
-  const dados = coletarTodosOsDados();
-  const json = JSON.stringify(dados, null, 2);
-  try {
-    await navigator.clipboard.writeText(json);
-    toast('✅ Backup copiado para a área de transferência!', 'success');
-  } catch(e) {
-    toast('Não foi possível copiar. Use "Baixar Backup JSON".', 'error');
-  }
-}
-
-// ── IMPORTAR / RESTAURAR ──────────────────────────
-let backupParaRestaurar = null;
-
-function onDropBackup(e) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('dragover');
-  const f = e.dataTransfer.files[0];
-  if (f) processarBackupImportObj(f);
-}
-
-function processarBackupImport(e) {
-  const f = e.target.files[0];
-  if (f) processarBackupImportObj(f);
-}
-
-function processarBackupImportObj(file) {
-  if (!file.name.endsWith('.json')) {
-    toast('Selecione um arquivo .json de backup', 'error');
-    return;
-  }
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const dados = JSON.parse(e.target.result);
-      // Validate structure
-      if (!dados.dados || !dados.versao) throw new Error('Arquivo inválido');
-      backupParaRestaurar = dados;
-      const d = new Date(dados.exportadoEm);
-      const contasN = dados.dados.contas?.length || 0;
-      const estoqueN = dados.dados.estoque?.length || 0;
-      const veiculosN = dados.dados.veiculos?.length || 0;
-      document.getElementById('backupImportInfo').innerHTML =
-        `<strong>Backup válido!</strong> Exportado em ${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}<br>
-        Contém: <strong>${contasN}</strong> lançamentos · <strong>${estoqueN}</strong> movim. estoque · <strong>${veiculosN}</strong> veículos`;
-      document.getElementById('backupImportPreview').style.display = 'block';
-    } catch(err) {
-      toast('Arquivo de backup inválido ou corrompido', 'error');
-      backupParaRestaurar = null;
-    }
-  };
-  reader.readAsText(file, 'utf-8');
-}
-
-async function confirmarRestaurarBackup() {
-  if (!backupParaRestaurar) return;
-  if (!confirm('⚠️ ATENÇÃO: Todos os dados atuais serão substituídos pelo backup. Confirma?')) return;
-
-  const d = backupParaRestaurar.dados;
-
-  // Restore all data
-  contas        = d.contas        || [];
-  contaId       = d.contaId       || 1;
-  estoque       = d.estoque       || [];
-  estqId        = d.estqId        || 1;
-  adiantamentos = d.adiantamentos || [];
-  adiantId      = d.adiantId      || 1;
-  contasBanco   = d.contasBanco   || [];
-  contaBancoId  = d.contaBancoId  || 1;
-  movCaixa      = d.movCaixa      || [];
-  movCaixaId    = d.movCaixaId    || 1;
-  veiculos      = d.veiculos      || [];
-  veiculoId     = d.veiculoId     || 1;
-  manutencoes   = d.manutencoes   || [];
-  manutId       = d.manutId       || 1;
-  eventos       = d.eventos       || [];
-  eventoId      = d.eventoId      || 1;
-
-  // Restore config if present
-  if (d.catsDesp) { catsDesp = d.catsDesp; setCfg('catsDesp', catsDesp); }
-  if (d.catsRec)  { catsRec  = d.catsRec;  setCfg('catsRec',  catsRec); }
-  if (d.formas)   { formas   = d.formas;   setCfg('formas',   formas); }
-
-  // Save everything locally
-  salvarContas();
-  salvarAdiantLocal();
-  salvarContasBancoLocal();
-  salvarFrotaLocal();
-
-  // Sync to cloud if connected
-  await salvarNuvem();
-
-  document.getElementById('modalBackup').classList.remove('active');
-  popularSelects();
-  renderTudo();
-  toast(`✅ Backup restaurado com sucesso! ${contas.length} lançamentos recuperados.`, 'success');
-  backupParaRestaurar = null;
-}
-
-// ── LEMBRETE DIÁRIO DE BACKUP ─────────────────────
-function checarLembreteBackup() {
-  const last = localStorage.getItem('lastBackup');
-  if (!last) return; // Never backed up — don't nag
-  const diasSemBackup = Math.floor((Date.now() - new Date(last)) / 86400000);
-  if (diasSemBackup >= 7) {
-    setTimeout(() => {
-      toast(`⚠️ Último backup há ${diasSemBackup} dias. Recomendamos fazer backup semanal!`, 'warning');
-    }, 3000);
-  }
-}
-
 
 // =====================================================
-// PROJEÇÃO FUTURA
+// PROJECAO FUTURA
 // =====================================================
 let projecaoHorizonte = 12;
 let chartProjecao = null;
@@ -4181,263 +3854,334 @@ function setProjecaoHorizonte(meses, btn) {
 }
 
 function renderProjecao() {
-  const hoje = new Date();
-  hoje.setDate(1);
-  hoje.setHours(0,0,0,0);
+  const hojeD = new Date();
+  hojeD.setDate(1); hojeD.setHours(0,0,0,0);
   const meta = parseFloat(document.getElementById('projecaoMeta')?.value)||0;
-
-  // Build monthly data for horizonte months
   const meses = [];
   for (let i = 0; i < projecaoHorizonte; i++) {
-    const d = new Date(hoje);
-    d.setMonth(d.getMonth() + i);
+    const d = new Date(hojeD); d.setMonth(d.getMonth()+i);
     const mesStr = d.toISOString().slice(0,7);
-    const label  = d.toLocaleDateString('pt-BR', {month:'short', year:'2-digit'});
-
-    // Filter lancamentos for this month
-    const doMes = contas.filter(c => c.dataVenc && c.dataVenc.startsWith(mesStr));
-    const rec   = doMes.filter(c => c.tipo === 'receita').reduce((s,c) => s+c.valor, 0);
-    const desp  = doMes.filter(c => c.tipo === 'despesa').reduce((s,c) => s+c.valor, 0);
-    const saldo = rec - desp;
-
-    meses.push({ mesStr, label, rec, desp, saldo });
+    const label  = d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    const doMes  = contas.filter(c => c.dataVenc && c.dataVenc.startsWith(mesStr));
+    const rec    = doMes.filter(c=>c.tipo==='receita').reduce((s,c)=>s+c.valor,0);
+    const desp   = doMes.filter(c=>c.tipo==='despesa').reduce((s,c)=>s+c.valor,0);
+    meses.push({mesStr,label,rec,desp,saldo:rec-desp});
   }
-
-  // Compute cumulative saldo starting from real current bank balance
   const saldoAtual = calcSaldoConsolidado();
   let acum = saldoAtual;
   meses.forEach(m => { acum += m.saldo; m.acumulado = acum; });
-
-  // ── KPIs ──────────────────────────────────────────
-  const totalRec  = meses.reduce((s,m) => s+m.rec,  0);
-  const totalDesp = meses.reduce((s,m) => s+m.desp, 0);
-  const mesesNeg  = meses.filter(m => m.saldo < 0).length;
-  const saldoFinal= meses[meses.length-1]?.acumulado || 0;
-  const recMedioNec = totalDesp > totalRec
-    ? (totalDesp - totalRec) / projecaoHorizonte
-    : 0;
+  const totalRec  = meses.reduce((s,m)=>s+m.rec,0);
+  const totalDesp = meses.reduce((s,m)=>s+m.desp,0);
+  const mesesNeg  = meses.filter(m=>m.saldo<0).length;
+  const saldoFinal = meses[meses.length-1]?.acumulado||0;
 
   const kpisEl = document.getElementById('projecaoKpis');
   if (kpisEl) {
-    kpisEl.innerHTML = `
-      <div class="kpi green"><div class="kpi-label">Receitas Projetadas</div><div class="kpi-val">${R$(totalRec)}</div><div class="kpi-sub">${projecaoHorizonte} meses</div></div>
-      <div class="kpi red"><div class="kpi-label">Despesas Projetadas</div><div class="kpi-val">${R$(totalDesp)}</div><div class="kpi-sub">${projecaoHorizonte} meses</div></div>
-      <div class="kpi ${saldoFinal>=0?'green':'red'}"><div class="kpi-label">Saldo ao Final</div><div class="kpi-val">${R$(saldoFinal)}</div><div class="kpi-sub">Em ${meses[meses.length-1]?.label||''}</div></div>
-      <div class="kpi ${mesesNeg===0?'green':'red'}"><div class="kpi-label">Meses Negativos</div><div class="kpi-val">${mesesNeg}</div><div class="kpi-sub">de ${projecaoHorizonte} meses</div></div>
-      ${recMedioNec>0?`<div class="kpi yellow"><div class="kpi-label">Faturar Adicional/Mês</div><div class="kpi-val">${R$(recMedioNec)}</div><div class="kpi-sub">Para equilibrar o período</div></div>`:'<div class="kpi green"><div class="kpi-label">Situação</div><div class="kpi-val" style="font-size:1.1em">✅ Superávit</div><div class="kpi-sub">Receitas > Despesas</div></div>'}
-    `;
+    kpisEl.innerHTML =
+      '<div class="kpi green"><div class="kpi-label">Receitas Projetadas</div><div class="kpi-val">'+R$(totalRec)+'</div><div class="kpi-sub">'+projecaoHorizonte+' meses</div></div>'+
+      '<div class="kpi red"><div class="kpi-label">Despesas Projetadas</div><div class="kpi-val">'+R$(totalDesp)+'</div><div class="kpi-sub">'+projecaoHorizonte+' meses</div></div>'+
+      '<div class="kpi '+(saldoFinal>=0?'green':'red')+'"><div class="kpi-label">Saldo ao Final</div><div class="kpi-val">'+R$(saldoFinal)+'</div><div class="kpi-sub">'+(meses[meses.length-1]?.label||'')+'</div></div>'+
+      '<div class="kpi '+(mesesNeg===0?'green':'red')+'"><div class="kpi-label">Meses Negativos</div><div class="kpi-val">'+mesesNeg+'</div><div class="kpi-sub">de '+projecaoHorizonte+' meses</div></div>';
   }
 
-  // ── ALERTAS ───────────────────────────────────────
   const alertasEl = document.getElementById('projecaoAlertas');
   if (alertasEl) {
     let al = '';
-    const negativos = meses.filter(m => m.saldo < 0);
-    const acumNeg   = meses.filter(m => m.acumulado < 0);
-    if (negativos.length) {
-      al += `<div class="alert alert-warning">⚠️ <strong>${negativos.length} mês(es) com déficit</strong>: ${negativos.map(m=>`${m.label} (${R$(m.saldo)})`).join(', ')}</div>`;
+    const negs = meses.filter(m=>m.saldo<0);
+    const acumNegs = meses.filter(m=>m.acumulado<0);
+    if (negs.length) al += '<div class="alert alert-warning">⚠️ <strong>'+negs.length+' mes(es) com deficit:</strong> '+negs.map(m=>m.label+' ('+R$(m.saldo)+')').join(', ')+'</div>';
+    if (acumNegs.length) al += '<div class="alert alert-danger">🚨 Caixa negativo em <strong>'+acumNegs[0].label+'</strong> — necessario: <strong>'+R$(Math.abs(Math.min(...acumNegs.map(m=>m.acumulado))))+'</strong></div>';
+    if (meta>0) {
+      const ab = meses.filter(m=>m.rec<meta);
+      al += ab.length
+        ? '<div class="alert alert-info">📊 <strong>'+ab.length+' mes(es)</strong> abaixo da meta de '+R$(meta)+': '+ab.map(m=>m.label).join(', ')+'</div>'
+        : '<div class="alert alert-success">✅ Todos os meses atingem a meta de '+R$(meta)+'</div>';
     }
-    if (acumNeg.length) {
-      al += `<div class="alert alert-danger">🚨 Saldo acumulado fica negativo em <strong>${acumNeg[0].label}</strong> — precisará de capital adicional de <strong>${R$(Math.abs(Math.min(...acumNeg.map(m=>m.acumulado))))}</strong></div>`;
-    }
-    if (meta > 0) {
-      const abaixoMeta = meses.filter(m => m.rec < meta);
-      if (abaixoMeta.length) {
-        al += `<div class="alert alert-info">📊 <strong>${abaixoMeta.length} mês(es)</strong> com receita abaixo da meta de ${R$(meta)}: ${abaixoMeta.map(m=>m.label).join(', ')}</div>`;
-      } else {
-        al += `<div class="alert alert-success">✅ Todos os meses atingem a meta de ${R$(meta)}</div>`;
-      }
-    }
-    if (!negativos.length && !acumNeg.length && !meta) {
-      al = `<div class="alert alert-success">✅ Projeção saudável para os próximos ${projecaoHorizonte} meses</div>`;
-    }
+    if (!al) al = '<div class="alert alert-success">✅ Projecao saudavel para os proximos '+projecaoHorizonte+' meses</div>';
     alertasEl.innerHTML = al;
   }
 
-  // ── CHART ─────────────────────────────────────────
   const ctx = document.getElementById('chartProjecao');
   if (ctx) {
     if (chartProjecao) { chartProjecao.destroy(); chartProjecao = null; }
     chartProjecao = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: meses.map(m => m.label),
-        datasets: [
-          {
-            label: 'Saldo Acumulado',
-            data: meses.map(m => m.acumulado),
-            borderColor: '#2563eb',
-            backgroundColor: ctx2 => {
-              const g = ctx2.chart.ctx.createLinearGradient(0,0,0,280);
-              g.addColorStop(0, 'rgba(37,99,235,.15)');
-              g.addColorStop(1, 'rgba(37,99,235,.0)');
-              return g;
-            },
-            fill: true, tension: 0.4, borderWidth: 2.5,
-            pointRadius: 4, pointHoverRadius: 7,
-            pointBackgroundColor: meses.map(m => m.acumulado >= 0 ? '#059669' : '#dc2626'),
-            segment: { borderColor: ctx2 => ctx2.p1.parsed.y >= 0 ? '#2563eb' : '#dc2626' }
-          },
-          {
-            label: 'Receitas',
-            data: meses.map(m => m.rec),
-            borderColor: '#059669', borderDash: [5,4],
-            backgroundColor: 'transparent',
-            tension: 0.3, borderWidth: 1.5, pointRadius: 2
-          },
-          {
-            label: 'Despesas',
-            data: meses.map(m => m.desp),
-            borderColor: '#dc2626', borderDash: [5,4],
-            backgroundColor: 'transparent',
-            tension: 0.3, borderWidth: 1.5, pointRadius: 2
-          },
-          ...(meta > 0 ? [{
-            label: `Meta ${R$(meta)}`,
-            data: meses.map(() => meta),
-            borderColor: '#f59e0b', borderDash: [8,4],
-            backgroundColor: 'transparent',
-            borderWidth: 1.5, pointRadius: 0
-          }] : [])
+      type:'line',
+      data:{
+        labels:meses.map(m=>m.label),
+        datasets:[
+          {label:'Saldo Acumulado',data:meses.map(m=>m.acumulado),borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,.1)',fill:true,tension:0.4,borderWidth:2.5,pointBackgroundColor:meses.map(m=>m.acumulado>=0?'#34d399':'#f87171')},
+          {label:'Receitas',data:meses.map(m=>m.rec),borderColor:'#34d399',borderDash:[5,4],backgroundColor:'transparent',tension:0.3,borderWidth:1.5,pointRadius:2},
+          {label:'Despesas',data:meses.map(m=>m.desp),borderColor:'#f87171',borderDash:[5,4],backgroundColor:'transparent',tension:0.3,borderWidth:1.5,pointRadius:2}
         ]
       },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { labels: { color: '#4a5168', font: { size: 11 }, boxWidth: 14 } },
-          tooltip: {
-            callbacks: {
-              label: ctx2 => `${ctx2.dataset.label}: ${R$(ctx2.parsed.y)}`
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: '#8892a4', maxRotation: 45 }, grid: { color: '#e2e5eb' } },
-          y: {
-            ticks: { color: '#8892a4', callback: v => 'R$'+v.toLocaleString('pt-BR',{maximumFractionDigits:0}) },
-            grid: { color: '#e2e5eb' },
-            afterDataLimits(scale) { const r=Math.abs(scale.max)*0.05; scale.max+=r; scale.min-=r; }
-          }
-        }
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{labels:{color:'#8a95b0',font:{size:11},boxWidth:14}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+R$(c.parsed.y)}}},
+        scales:{x:{ticks:{color:'#505870',maxRotation:45},grid:{color:'#2a3650'}},y:{ticks:{color:'#505870',callback:v=>'R$'+v.toLocaleString('pt-BR',{maximumFractionDigits:0})},grid:{color:'#2a3650'}}}
       }
     });
   }
 
-  // ── TABELA ────────────────────────────────────────
   const body = document.getElementById('projecaoBody');
-  if (body) {
-    body.innerHTML = meses.map((m, i) => {
-      const isNeg    = m.saldo < 0;
-      const acumNeg  = m.acumulado < 0;
-      const precisaFaturar = meta > 0 && m.rec < meta ? meta - m.rec : (isNeg ? Math.abs(m.saldo) : 0);
-      const statusBadge = acumNeg
-        ? '<span class="badge badge-vencida">🚨 Caixa Negativo</span>'
-        : isNeg
-        ? '<span class="badge badge-pendente">⚠ Déficit</span>'
-        : '<span class="badge badge-pago">✅ Superávit</span>';
-
-      return `<tr style="${acumNeg?'background:rgba(220,38,38,.04)':isNeg?'background:rgba(251,191,36,.04)':''}">
-        <td style="font-weight:700;color:var(--text)">${m.label}</td>
-        <td class="mono" style="color:var(--green)">${R$(m.rec)}</td>
-        <td class="mono" style="color:var(--red)">${R$(m.desp)}</td>
-        <td class="mono" style="color:${isNeg?'var(--red)':'var(--green)'};font-weight:700">${isNeg?'':'+'}${R$(m.saldo)}</td>
-        <td class="mono" style="color:${acumNeg?'var(--red)':m.acumulado>0?'var(--green)':'var(--text3)'};font-weight:700">${R$(m.acumulado)}</td>
-        <td class="mono" style="color:var(--text3)">${meta>0?R$(meta):'—'}</td>
-        <td class="mono" style="color:${precisaFaturar>0?'var(--yellow)':'var(--text3)'};font-weight:${precisaFaturar>0?'700':'400'}">${precisaFaturar>0?'+'+R$(precisaFaturar):'—'}</td>
-        <td>${statusBadge}</td>
-      </tr>`;
-    }).join('') + `<tr class="sub-row">
-      <td>TOTAL</td>
-      <td class="mono">${R$(totalRec)}</td>
-      <td class="mono">${R$(totalDesp)}</td>
-      <td class="mono" style="color:${totalRec-totalDesp>=0?'var(--green)':'var(--red)'};font-weight:700">${R$(totalRec-totalDesp)}</td>
-      <td class="mono" style="font-weight:700">${R$(saldoFinal)}</td>
-      <td colspan="3"></td>
-    </tr>`;
-  }
+  if (!body) return;
+  body.innerHTML = meses.map(m => {
+    const neg = m.saldo<0, an = m.acumulado<0;
+    const pf = meta>0&&m.rec<meta ? meta-m.rec : neg ? Math.abs(m.saldo) : 0;
+    const st = an ? '<span class="badge badge-vencida">🚨 Caixa Neg.</span>'
+               : neg ? '<span class="badge badge-pendente">⚠ Deficit</span>'
+                     : '<span class="badge badge-pago">✅ Superavit</span>';
+    return '<tr>'+
+      '<td style="font-weight:700;color:var(--text)">'+m.label+'</td>'+
+      '<td class="mono" style="color:var(--green)">'+R$(m.rec)+'</td>'+
+      '<td class="mono" style="color:var(--red)">'+R$(m.desp)+'</td>'+
+      '<td class="mono" style="color:'+(neg?'var(--red)':'var(--green)')+';font-weight:700">'+(neg?'':'+')  +R$(m.saldo)+'</td>'+
+      '<td class="mono" style="color:'+(an?'var(--red)':m.acumulado>0?'var(--green)':'var(--text3)')+';font-weight:700">'+R$(m.acumulado)+'</td>'+
+      '<td class="mono" style="color:var(--text3)">'+(meta?R$(meta):'—')+'</td>'+
+      '<td class="mono" style="color:'+(pf>0?'var(--yellow)':'var(--text3)')+';font-weight:'+(pf>0?700:400)+'">'+(pf>0?'+'+R$(pf):'—')+'</td>'+
+      '<td>'+st+'</td></tr>';
+  }).join('') +
+  '<tr class="sub-row"><td>TOTAL</td><td class="mono">'+R$(totalRec)+'</td><td class="mono">'+R$(totalDesp)+'</td><td class="mono" style="font-weight:700">'+R$(totalRec-totalDesp)+'</td><td class="mono" style="font-weight:700">'+R$(saldoFinal)+'</td><td colspan="3"></td></tr>';
 }
 
 function exportarProjecaoExcel() {
   const meta = parseFloat(document.getElementById('projecaoMeta')?.value)||0;
-  const hoje = new Date(); hoje.setDate(1); hoje.setHours(0,0,0,0);
+  const hojeD = new Date(); hojeD.setDate(1); hojeD.setHours(0,0,0,0);
   let acum = calcSaldoConsolidado();
-  const rows = [['Mês','Receitas','Despesas','Saldo Mês','Saldo Acumulado','Meta','Precisa Faturar','Status']];
-  for (let i = 0; i < projecaoHorizonte; i++) {
-    const d = new Date(hoje); d.setMonth(d.getMonth()+i);
-    const mesStr = d.toISOString().slice(0,7);
-    const label  = d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
-    const doMes  = contas.filter(c => c.dataVenc?.startsWith(mesStr));
-    const rec    = doMes.filter(c=>c.tipo==='receita').reduce((s,c)=>s+c.valor,0);
-    const desp   = doMes.filter(c=>c.tipo==='despesa').reduce((s,c)=>s+c.valor,0);
-    acum += rec - desp;
-    const pf = meta>rec ? meta-rec : 0;
-    rows.push([label, rec, desp, rec-desp, acum, meta||'', pf||'', acum<0?'Caixa Negativo':rec-desp<0?'Déficit':'Superávit']);
+  const rows = [['Mes','Receitas','Despesas','Saldo Mes','Saldo Acum','Meta','Precisa Faturar','Status']];
+  for (let i=0;i<projecaoHorizonte;i++) {
+    const d=new Date(hojeD); d.setMonth(d.getMonth()+i);
+    const ms=d.toISOString().slice(0,7), lb=d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'});
+    const dm=contas.filter(c=>c.dataVenc?.startsWith(ms));
+    const r=dm.filter(c=>c.tipo==='receita').reduce((s,c)=>s+c.valor,0);
+    const de=dm.filter(c=>c.tipo==='despesa').reduce((s,c)=>s+c.valor,0);
+    acum+=r-de; const pf=meta>r?meta-r:0;
+    rows.push([lb,r,de,r-de,acum,meta||'',pf||'',acum<0?'Neg':r-de<0?'Deficit':'Superavit']);
   }
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [10,14,14,14,16,12,14,14].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws, 'Projeção');
-  XLSX.writeFile(wb, `projecao_${hoje.toISOString().slice(0,7)}.xlsx`);
-  toast('Projeção exportada!','success');
+  const wb=XLSX.utils.book_new(), ws=XLSX.utils.aoa_to_sheet(rows);
+  XLSX.utils.book_append_sheet(wb,ws,'Projecao');
+  XLSX.writeFile(wb,'projecao_'+hojeD.toISOString().slice(0,7)+'.xlsx');
+  toast('Projecao exportada!','success');
 }
 
-
 // =====================================================
-// FUNÇÕES DE LIMPEZA
+// LIMPEZA DE DADOS
 // =====================================================
-
-// Apagar TODOS os dados (configurações → botão vermelho)
 async function apagarTudoConfirmacao() {
-  if (!confirm('⚠️ ATENÇÃO: Apagar TODOS os dados do sistema?\n\nIsso inclui lançamentos, contas, adiantamentos, movimentações, agenda e manutenções.\n\nEssa ação não pode ser desfeita!')) return;
-  if (!confirm('Tem certeza absoluta? Faça um backup antes!')) return;
-
-  // Reset everything
-  contas = []; contaId = 1;
-  adiantamentos = []; adiantId = 1;
-  contasBanco = CONTAS_PADRAO.map((c,i) => ({...c}));
-  contaBancoId = 6;
-  movCaixa = []; movCaixaId = 1;
-  veiculos = VEICULOS_PADRAO.map(v => ({...v}));
-  veiculoId = 12;
-  manutencoes = []; manutId = 1;
-  eventos = []; eventoId = 1;
-
-  salvarContas();
-  salvarAdiantLocal();
-  salvarContasBancoLocal();
-  salvarFrotaLocal();
+  if (!confirm('ATENCAO: Apagar TODOS os dados?\n\nEssa acao nao pode ser desfeita!')) return;
+  if (!confirm('Tem certeza? Faca um backup antes!')) return;
+  contas=[]; contaId=1; adiantamentos=[]; adiantId=1;
+  contasBanco=CONTAS_PADRAO.map(c=>Object.assign({},c)); contaBancoId=6;
+  movCaixa=[]; movCaixaId=1;
+  veiculos=VEICULOS_PADRAO.map(v=>Object.assign({},v)); veiculoId=12;
+  manutencoes=[]; manutId=1; eventos=[]; eventoId=1;
+  salvarLocal(); salvarAdiantLocal(); salvarContasBancoLocal(); salvarFrotaLocal();
   await salvarNuvem();
-
   document.getElementById('modalConfig').classList.remove('active');
-  renderTudo();
-  toast('✅ Todos os dados foram apagados.', 'info');
+  renderTudo(); toast('Todos os dados foram apagados.','info');
 }
 
-// Apagar todas as recorrências (mantém os lançamentos não-recorrentes)
 async function apagarTodasRecorrencias() {
-  const recorrentes = contas.filter(c => c.recorrente);
-  if (!recorrentes.length) { toast('Nenhuma recorrência encontrada.', 'info'); return; }
-  if (!confirm(`Apagar ${recorrentes.length} lançamento(s) recorrentes?\n\nOs lançamentos já pagos e os não-recorrentes serão mantidos.`)) return;
-
-  contas = contas.filter(c => !c.recorrente);
-  salvarContas();
-  await salvarNuvem();
-  renderTudo();
-  toast(`✅ ${recorrentes.length} lançamento(s) recorrentes removidos.`, 'success');
+  const rec = contas.filter(c=>c.recorrente);
+  if (!rec.length) { toast('Nenhuma recorrencia encontrada.','info'); return; }
+  if (!confirm('Apagar '+rec.length+' lancamento(s) recorrentes?')) return;
+  contas=contas.filter(c=>!c.recorrente); salvarLocal(); await salvarNuvem();
+  renderTudo(); toast(rec.length+' recorrentes removidos.','success');
 }
 
-// Apagar movimentações de caixa vinculadas às contas bancárias
 async function apagarMovimentacoesConta() {
-  if (!movCaixa.length) { toast('Nenhuma movimentação para apagar.', 'info'); return; }
-  if (!confirm(`Apagar TODAS as ${movCaixa.length} movimentações do extrato bancário?\n\nOs saldos iniciais das contas serão mantidos. Os lançamentos financeiros NÃO serão afetados.`)) return;
-
-  movCaixa = []; movCaixaId = 1;
-  salvarContasBancoLocal();
-  await salvarNuvem();
-  renderContasBanco();
-  toast('✅ Todas as movimentações bancárias foram apagadas.', 'success');
+  if (!movCaixa.length) { toast('Nenhuma movimentacao para apagar.','info'); return; }
+  if (!confirm('Apagar TODAS as '+movCaixa.length+' movimentacoes bancarias?')) return;
+  movCaixa=[]; movCaixaId=1; salvarContasBancoLocal(); await salvarNuvem();
+  renderContasBanco(); toast('Movimentacoes apagadas.','success');
 }
+
+// =====================================================
+// MARCAR EVENTO REALIZADO
+// =====================================================
+async function marcarEventoRealizadoDireto() {
+  const id = parseInt(document.getElementById('realizadoEventoId').value);
+  const e = eventos.find(x=>x.id===id);
+  if (e) { e.status='realizado'; salvarFrotaLocal(); await salvarNuvem(); renderAgenda(); }
+  document.getElementById('modalRealizado').classList.remove('active');
+  toast('Evento realizado!','success');
+}
+
+// =====================================================
+// EDITAR LANCAMENTO
+// =====================================================
+let editTipoAtual = 'despesa';
+
+function setEditTipo(t) {
+  editTipoAtual = t;
+  const bd=document.getElementById('editBtnDesp'), br=document.getElementById('editBtnRec');
+  if (bd) bd.className='tipo-btn'+(t==='despesa'?' active-despesa':'');
+  if (br) br.className='tipo-btn'+(t==='receita'?' active-receita':'');
+  const cats=t==='receita'?catsRec:catsDesp;
+  const sel=document.getElementById('editCategoria');
+  if (sel) { const cur=sel.value; sel.innerHTML=cats.map(c=>'<option'+(c===cur?' selected':'')+'>'+c+'</option>').join(''); }
+}
+
+function abrirEditar(id) {
+  const c=contas.find(x=>x.id===id); if (!c) return;
+  editTipoAtual=c.tipo;
+  document.getElementById('editId').value        = id;
+  document.getElementById('editDataEmissao').value = c.dataEmissao||'';
+  document.getElementById('editDataVenc').value    = c.dataVenc||'';
+  document.getElementById('editDataPag').value     = c.dataPag||'';
+  document.getElementById('editFornecedor').value  = c.fornecedor||'';
+  document.getElementById('editDescricao').value   = c.descricao||'';
+  document.getElementById('editValor').value       = c.valor||'';
+  document.getElementById('editObs').value         = c.obs||'';
+  document.getElementById('editRecorrente').value  = c.recorrente||'';
+  const em=document.getElementById('editMaterial'); if (em) em.value=c.material||'';
+  setEditTipo(c.tipo);
+  const cats=c.tipo==='receita'?catsRec:catsDesp;
+  document.getElementById('editCategoria').innerHTML=cats.map(cat=>'<option'+(cat===c.categoria?' selected':'')+'>'+cat+'</option>').join('');
+  document.getElementById('editForma').innerHTML=formas.map(f=>'<option'+(f===c.forma?' selected':'')+'>'+f+'</option>').join('');
+  const ec=document.getElementById('editConta');
+  if (ec) ec.innerHTML='<option value="">Nao vinculada</option>'+contasBanco.map(ct=>'<option value="'+ct.id+'"'+(ct.id===c.contaId?' selected':'')+'>'+(ICONES_CONTA[ct.tipo]||'🏦')+' '+ct.nome+'</option>').join('');
+  document.getElementById('modalEditar').classList.add('active');
+}
+
+async function salvarEdicao() {
+  const id=parseInt(document.getElementById('editId').value);
+  const c=contas.find(x=>x.id===id); if (!c) return;
+  const dv=document.getElementById('editDataVenc').value;
+  const forn=document.getElementById('editFornecedor').value.trim();
+  const val=parseFloat(document.getElementById('editValor').value);
+  if (!dv||!forn||!val||val<=0) { toast('Preencha: Vencimento, Fornecedor e Valor','error'); return; }
+  c.tipo=editTipoAtual;
+  c.dataEmissao=document.getElementById('editDataEmissao').value;
+  c.dataVenc=dv; c.dataPag=document.getElementById('editDataPag').value;
+  c.categoria=document.getElementById('editCategoria').value;
+  c.fornecedor=forn; c.descricao=document.getElementById('editDescricao').value;
+  c.valor=val; c.forma=document.getElementById('editForma').value;
+  c.recorrente=document.getElementById('editRecorrente').value;
+  c.obs=document.getElementById('editObs').value;
+  const em=document.getElementById('editMaterial'); if (em) c.material=em.value;
+  const newCId=document.getElementById('editConta')?.value;
+  if (newCId && newCId!==(c.contaId?.toString()||'')) {
+    registrarMovCaixa(newCId,c.tipo==='receita'?'entrada':'saida',c.valor,c.dataVenc||hoje(),
+      c.fornecedor+' — '+(c.descricao||c.categoria),'Edit #'+c.id);
+    c.contaId=parseInt(newCId);
+  }
+  c.status=c.dataPag?'Pago':diasV(c.dataVenc)<0?'Vencida':'A Vencer';
+  await salvar();
+  document.getElementById('modalEditar').classList.remove('active');
+  renderTudo(); toast('Lancamento atualizado!','success');
+}
+
+// =====================================================
+// DUPLICAR LANCAMENTO
+// =====================================================
+function duplicarLancamento(id) {
+  const c=contas.find(x=>x.id===id); if (!c) return;
+  setTipo(c.tipo);
+  document.getElementById('fDataEmissao').value  = hoje();
+  document.getElementById('fDataVenc').value     = c.dataVenc||'';
+  document.getElementById('fCategoria').value    = c.categoria||'';
+  document.getElementById('fFornecedor').value   = c.fornecedor||'';
+  document.getElementById('fDescricao').value    = c.descricao||'';
+  document.getElementById('fValor').value        = c.valor||'';
+  document.getElementById('fForma').value        = c.forma||'';
+  document.getElementById('fObs').value          = c.obs||'';
+  document.getElementById('fRecorrente').value   = c.recorrente||'';
+  showTab('lancamentos',document.getElementById('navLancamentos'));
+  toast('Lancamento duplicado — ajuste e confirme!','info');
+}
+
+// =====================================================
+// BACKUP COMPLETO
+// =====================================================
+function coletarTodosOsDados() {
+  return {versao:'1.0',exportadoEm:new Date().toISOString(),sistema:'Ferro Velho Noroeste',
+    dados:{contas,contaId,adiantamentos,adiantId,contasBanco,contaBancoId,movCaixa,movCaixaId,
+           veiculos,veiculoId,manutencoes,manutId,eventos,eventoId,catsDesp,catsRec,formas}};
+}
+
+function abrirModalBackup() {
+  const last=localStorage.getItem('lastBackup');
+  const el=document.getElementById('ultimoBackupInfo');
+  if (el) {
+    if (last) { const d=new Date(last); el.textContent='Ultimo backup: '+d.toLocaleDateString('pt-BR')+' as '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); el.style.color='var(--green)'; }
+    else { el.textContent='Nenhum backup exportado ainda.'; el.style.color='var(--yellow)'; }
+  }
+  document.getElementById('backupImportPreview').style.display='none';
+  document.getElementById('modalBackup').classList.add('active');
+}
+
+function exportarBackupJSON() {
+  const json=JSON.stringify(coletarTodosOsDados(),null,2);
+  const url=URL.createObjectURL(new Blob([json],{type:'application/json;charset=utf-8'}));
+  const a=document.createElement('a'); a.href=url;
+  a.download='fvn_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  localStorage.setItem('lastBackup',new Date().toISOString());
+  const el=document.getElementById('ultimoBackupInfo');
+  if (el) { el.textContent='Backup exportado agora!'; el.style.color='var(--green)'; }
+  toast('Backup exportado! Guarde o arquivo em local seguro.','success');
+}
+
+async function copiarBackupClipboard() {
+  try { await navigator.clipboard.writeText(JSON.stringify(coletarTodosOsDados(),null,2)); toast('Backup copiado!','success'); }
+  catch(e) { toast('Nao foi possivel copiar.','error'); }
+}
+
+let backupParaRestaurar=null;
+
+function onDropBackup(e) { e.preventDefault(); e.currentTarget.classList.remove('dragover'); const f=e.dataTransfer.files[0]; if(f) processarBackupImportObj(f); }
+function processarBackupImport(e) { const f=e.target.files[0]; if(f) processarBackupImportObj(f); }
+function processarBackupImportObj(file) {
+  if (!file.name.endsWith('.json')) { toast('Selecione um arquivo .json','error'); return; }
+  const r=new FileReader(); r.onload=e2=>{
+    try {
+      const d=JSON.parse(e2.target.result);
+      if (!d.dados||!d.versao) throw new Error('invalido');
+      backupParaRestaurar=d;
+      const dt=new Date(d.exportadoEm);
+      document.getElementById('backupImportInfo').innerHTML='<strong>Backup valido!</strong> '+dt.toLocaleDateString('pt-BR')+' — '+(d.dados.contas?.length||0)+' lancamentos';
+      document.getElementById('backupImportPreview').style.display='block';
+    } catch(err) { toast('Arquivo invalido ou corrompido','error'); backupParaRestaurar=null; }
+  }; r.readAsText(file,'utf-8');
+}
+
+async function confirmarRestaurarBackup() {
+  if (!backupParaRestaurar) return;
+  if (!confirm('ATENCAO: Substituir TODOS os dados pelo backup. Confirma?')) return;
+  const d=backupParaRestaurar.dados;
+  contas=d.contas||[]; contaId=d.contaId||1;
+  adiantamentos=d.adiantamentos||[]; adiantId=d.adiantId||1;
+  contasBanco=d.contasBanco||[]; contaBancoId=d.contaBancoId||1;
+  movCaixa=d.movCaixa||[]; movCaixaId=d.movCaixaId||1;
+  veiculos=d.veiculos||[]; veiculoId=d.veiculoId||12;
+  manutencoes=d.manutencoes||[]; manutId=d.manutId||1;
+  eventos=d.eventos||[]; eventoId=d.eventoId||1;
+  if (d.catsDesp) { catsDesp=d.catsDesp; setCfg('catsDesp',catsDesp); }
+  if (d.catsRec)  { catsRec=d.catsRec;   setCfg('catsRec',catsRec); }
+  if (d.formas)   { formas=d.formas;     setCfg('formas',formas); }
+  salvarLocal(); salvarAdiantLocal(); salvarContasBancoLocal(); salvarFrotaLocal();
+  await salvarNuvem();
+  document.getElementById('modalBackup').classList.remove('active');
+  popularSelects(); renderTudo(); toast('Backup restaurado! '+contas.length+' lancamentos.','success');
+  backupParaRestaurar=null;
+}
+
+function checarLembreteBackup() {
+  const last=localStorage.getItem('lastBackup'); if (!last) return;
+  const dias=Math.floor((Date.now()-new Date(last))/86400000);
+  if (dias>=7) setTimeout(()=>toast('Ultimo backup ha '+dias+' dias. Recomendamos backup semanal!','warning'),3000);
+}
+
+// =====================================================
+// SIDEBAR TOGGLE
+// =====================================================
+function toggleSidebar() {
+  const sb=document.getElementById('sidebar'), ct=document.getElementById('content'), ov=document.getElementById('mobOverlay');
+  if (window.innerWidth<=900) { const open=sb.classList.toggle('mob-open'); if(ov) ov.classList.toggle('show',open); }
+  else { const sm=sb.classList.toggle('sm'); if(ct) ct.classList.toggle('sm',sm); localStorage.setItem('sidebarSm',sm); }
+}
+(function(){ if(localStorage.getItem('sidebarSm')==='true'){document.getElementById('sidebar')?.classList.add('sm');document.getElementById('content')?.classList.add('sm');} })();
 
 // =====================================================
 // START
