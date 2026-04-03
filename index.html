@@ -661,12 +661,11 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
         <button class="cal-view-btn active" id="btnViewCal" onclick="setCalView('cal')">📅 Calendário</button>
         <button class="cal-view-btn" id="btnViewLst" onclick="setCalView('list')">☰ Lista</button>
       </div>
-      <select id="vencDias" onchange="renderVencimentos()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit;display:none" id="vencDiasLst">
-        <option value="7">7 dias</option>
-        <option value="15">15 dias</option>
-        <option value="30" selected>30 dias</option>
-        <option value="60">60 dias</option>
-        <option value="all">Todos pendentes</option>
+      <select id="vencDias" onchange="renderVencimentos()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit">
+        <option value="30" selected>Próximos 30 dias</option>
+        <option value="60">Próximos 60 dias</option>
+        <option value="90">Próximos 90 dias</option>
+        <option value="all">Todos</option>
       </select>
     </div>
   </div>
@@ -884,7 +883,8 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       <div id="saldoConsolidado" style="font-family:'DM Mono',monospace;font-size:2em;font-weight:700;color:var(--green)">R$ 0,00</div>
     </div>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-danger btn-sm" onclick="apagarMovimentacoesConta()">🗑️ Limpar movimentacoes</button>
+      <button class="btn btn-ghost btn-sm" onclick="abrirAjusteSaldo()" title="Corrigir saldo com lançamento manual">⚖️ Ajuste de Saldo</button>
+      <button class="btn btn-danger btn-sm" onclick="apagarMovimentacoesConta()">🗑️ Limpar movimentações</button>
       <button class="btn btn-primary" onclick="abrirModalNovaConta()">+ Nova Conta</button>
     </div>
   </div>
@@ -923,6 +923,41 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
       </tr></thead>
       <tbody id="extratoBody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- MODAL AJUSTE DE SALDO -->
+<div id="modalAjusteSaldo" class="modal-overlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">⚖️ Ajuste Manual de Saldo</div>
+    <div class="modal-sub">Use para corrigir diferenças causadas por movimentações excluídas ou registros antigos incorretos. Um lançamento de correção será adicionado diretamente no extrato da conta.</div>
+    <div style="display:grid;gap:12px;margin:16px 0">
+      <div class="fg">
+        <label>Conta *</label>
+        <select id="ajusteConta" onchange="ajusteAtualizarSaldoAtual()"></select>
+      </div>
+      <div class="fg">
+        <label>Saldo Atual (calculado)</label>
+        <div id="ajusteSaldoAtual" style="font-family:'DM Mono',monospace;font-size:1.1em;font-weight:700;padding:8px 11px;background:var(--surface);border-radius:var(--radius-sm)">—</div>
+      </div>
+      <div class="fg">
+        <label>Saldo Correto (o que deveria ser) *</label>
+        <input type="number" id="ajusteSaldoCorreto" step="0.01" placeholder="Ex: 1500.00" oninput="ajusteCalcularDiff()">
+      </div>
+      <div id="ajusteDiffInfo" style="padding:10px 14px;border-radius:var(--radius-sm);background:var(--surface);font-size:.85em;display:none"></div>
+      <div class="fg">
+        <label>Data do ajuste</label>
+        <input type="date" id="ajusteData">
+      </div>
+      <div class="fg">
+        <label>Motivo (opcional)</label>
+        <input type="text" id="ajusteMotivo" placeholder="Ex: Correção de saldo após importação...">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalAjusteSaldo').classList.remove('active')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAjusteSaldo()">✓ Aplicar Ajuste</button>
+    </div>
   </div>
 </div>
 
@@ -2324,7 +2359,7 @@ function calVerDia(ds) {
   // Força o filtro de mês na lista para o mês correto
   const mesStr = `${a}-${m}`;
   const vencDias = document.getElementById('vencDias');
-  if (vencDias) vencDias.value = 'all';
+  if (vencDias) vencDias.value = 'all'; // mostrar tudo ao clicar em dia do calendário
   renderListaVenc();
   // Rola a tabela até a data
   setTimeout(() => {
@@ -2341,27 +2376,60 @@ function calVerDia(ds) {
 }
 
 function renderListaVenc() {
-  const dias = document.getElementById('vencDias')?.value||'30';
+  atualizarStatus();
+  const dias = document.getElementById('vencDias')?.value || '30';
   const h = new Date(); h.setHours(0,0,0,0);
+
   let lista;
-  if (dias==='all') lista = contas.filter(c=>c.status!=='Pago');
-  else { const lim=new Date(h); lim.setDate(lim.getDate()+parseInt(dias)); lista=contas.filter(c=>new Date(c.dataVenc+'T12:00:00')<=lim); }
-  lista=lista.sort((a,b)=>a.dataVenc.localeCompare(b.dataVenc));
-  const total = lista.filter(c=>c.status!=='Pago').reduce((s,c)=>s+(c.tipo==='despesa'?c.valor:0),0);
+  if (dias === 'all') {
+    // Todos: pendentes + pagos, sem filtro de data
+    lista = [...contas];
+  } else if (dias === 'pagos') {
+    // Só pagos
+    lista = contas.filter(c => c.status === 'Pago');
+  } else {
+    // Pendentes + pagos dentro do período selecionado
+    const lim = new Date(h);
+    lim.setDate(lim.getDate() + parseInt(dias));
+    const ini = new Date(h);
+    ini.setDate(ini.getDate() - 90); // inclui pagos dos últimos 90 dias para não sumir
+    lista = contas.filter(c => {
+      const dv = new Date(c.dataVenc + 'T12:00:00');
+      return dv <= lim; // tudo até o limite (inclui pagos passados)
+    });
+  }
+
+  lista = lista.sort((a,b) => a.dataVenc.localeCompare(b.dataVenc));
+
+  const totalPend = lista.filter(c => c.status !== 'Pago').reduce((s,c) => s + (c.tipo === 'despesa' ? c.valor : 0), 0);
+  const totalPago = lista.filter(c => c.status === 'Pago').reduce((s,c) => s + c.valor, 0);
+
   const body = document.getElementById('vencBody');
   if (!body) return;
-  body.innerHTML = lista.map(c=>`
-    <tr>
+
+  if (!lista.length) {
+    body.innerHTML = '<tr><td colspan="8"><div class="empty" style="padding:20px;text-align:center">Nenhum lançamento encontrado</div></td></tr>';
+    return;
+  }
+
+  body.innerHTML = lista.map(c => {
+    const rowStyle = c.status === 'Pago' ? 'opacity:.7' : '';
+    return `<tr style="${rowStyle}">
       <td>${fmtD(c.dataVenc)}</td>
       <td><span class="badge ${c.tipo==='receita'?'badge-receita':'badge-despesa'}">${c.tipo==='receita'?'📥':'📤'}</span></td>
-      <td style="font-weight:600;color:var(--text)">${c.fornecedor}</td>
-      <td style="font-size:.8em;color:var(--text3)">${c.categoria}</td>
+      <td style="font-weight:600;color:var(--text)">${c.fornecedor||'—'}</td>
+      <td style="font-size:.8em;color:var(--text3)">${c.categoria||'—'}</td>
       <td class="mono" style="color:${c.tipo==='receita'?'var(--green)':'var(--text)'}">${R$(c.valor)}</td>
       <td style="font-size:.8em;color:var(--text3)">${c.forma||'—'}</td>
       <td><span class="badge ${sClass(c.status)}">${c.status.toUpperCase()}</span></td>
       <td>${rowAcao(c)}</td>
-    </tr>
-  `).join('') + `<tr class="sub-row"><td colspan="4">TOTAL DESPESAS PENDENTES</td><td class="mono">${R$(total)}</td><td colspan="3"></td></tr>`;
+    </tr>`;
+  }).join('') +
+  `<tr class="sub-row">
+    <td colspan="4">DESPESAS PENDENTES / TOTAL PAGO (período)</td>
+    <td class="mono">${R$(totalPend)} / ${R$(totalPago)}</td>
+    <td colspan="3"></td>
+  </tr>`;
 }
 
 // =====================================================
@@ -3730,6 +3798,80 @@ function abrirModalNovaConta() {
   document.getElementById('ncbSaldoInicial').value = '';
   document.getElementById('novaContaTitle').textContent = '🏦 Nova Conta';
   document.getElementById('modalNovaConta').classList.add('active');
+}
+
+// ── Ajuste Manual de Saldo ───────────────────────────
+function abrirAjusteSaldo() {
+  const sel = document.getElementById('ajusteConta');
+  sel.innerHTML = contasBanco.map(c =>
+    `<option value="${c.id}">${ICONES_CONTA[c.tipo]||'🏦'} ${c.nome}</option>`
+  ).join('');
+  document.getElementById('ajusteData').valueAsDate = new Date();
+  document.getElementById('ajusteSaldoCorreto').value = '';
+  document.getElementById('ajusteDiffInfo').style.display = 'none';
+  ajusteAtualizarSaldoAtual();
+  document.getElementById('modalAjusteSaldo').classList.add('active');
+}
+
+function ajusteAtualizarSaldoAtual() {
+  const contaId = parseInt(document.getElementById('ajusteConta')?.value);
+  if (!contaId) return;
+  const saldo = calcSaldoConta(contaId);
+  const el = document.getElementById('ajusteSaldoAtual');
+  if (el) {
+    el.textContent = R$(saldo);
+    el.style.color = saldo >= 0 ? 'var(--green)' : 'var(--red)';
+  }
+}
+
+function ajusteCalcularDiff() {
+  const contaId = parseInt(document.getElementById('ajusteConta')?.value);
+  if (!contaId) return;
+  ajusteAtualizarSaldoAtual();
+  const saldoAtual  = calcSaldoConta(contaId);
+  const saldoCorreto = parseFloat(document.getElementById('ajusteSaldoCorreto').value);
+  if (isNaN(saldoCorreto)) { document.getElementById('ajusteDiffInfo').style.display='none'; return; }
+  const diff = saldoCorreto - saldoAtual;
+  const infoEl = document.getElementById('ajusteDiffInfo');
+  infoEl.style.display = 'block';
+  if (Math.abs(diff) < 0.01) {
+    infoEl.innerHTML = '✅ Saldo já está correto. Nenhum ajuste necessário.';
+    infoEl.style.background = 'rgba(52,211,153,.08)';
+  } else if (diff > 0) {
+    infoEl.innerHTML = `📥 Será lançada uma <strong>ENTRADA de ${R$(diff)}</strong> para corrigir o saldo.`;
+    infoEl.style.background = 'rgba(52,211,153,.08)';
+  } else {
+    infoEl.innerHTML = `📤 Será lançada uma <strong>SAÍDA de ${R$(Math.abs(diff))}</strong> para corrigir o saldo.`;
+    infoEl.style.background = 'rgba(248,113,113,.07)';
+  }
+}
+
+async function confirmarAjusteSaldo() {
+  const contaId   = parseInt(document.getElementById('ajusteConta').value);
+  const saldoCorreto = parseFloat(document.getElementById('ajusteSaldoCorreto').value);
+  const data      = document.getElementById('ajusteData').value;
+  const motivo    = document.getElementById('ajusteMotivo').value.trim() || 'Ajuste manual de saldo';
+
+  if (!contaId || isNaN(saldoCorreto) || !data) {
+    toast('Preencha todos os campos obrigatórios', 'error'); return;
+  }
+
+  const saldoAtual = calcSaldoConta(contaId);
+  const diff = saldoCorreto - saldoAtual;
+
+  if (Math.abs(diff) < 0.01) {
+    toast('Saldo já está correto, nenhum ajuste necessário.', 'info');
+    document.getElementById('modalAjusteSaldo').classList.remove('active');
+    return;
+  }
+
+  const tipo = diff > 0 ? 'entrada' : 'saida';
+  registrarMovCaixa(contaId, tipo, Math.abs(diff), data, motivo, 'Ajuste', null, null);
+  salvarContasBancoLocal();
+  await salvarNuvem();
+  document.getElementById('modalAjusteSaldo').classList.remove('active');
+  renderContasBanco();
+  toast(`✅ Ajuste aplicado! Saldo corrigido para ${R$(saldoCorreto)}`, 'success');
 }
 
 function abrirEditarConta(id) {
