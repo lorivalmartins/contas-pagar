@@ -1626,14 +1626,14 @@ async function inicializar() {
 // =====================================================
 // UTILS
 // =====================================================
-function R$(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0) }
+function R$(v){ return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(isNaN(v)?0:(v||0)) }
 function fmtD(d){ if(!d)return''; const[a,m,dia]=d.split('-'); return`${dia}/${m}/${a}` }
-function diasV(dv){ const h=new Date();h.setHours(0,0,0,0);return Math.floor((new Date(dv)-h)/86400000) }
+function diasV(dv){ const h=new Date();h.setHours(0,0,0,0);return Math.floor((new Date(dv+'T12:00:00')-h)/86400000) }
 function hoje(){ return new Date().toISOString().split('T')[0] }
 function mesAtual(){ return new Date().toISOString().slice(0,7) }
 
 function statusCalc(c) {
-  if (c.dataPag) return 'Pago';
+  if (c.dataPag && c.dataPag !== '') return 'Pago';
   if (c.status === 'Pendente') return 'Pendente'; // keep pending until explicitly paid
   return diasV(c.dataVenc) < 0 ? 'Vencida' : 'A Vencer';
 }
@@ -1644,7 +1644,7 @@ function sClass(s){ return s==='Pago'?'badge-pago':s==='Vencida'?'badge-vencida'
 function filtrarPeriod(lista, period) {
   const h = new Date(); h.setHours(0,0,0,0);
   return lista.filter(c => {
-    const d = new Date(c.dataVenc);
+    const d = new Date(c.dataVenc+'T12:00:00');
     if (period==='hoje') return d.toDateString()===h.toDateString();
     if (period==='mes') return c.dataVenc.startsWith(new Date().toISOString().slice(0,7));
     if (period==='trimestre') { const t=new Date(h); t.setMonth(t.getMonth()-3); return d>=t; }
@@ -1703,11 +1703,10 @@ function showTab(name, el) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   if(el) el.classList.add('active');
   document.getElementById(name).classList.add('active');
-  if (name === 'adiantamentos') renderAdiantamentos();
-  if (name === 'contas_banco') renderContasBanco();
+  // renderTudo cuida de todas as abas principais; chamadas específicas só para abas especiais
   if (name === 'projecao') renderProjecao();
-  if (name === 'agenda') { popularSelectsVeiculos(); renderAgenda(); }
-  if (name === 'manutencao') { popularSelectsVeiculos(); renderManutencao(); }
+  else if (name === 'agenda') { popularSelectsVeiculos(); renderAgenda(); }
+  else if (name === 'manutencao') { popularSelectsVeiculos(); renderManutencao(); }
   renderTudo();
 }
 
@@ -1798,6 +1797,13 @@ async function marcarPago(id) {
   if(!c) return;
   c.dataPag = hoje();
   c.status = 'Pago';
+  // Registrar movimentação bancária se houver conta vinculada
+  if (c.contaId) {
+    const tipoMov = c.tipo === 'receita' ? 'entrada' : 'saida';
+    registrarMovCaixa(c.contaId, tipoMov, c.valor, hoje(),
+      c.descricao||c.categoria, `Lanç. #${c.id}`, null, c.id);
+    salvarContasBancoLocal();
+  }
   await salvar();
   renderTudo();
   toast(`${c.tipo==='receita'?'Recebido':'Pago'}: ${c.fornecedor}`,'success');
@@ -2023,7 +2029,7 @@ function renderLancamentos() {
   const mes = document.getElementById('srchMes')?.value||'';
 
   let lista = [...contas].sort((a,b)=>new Date(a.dataVenc)-new Date(b.dataVenc));
-  if (srch) lista=lista.filter(c=>c.fornecedor.toLowerCase().includes(srch)||c.descricao.toLowerCase().includes(srch)||c.obs.toLowerCase().includes(srch));
+  if (srch) lista=lista.filter(c=>(c.fornecedor||'').toLowerCase().includes(srch)||(c.descricao||'').toLowerCase().includes(srch)||(c.obs||'').toLowerCase().includes(srch));
   if (tipo) lista=lista.filter(c=>c.tipo===tipo);
   if (status) lista=lista.filter(c=>c.status===status);
   if (cat) lista=lista.filter(c=>c.categoria===cat);
@@ -2034,6 +2040,7 @@ function renderLancamentos() {
     return;
   }
 
+  const saldosLanc = calcSaldos(); // calculado UMA vez fora do map — evita O(n²)
   document.getElementById('lancBody').innerHTML = lista.map(c=>{
     const d = diasV(c.dataVenc);
     const dTxt = c.status==='Pago'?'—':d===0?'Hoje':d>0?`${d}d`:`${Math.abs(d)}d atrás`;
@@ -2041,7 +2048,6 @@ function renderLancamentos() {
     const recTag = c.recorrente ? `<span class="rec-tag">🔄 ${c.recorrente}</span>` : '';
     // Verifica se há saldo de adiantamento disponível para este fornecedor (receita)
     const temAbatimento = c._abateAdiantId;
-    const saldosLanc = calcSaldos();
     const saldoPessoa = saldosLanc[c.fornecedor];
     const podeAbater = c.tipo==='receita' && !temAbatimento && saldoPessoa && saldoPessoa.tipo==='recebido' && (saldoPessoa.adiantado - saldoPessoa.abatido) > 0.01;
     const abaterTag = temAbatimento ? `<span style="font-size:.7em;background:rgba(79,142,247,.12);color:var(--accent);padding:2px 7px;border-radius:10px;font-weight:600">✓ Abatido</span>` : '';
@@ -2764,10 +2770,16 @@ async function limparTudo() {
 // =====================================================
 function toast(msg, type='info') {
   const icons={success:'✅',error:'❌',info:'ℹ️',warning:'⚠️'};
+  const wrap = document.getElementById('toastWrap');
+  // Limita a 5 toasts simultâneos — remove o mais antigo se necessário
+  if (wrap.children.length >= 5) wrap.removeChild(wrap.firstChild);
   const t=document.createElement('div');
   t.className=`toast ${type}`;
   t.innerHTML=`<span>${icons[type]}</span>${msg}`;
-  document.getElementById('toastWrap').appendChild(t);
+  // Clique para fechar manualmente
+  t.style.cursor='pointer';
+  t.onclick=()=>t.remove();
+  wrap.appendChild(t);
   setTimeout(()=>{t.style.animation='toastOut .28s ease forwards';setTimeout(()=>t.remove(),280);},3500);
 }
 
@@ -2898,12 +2910,14 @@ async function excluirAdiantamento(id) {
   if (!a || !confirm(`Excluir adiantamento de ${a.pessoa} (${R$(a.valor)})?
 O lançamento e movimentação bancária vinculados também serão removidos.`)) return;
 
-  // Remover lançamento vinculado
+  // Remover lançamento de entrada/receita gerado automaticamente
   if (a.lancId) {
     contas = contas.filter(c => c.id !== a.lancId);
     movCaixa = movCaixa.filter(m => m.lancId !== a.lancId);
     salvarContasBancoLocal();
   }
+  // Limpar referência de abatimento em lançamentos que apontavam para este adiantamento
+  contas.forEach(c => { if (c._abateAdiantId === a.id) delete c._abateAdiantId; });
 
   adiantamentos = adiantamentos.filter(x=>x.id!==id);
   salvarAdiantLocal();
@@ -3000,9 +3014,10 @@ async function confirmarAbater() {
   const lancId  = parseInt(document.getElementById('abaterLancId').value);
   const pessoa  = document.getElementById('abaterPessoa').value;
   if (!pessoa) { toast('Selecione um cliente','error'); return; }
+  if (!lancId || isNaN(lancId)) { toast('Lançamento inválido','error'); return; }
 
   const c = contas.find(x=>x.id===lancId);
-  if (!c) return;
+  if (!c) { toast('Lançamento não encontrado','error'); return; }
 
   const saldos = calcSaldos();
   const d = saldos[pessoa];
@@ -3523,9 +3538,10 @@ async function confirmarQuitar() {
   }
 
   // Register exit from each conta (com lancId para exclusão em cascata)
+  const tipoMovQuitar = c.tipo === 'receita' ? 'entrada' : 'saida';
   linhas.forEach(l => {
     registrarMovCaixa(
-      l.contaId, 'saida', l.valor, data,
+      l.contaId, tipoMovQuitar, l.valor, data,
       `${c.fornecedor} — ${c.descricao||c.categoria}`,
       `Quitação Lanç. #${lancId}`, null, lancId
     );
@@ -3740,7 +3756,7 @@ async function adicionarManutencao() {
       status: isPendente ? 'Pendente' : 'A Vencer'
     });
     if (contaId2) {
-      registrarMovCaixa(contaId2,'saida',valor,data,`${tipoLabel} — ${v?.nome||''}`,`Manut. #${manutId-1}`);
+      registrarMovCaixa(contaId2,'saida',valor,data,`${tipoLabel} — ${v?.nome||''}`,`Manut. #${manutId-1}`, null, contaId-1);
     }
   }
 
@@ -3945,7 +3961,7 @@ function renderAgenda() {
   const filtTipo   = document.getElementById('agFiltroTipo')?.value||'';
   const filtMes    = document.getElementById('agFiltroMes')?.value||'';
 
-  let lista = [...eventos].sort((a,b)=>a.data.localeCompare(b.data)||a.hora.localeCompare(b.hora));
+  let lista = [...eventos].sort((a,b)=>a.data.localeCompare(b.data)||((a.hora||'').localeCompare(b.hora||'')));
   // Default: show only agendado if no filter
   if (!filtStatus) lista = lista.filter(e=>e.status!=='cancelado');
   else lista = lista.filter(e=>e.status===filtStatus);
@@ -4230,6 +4246,11 @@ async function apagarTodasRecorrencias() {
   const rec = contas.filter(c=>c.recorrente);
   if (!rec.length) { toast('Nenhuma recorrencia encontrada.','info'); return; }
   if (!confirm('Apagar '+rec.length+' lancamento(s) recorrentes?')) return;
+  const idsRec = rec.map(c=>c.id);
+  // Remove movimentações bancárias vinculadas às recorrentes
+  const movAntes = movCaixa.length;
+  movCaixa = movCaixa.filter(m => !idsRec.includes(m.lancId));
+  if (movCaixa.length !== movAntes) salvarContasBancoLocal();
   contas=contas.filter(c=>!c.recorrente); salvarLocal(); await salvarNuvem();
   renderTudo(); toast(rec.length+' recorrentes removidos.','success');
 }
@@ -4307,12 +4328,21 @@ async function salvarEdicao() {
   const em=document.getElementById('editMaterial'); if (em) c.material=em.value;
   const newCId=document.getElementById('editConta')?.value;
   if (newCId && newCId!==(c.contaId?.toString()||'')) {
-    // Remove movimentações antigas vinculadas a este lançamento antes de criar nova
+    // Troca de conta: remove movs antigas e cria nova
     movCaixa = movCaixa.filter(m => m.lancId !== c.id);
     salvarContasBancoLocal();
     registrarMovCaixa(newCId,c.tipo==='receita'?'entrada':'saida',c.valor,c.dataVenc||hoje(),
       c.fornecedor+' — '+(c.descricao||c.categoria),'Edit #'+c.id, null, c.id);
     c.contaId=parseInt(newCId);
+  } else if (c.contaId) {
+    // Mesma conta mas valor/data podem ter mudado — atualiza movimentação existente
+    const movVinc = movCaixa.find(m => m.lancId === c.id);
+    if (movVinc) {
+      movVinc.valor = val;
+      movVinc.data  = dv;
+      movVinc.descricao = forn+' — '+(document.getElementById('editDescricao').value||document.getElementById('editCategoria').value);
+      salvarContasBancoLocal();
+    }
   }
   c.status=c.dataPag?'Pago':diasV(c.dataVenc)<0?'Vencida':'A Vencer';
   await salvar();
