@@ -298,12 +298,17 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .cal-day.hoje-cel{border-color:var(--accent);background:rgba(37,99,235,.04)}
 .cal-day-num{font-size:.78em;font-weight:700;color:var(--text3);margin-bottom:3px;line-height:1}
 .cal-day.hoje-cel .cal-day-num{color:var(--accent);background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72em}
-.cal-chip{font-size:.65em;font-weight:600;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;transition:opacity .15s}
-.cal-chip:hover{opacity:.8}
-.cal-chip.receita{background:rgba(52,211,153,.18);color:var(--green)}
-.cal-chip.despesa{background:rgba(248,113,113,.15);color:var(--red)}
-.cal-chip.pago{background:rgba(100,116,139,.12);color:var(--text3);text-decoration:line-through}
-.cal-chip.vencida{background:rgba(248,113,113,.25);color:var(--red);font-weight:700}
+.cal-day-pill{font-size:.68em;font-weight:700;padding:3px 7px;border-radius:5px;margin-bottom:3px;display:flex;justify-content:space-between;align-items:center;gap:6px;cursor:pointer;transition:opacity .15s;line-height:1.3}
+.cal-day-pill:hover{opacity:.78}
+.cal-day-pill.pago{background:rgba(100,116,139,.13);color:var(--text3)}
+.cal-day-pill.rec{background:rgba(52,211,153,.16);color:var(--green)}
+.cal-day-pill.desp{background:rgba(248,113,113,.14);color:var(--red)}
+.cal-day-pill.venc{background:rgba(248,113,113,.25);color:var(--red);font-weight:800}
+.cal-pill-label{font-size:.9em;opacity:.8}
+.cal-pill-val{font-family:'DM Mono',monospace;font-size:.88em;font-weight:700}
+.cal-day-saldo{font-size:.62em;font-weight:700;margin-top:3px;padding:2px 5px;border-radius:4px;text-align:right}
+.cal-day-saldo.pos{color:var(--green)}
+.cal-day-saldo.neg{color:var(--red)}
 .cal-more{font-size:.62em;color:var(--text3);font-weight:600;cursor:pointer;padding:1px 4px}
 .cal-more:hover{color:var(--accent)}
 .cal-legenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.75em;align-items:center}
@@ -674,10 +679,12 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
     </div>
     <div class="cal-grid" id="calDaysGrid" style="margin-top:0"></div>
     <div class="cal-legenda">
-      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(52,211,153,.4)"></div>Receita</div>
-      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(248,113,113,.35)"></div>Despesa</div>
-      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(100,116,139,.2)"></div>Pago</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(52,211,153,.4)"></div>📥 A Receber</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(248,113,113,.35)"></div>📤 A Pagar</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(248,113,113,.5)"></div>⚠ Vencido</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(100,116,139,.25)"></div>✓ Pago</div>
       <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--accent);border-radius:50%"></div>Hoje</div>
+      <div style="margin-left:auto;font-size:.72em;color:var(--text3)">Clique em qualquer dia para ver os detalhes na lista</div>
     </div>
   </div>
 
@@ -2210,13 +2217,11 @@ function renderCalendario() {
   if (!grid) return;
 
   const hoje2 = hoje();
-  // Primeiro dia do mês e último
   const primeiroDia = new Date(calAno, calMes, 1);
   const ultimoDia   = new Date(calAno, calMes + 1, 0);
-  // Dia da semana do primeiro dia (0=Dom)
-  const iniciaSem = primeiroDia.getDay();
+  const iniciaSem   = primeiroDia.getDay();
 
-  // Montar mapa data → lançamentos
+  // Mapa data → lançamentos
   const mapaLanc = {};
   contas.forEach(c => {
     if (!c.dataVenc) return;
@@ -2224,69 +2229,115 @@ function renderCalendario() {
     mapaLanc[c.dataVenc].push(c);
   });
 
+  // Montar células
   const cells = [];
-
-  // Dias do mês anterior (padding inicial)
-  const diasPadding = iniciaSem;
-  const mesAnterior = new Date(calAno, calMes, 0); // último dia mês anterior
-  for (let i = diasPadding - 1; i >= 0; i--) {
+  const mesAnterior = new Date(calAno, calMes, 0);
+  for (let i = iniciaSem - 1; i >= 0; i--) {
     const d = mesAnterior.getDate() - i;
     const m = calMes === 0 ? 11 : calMes - 1;
     const a = calMes === 0 ? calAno - 1 : calAno;
-    const ds = `${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    cells.push({ds, d, outromes: true});
+    cells.push({ds:`${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, d, outromes:true});
   }
-
-  // Dias do mês atual
   for (let d = 1; d <= ultimoDia.getDate(); d++) {
-    const ds = `${calAno}-${String(calMes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    cells.push({ds, d, outromes: false});
+    cells.push({ds:`${calAno}-${String(calMes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, d, outromes:false});
   }
-
-  // Completar para múltiplo de 7
   const resto = cells.length % 7;
   if (resto !== 0) {
     for (let d = 1; d <= 7 - resto; d++) {
       const m = calMes === 11 ? 0 : calMes + 1;
       const a = calMes === 11 ? calAno + 1 : calAno;
-      const ds = `${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-      cells.push({ds, d, outromes: true});
+      cells.push({ds:`${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`, d, outromes:true});
     }
   }
 
   grid.innerHTML = cells.map(({ds, d, outromes}) => {
-    const isHoje = ds === hoje2;
-    const lancDia = mapaLanc[ds] || [];
-    const MAX_SHOW = 3;
-    const visiveis = lancDia.slice(0, MAX_SHOW);
-    const resto2   = lancDia.length - MAX_SHOW;
+    const isHoje    = ds === hoje2;
+    const isFuturo  = ds > hoje2;
+    const lancDia   = mapaLanc[ds] || [];
 
-    const chips = visiveis.map(c => {
-      const cls = c.status === 'Pago' ? 'pago'
-                : c.status === 'Vencida' ? 'vencida'
-                : c.tipo;
-      const label = c.fornecedor.length > 14 ? c.fornecedor.slice(0,12)+'…' : c.fornecedor;
-      return `<span class="cal-chip ${cls}" onclick="abrirEditar(${c.id})" title="${c.fornecedor} — ${R$(c.valor)}">${label}</span>`;
-    }).join('');
+    if (!lancDia.length) {
+      // Dia vazio
+      return `<div class="cal-day${outromes?' outro-mes':''}${isHoje?' hoje-cel':''}">
+        <div class="cal-day-num">${isHoje?`<span style="background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.78em;font-weight:700">${d}</span>`:d}</div>
+      </div>`;
+    }
 
-    const maisTag = resto2 > 0
-      ? `<span class="cal-more" onclick="calVerDia('${ds}')">+${resto2} mais</span>`
-      : '';
+    // Calcular totais do dia
+    const pagos   = lancDia.filter(c => c.status === 'Pago');
+    const pendRec = lancDia.filter(c => c.tipo === 'receita' && c.status !== 'Pago');
+    const pendDesp= lancDia.filter(c => c.tipo === 'despesa' && c.status !== 'Pago' && c.status !== 'Vencida');
+    const vencidos= lancDia.filter(c => c.status === 'Vencida');
 
-    return `<div class="cal-day${outromes?' outro-mes':''}${isHoje?' hoje-cel':''}">
-      <div class="cal-day-num">${isHoje ? `<div class="cal-day-num" style="background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:700;margin-bottom:3px">${d}</div>` : d}</div>
-      ${chips}${maisTag}
+    const totPago    = pagos.reduce((s,c)=>s+(c.tipo==='receita'?c.valor:-c.valor),0);
+    const totPendRec = pendRec.reduce((s,c)=>s+c.valor,0);
+    const totPendDesp= pendDesp.reduce((s,c)=>s+c.valor,0);
+    const totVenc    = vencidos.reduce((s,c)=>s+c.valor,0);
+
+    // Formatar valor curto (sem decimais para economizar espaço)
+    const fmt = v => v >= 1000
+      ? 'R$'+(v/1000).toFixed(v%1000===0?0:1)+'k'
+      : 'R$'+v.toFixed(0);
+
+    // Pills a exibir
+    let pills = '';
+
+    if (pagos.length) {
+      const qtd = pagos.length > 1 ? ` (${pagos.length})` : '';
+      pills += `<div class="cal-day-pill pago" onclick="calVerDia('${ds}')" title="${pagos.length} pago(s) — ${R$(Math.abs(totPago))}">
+        <span class="cal-pill-label">✓ Pago${qtd}</span>
+        <span class="cal-pill-val">${fmt(Math.abs(totPago))}</span>
+      </div>`;
+    }
+    if (vencidos.length) {
+      const qtd = vencidos.length > 1 ? ` (${vencidos.length})` : '';
+      pills += `<div class="cal-day-pill venc" onclick="calVerDia('${ds}')" title="${vencidos.length} vencido(s) — ${R$(totVenc)}">
+        <span class="cal-pill-label">⚠ Vencido${qtd}</span>
+        <span class="cal-pill-val">${fmt(totVenc)}</span>
+      </div>`;
+    }
+    if (pendRec.length) {
+      const qtd = pendRec.length > 1 ? ` (${pendRec.length})` : '';
+      pills += `<div class="cal-day-pill rec" onclick="calVerDia('${ds}')" title="${pendRec.length} a receber — ${R$(totPendRec)}">
+        <span class="cal-pill-label">📥 Rec.${qtd}</span>
+        <span class="cal-pill-val">${fmt(totPendRec)}</span>
+      </div>`;
+    }
+    if (pendDesp.length) {
+      const qtd = pendDesp.length > 1 ? ` (${pendDesp.length})` : '';
+      pills += `<div class="cal-day-pill desp" onclick="calVerDia('${ds}')" title="${pendDesp.length} a pagar — ${R$(totPendDesp)}">
+        <span class="cal-pill-label">📤 Pag.${qtd}</span>
+        <span class="cal-pill-val">${fmt(totPendDesp)}</span>
+      </div>`;
+    }
+
+    return `<div class="cal-day${outromes?' outro-mes':''}${isHoje?' hoje-cel':''}" style="cursor:pointer" onclick="calVerDia('${ds}')">
+      <div class="cal-day-num" style="margin-bottom:4px">${isHoje?`<span style="background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.78em;font-weight:700">${d}</span>`:d}</div>
+      ${pills}
     </div>`;
   }).join('');
 }
 
 function calVerDia(ds) {
-  // Filtra lista para o dia clicado
-  const lancDia = contas.filter(c => c.dataVenc === ds);
-  if (!lancDia.length) return;
+  // Vai para aba Lista mostrando todos os lançamentos do dia
   const [a,m,d] = ds.split('-');
-  toast(`${d}/${m}/${a}: ${lancDia.length} lançamento(s) — use Lista para ver todos`, 'info');
   setCalView('list');
+  // Força o filtro de mês na lista para o mês correto
+  const mesStr = `${a}-${m}`;
+  const vencDias = document.getElementById('vencDias');
+  if (vencDias) vencDias.value = 'all';
+  renderListaVenc();
+  // Rola a tabela até a data
+  setTimeout(() => {
+    const rows = document.querySelectorAll('#vencBody tr');
+    for (const row of rows) {
+      if (row.cells[0]?.textContent?.startsWith(`${d}/${m}`)) {
+        row.scrollIntoView({behavior:'smooth', block:'center'});
+        row.style.outline = '2px solid var(--accent)';
+        setTimeout(() => row.style.outline = '', 2000);
+        break;
+      }
+    }
+  }, 100);
 }
 
 function renderListaVenc() {
@@ -2932,22 +2983,51 @@ async function confirmarImport() {
 }
 
 function baixarTemplate() {
-  const csv='\uFEFFTipo,Data Vencimento,Categoria,Fornecedor,Descrição,Valor,Forma Pagamento,Material,Observações\ndespesa,10/04/2026,Compra Sucata,João Silva,Cobre e alumínio,5000,PIX,Cobre,\nreceita,12/04/2026,Venda Ferro,Siderúrgica ABC,Lote ferro,8000,TED/DOC,Ferro,\n';
+  const csv='\uFEFFTipo,Data Emissao,Data Vencimento,Data Pagamento,Categoria,Fornecedor,Descricao,Valor,Forma Pagamento,Material,Recorrente,Observacoes\n' +
+    'despesa,01/04/2026,10/04/2026,,Compra Sucata,João Silva,Cobre e alumínio,5000.00,PIX,Cobre,,\n' +
+    'receita,01/04/2026,12/04/2026,,Venda Ferro,Siderúrgica ABC,Lote ferro,8000.00,TED/DOC,Ferro,,\n' +
+    'despesa,01/04/2026,15/04/2026,,Despesas Fixas,Energisa,Energia elétrica,1850.00,Débito Automático,,mensal,\n';
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='template_ferro_velho.csv';a.click();
+  a.download='template_ferro_velho_noroeste.csv';a.click();
+  toast('Template CSV baixado! Preencha e importe pelo botão Importar.','success');
 }
 
 function baixarTemplateXlsx() {
   const wb=XLSX.utils.book_new();
+
+  // Aba 1: Template de preenchimento
   const ws=XLSX.utils.aoa_to_sheet([
-    ['Tipo','Data Vencimento','Categoria','Fornecedor','Descrição','Valor','Forma Pagamento','Material','Observações'],
-    ['despesa','10/04/2026','Compra Sucata','João Silva','Cobre e alumínio',5000,'PIX','Cobre',''],
-    ['receita','12/04/2026','Venda Ferro','Siderúrgica ABC','Lote ferro',8000,'TED/DOC','Ferro',''],
+    ['Tipo','Data Emissao','Data Vencimento','Data Pagamento','Categoria','Fornecedor','Descricao','Valor','Forma Pagamento','Material','Recorrente','Observacoes'],
+    ['despesa','01/04/2026','10/04/2026','','Compra Sucata','João Silva','Cobre e alumínio',5000,'PIX','Cobre','',''],
+    ['receita','01/04/2026','12/04/2026','','Venda Ferro','Siderúrgica ABC','Lote ferro',8000,'TED/DOC','Ferro','',''],
+    ['despesa','01/04/2026','15/04/2026','','Despesas Fixas','Energisa','Energia elétrica',1850,'Débito Automático','','mensal',''],
   ]);
-  ws['!cols']=[8,14,20,25,25,10,16,12,20].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb,ws,'Template');
-  XLSX.writeFile(wb,'template_ferro_velho.xlsx');
+  ws['!cols']=[10,14,14,14,20,25,28,12,18,12,12,25].map(w=>({wch:w}));
+
+  // Aba 2: Referência de categorias e formas
+  const cats = [...catsDesp.map(c=>['Despesa',c]),...catsRec.map(c=>['Receita',c])];
+  const wsRef = XLSX.utils.aoa_to_sheet([
+    ['--- CATEGORIAS DISPONÍVEIS ---',''],
+    ['Tipo','Categoria'],
+    ...cats,
+    ['',''],
+    ['--- FORMAS DE PAGAMENTO ---'],
+    ...formas.map(f=>[f]),
+    ['',''],
+    ['--- CAMPO TIPO ---'],
+    ['despesa — para compras e saídas'],
+    ['receita — para vendas e entradas'],
+    ['',''],
+    ['--- CAMPO RECORRENTE ---'],
+    ['mensal'],['semanal'],['quinzenal'],['anual'],['(vazio = não recorrente)'],
+  ]);
+  wsRef['!cols']=[30,30].map(w=>({wch:w}));
+
+  XLSX.utils.book_append_sheet(wb,ws,'Lançamentos (preencher)');
+  XLSX.utils.book_append_sheet(wb,wsRef,'Referência');
+  XLSX.writeFile(wb,'template_ferro_velho_noroeste.xlsx');
+  toast('Template XLSX baixado com aba de referência!','success');
 }
 
 // =====================================================
@@ -2955,16 +3035,61 @@ function baixarTemplateXlsx() {
 // =====================================================
 function exportarExcel() {
   atualizarStatus();
-  const wb=XLSX.utils.book_new();
-  const data=[
-    ['Tipo','Data Emissão','Data Vencimento','Data Pagamento','Categoria','Fornecedor','Descrição','Valor','Forma Pagamento','Material','Status','Recorrente','Observações'],
-    ...contas.map(c=>[c.tipo,fmtD(c.dataEmissao),fmtD(c.dataVenc),fmtD(c.dataPag),c.categoria,c.fornecedor,c.descricao,c.valor,c.forma,c.material,c.status,c.recorrente,c.obs])
+  const wb = XLSX.utils.book_new();
+
+  // Aba 1: Lançamentos completos
+  const data = [
+    ['Tipo','Data Emissao','Data Vencimento','Data Pagamento','Categoria','Fornecedor',
+     'Descricao','Valor','Forma Pagamento','Material','Status','Recorrente','Observacoes','Conta Bancaria'],
+    ...contas.map(c => {
+      const contaNome = c.contaId ? (contasBanco.find(b=>b.id===c.contaId)?.nome||'') : '';
+      return [
+        c.tipo, fmtD(c.dataEmissao), fmtD(c.dataVenc), fmtD(c.dataPag),
+        c.categoria||'', c.fornecedor||'', c.descricao||'',
+        c.valor||0, c.forma||'', c.material||'',
+        c.status||'', c.recorrente||'', c.obs||'', contaNome
+      ];
+    })
   ];
-  const ws=XLSX.utils.aoa_to_sheet(data);
-  ws['!cols']=[8,12,14,14,20,25,25,12,16,12,10,10,25].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb,ws,'Lançamentos');
-  XLSX.writeFile(wb,`ferro_velho_noroeste_${hoje()}.xlsx`);
-  toast('Excel exportado!','success');
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [10,14,14,14,20,25,28,12,18,12,12,12,25,16].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Lancamentos');
+
+  // Aba 2: Resumo por mês
+  const mesesMap = {};
+  contas.forEach(c => {
+    const m = c.dataVenc ? c.dataVenc.slice(0,7) : 'sem-data';
+    if (!mesesMap[m]) mesesMap[m] = {rec:0,desp:0,ct:0};
+    if (c.tipo==='receita') mesesMap[m].rec += c.valor;
+    else mesesMap[m].desp += c.valor;
+    mesesMap[m].ct++;
+  });
+  const resumo = [
+    ['Mês','Receitas','Despesas','Saldo','Qtd Lançamentos'],
+    ...Object.entries(mesesMap).sort().map(([m,v])=>[
+      m, v.rec, v.desp, v.rec-v.desp, v.ct
+    ])
+  ];
+  const wsRes = XLSX.utils.aoa_to_sheet(resumo);
+  wsRes['!cols'] = [12,16,16,16,16].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsRes, 'Resumo por Mes');
+
+  // Aba 3: Adiantamentos
+  if (adiantamentos.length) {
+    const adData = [
+      ['Tipo','Data','Pessoa','Valor','Forma','Conta','Observacoes'],
+      ...adiantamentos.map(a=>{
+        const contaNome = a.contaBancoId ? (contasBanco.find(b=>b.id===a.contaBancoId)?.nome||'') : '';
+        return [a.tipo,fmtD(a.data),a.pessoa,a.valor,a.forma||'',contaNome,a.obs||''];
+      })
+    ];
+    const wsAd = XLSX.utils.aoa_to_sheet(adData);
+    wsAd['!cols'] = [12,12,22,12,14,16,25].map(w=>({wch:w}));
+    XLSX.utils.book_append_sheet(wb, wsAd, 'Adiantamentos');
+  }
+
+  XLSX.writeFile(wb, `ferro_velho_noroeste_${hoje()}.xlsx`);
+  toast(`Excel exportado! ${contas.length} lançamentos em 3 abas.`, 'success');
 }
 
 // =====================================================
