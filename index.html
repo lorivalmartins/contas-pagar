@@ -285,6 +285,34 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 .transferencia-form{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
 
 
+/* CALENDÁRIO DE VENCIMENTOS */
+.cal-nav{display:flex;align-items:center;gap:12px}
+.cal-nav-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 12px;cursor:pointer;font-size:.95em;color:var(--text2);transition:all .15s;font-family:inherit}
+.cal-nav-btn:hover{background:var(--surface2);color:var(--text)}
+.cal-month-label{font-size:1em;font-weight:700;color:var(--text);min-width:140px;text-align:center}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.cal-dow{text-align:center;font-size:.68em;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:6px 0}
+.cal-day{min-height:80px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px;position:relative;cursor:default;transition:background .15s}
+.cal-day:hover{background:var(--bg3)}
+.cal-day.outro-mes{background:var(--surface);opacity:.45}
+.cal-day.hoje-cel{border-color:var(--accent);background:rgba(37,99,235,.04)}
+.cal-day-num{font-size:.78em;font-weight:700;color:var(--text3);margin-bottom:3px;line-height:1}
+.cal-day.hoje-cel .cal-day-num{color:var(--accent);background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72em}
+.cal-chip{font-size:.65em;font-weight:600;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;transition:opacity .15s}
+.cal-chip:hover{opacity:.8}
+.cal-chip.receita{background:rgba(52,211,153,.18);color:var(--green)}
+.cal-chip.despesa{background:rgba(248,113,113,.15);color:var(--red)}
+.cal-chip.pago{background:rgba(100,116,139,.12);color:var(--text3);text-decoration:line-through}
+.cal-chip.vencida{background:rgba(248,113,113,.25);color:var(--red);font-weight:700}
+.cal-more{font-size:.62em;color:var(--text3);font-weight:600;cursor:pointer;padding:1px 4px}
+.cal-more:hover{color:var(--accent)}
+.cal-legenda{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.75em;align-items:center}
+.cal-leg-item{display:flex;align-items:center;gap:5px;color:var(--text3);font-weight:500}
+.cal-leg-dot{width:10px;height:10px;border-radius:3px}
+.cal-view-toggle{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+.cal-view-btn{padding:6px 14px;border:none;background:transparent;color:var(--text3);font-size:.8em;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.cal-view-btn.active{background:var(--accent);color:#fff}
+
 /* PENDENTE DE PAGAMENTO */
 .badge-pendente{background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3)}
 .kpi.orange::before{background:var(--orange)}
@@ -612,22 +640,59 @@ code{background:var(--bg3);padding:1px 5px;border-radius:3px;font-family:'DM Mon
 
 <!-- ===== VENCIMENTOS ===== -->
 <div id="vencimentos" class="tab-content">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
-    <div style="font-size:.82em;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">Calendário de Vencimentos</div>
-    <select id="vencDias" onchange="renderVencimentos()" style="padding:7px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.84em;font-family:inherit">
-      <option value="7">Próximos 7 dias</option>
-      <option value="15">Próximos 15 dias</option>
-      <option value="30" selected>Próximos 30 dias</option>
-      <option value="60">Próximos 60 dias</option>
-      <option value="all">Todos pendentes</option>
-    </select>
+
+  <!-- BARRA SUPERIOR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+    <!-- Navegação do calendário -->
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calNavMes(-1)">&#8592;</button>
+      <div class="cal-month-label" id="calMonthLabel">—</div>
+      <button class="cal-nav-btn" onclick="calNavMes(1)">&#8594;</button>
+      <button class="cal-nav-btn" onclick="calIrHoje()" style="font-size:.78em">Hoje</button>
+    </div>
+    <!-- Toggle calendário / lista -->
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="cal-view-toggle">
+        <button class="cal-view-btn active" id="btnViewCal" onclick="setCalView('cal')">📅 Calendário</button>
+        <button class="cal-view-btn" id="btnViewLst" onclick="setCalView('list')">☰ Lista</button>
+      </div>
+      <select id="vencDias" onchange="renderVencimentos()" style="padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:.82em;font-family:inherit;display:none" id="vencDiasLst">
+        <option value="7">7 dias</option>
+        <option value="15">15 dias</option>
+        <option value="30" selected>30 dias</option>
+        <option value="60">60 dias</option>
+        <option value="all">Todos pendentes</option>
+      </select>
+    </div>
   </div>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Data</th><th>Tipo</th><th>Fornecedor</th><th>Categoria</th><th>Valor</th><th>Forma</th><th>Status</th><th>Ação</th></tr></thead>
-      <tbody id="vencBody"></tbody>
-    </table>
+
+  <!-- CALENDÁRIO -->
+  <div id="calView">
+    <div class="cal-grid" id="calDowRow">
+      <div class="cal-dow">Dom</div><div class="cal-dow">Seg</div><div class="cal-dow">Ter</div>
+      <div class="cal-dow">Qua</div><div class="cal-dow">Qui</div><div class="cal-dow">Sex</div><div class="cal-dow">Sáb</div>
+    </div>
+    <div class="cal-grid" id="calDaysGrid" style="margin-top:0"></div>
+    <div class="cal-legenda">
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(52,211,153,.4)"></div>Receita</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(248,113,113,.35)"></div>Despesa</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:rgba(100,116,139,.2)"></div>Pago</div>
+      <div class="cal-leg-item"><div class="cal-leg-dot" style="background:var(--accent);border-radius:50%"></div>Hoje</div>
+    </div>
   </div>
+
+  <!-- LISTA (oculta por padrão) -->
+  <div id="listView" style="display:none">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Tipo</th><th>Fornecedor</th><th>Categoria</th><th>Valor</th><th>Forma</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody id="vencBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RODAPÉ TOTAIS -->
+  <div id="vencTotais" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.84em"></div>
 </div>
 
 <!-- ===== GRÁFICOS ===== -->
@@ -1764,18 +1829,13 @@ async function adicionarLancamento() {
     status: 'A Vencer'
   });
 
-  // Register in conta if selected
-  const fContaId = document.getElementById('fContaLanc')?.value;
-  if (fContaId) {
-    const tipoMov = tipoAtual === 'receita' ? 'entrada' : 'saida';
-    registrarMovCaixa(fContaId, tipoMov, val, dv,
-      document.getElementById('fDescricao').value || cat,
-      `Lanç. #${contaId-1}`, null, contaId-1);
-  }
+  // NÃO registrar na conta bancária aqui.
+  // A movimentação bancária só ocorre quando o pagamento for confirmado
+  // via marcarPago() ou confirmarQuitar().
   await salvar();
   limparForm();
   renderTudo();
-  toast('Lançamento adicionado!','success');
+  toast('Lançamento adicionado! Confirme o pagamento quando realizado.','success');
 }
 
 function limparForm() {
@@ -2076,16 +2136,170 @@ function renderLancamentos() {
 // =====================================================
 // VENCIMENTOS
 // =====================================================
+// =====================================================
+// CALENDÁRIO DE VENCIMENTOS
+// =====================================================
+let calAno  = new Date().getFullYear();
+let calMes  = new Date().getMonth(); // 0-11
+let calView = 'cal'; // 'cal' | 'list'
+
+const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+function setCalView(v) {
+  calView = v;
+  document.getElementById('calView').style.display   = v==='cal'  ? '' : 'none';
+  document.getElementById('listView').style.display  = v==='list' ? '' : 'none';
+  document.getElementById('btnViewCal').className = 'cal-view-btn'+(v==='cal'?' active':'');
+  document.getElementById('btnViewLst').className = 'cal-view-btn'+(v==='list'?' active':'');
+  renderVencimentos();
+}
+
+function calNavMes(delta) {
+  calMes += delta;
+  if (calMes > 11) { calMes = 0;  calAno++; }
+  if (calMes < 0)  { calMes = 11; calAno--; }
+  renderVencimentos();
+}
+
+function calIrHoje() {
+  calAno = new Date().getFullYear();
+  calMes = new Date().getMonth();
+  renderVencimentos();
+}
+
+function rowAcao(c) {
+  let btns = '';
+  if (c.status==='Pendente') btns += `<button class="btn btn-sm" style="background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3)" onclick="abrirQuitar(${c.id})">💳 Quitar</button>`;
+  if (c.status==='A Vencer'||c.status==='Vencida') btns += `<button class="btn btn-success btn-sm" onclick="marcarPago(${c.id})">✓ ${c.tipo==='receita'?'Receber':'Pagar'}</button>`;
+  btns += `<button class="btn btn-ghost btn-sm" onclick="abrirEditar(${c.id})">✏️</button>`;
+  return `<div style="display:flex;gap:4px">${btns}</div>`;
+}
+
 function renderVencimentos() {
   atualizarStatus();
+
+  // ── Atualiza label do mês ────────────────────────────
+  const lbl = document.getElementById('calMonthLabel');
+  if (lbl) lbl.textContent = MESES_PT[calMes] + ' ' + calAno;
+
+  // ── Totais rodapé (sempre visíveis) ─────────────────
+  const mesMoeda = `${calAno}-${String(calMes+1).padStart(2,'0')}`;
+  const doMes = contas.filter(c => c.dataVenc && c.dataVenc.startsWith(mesMoeda));
+  const totalRec  = doMes.filter(c=>c.tipo==='receita').reduce((s,c)=>s+c.valor,0);
+  const totalDesp = doMes.filter(c=>c.tipo==='despesa').reduce((s,c)=>s+c.valor,0);
+  const pendDesp  = doMes.filter(c=>c.tipo==='despesa'&&c.status!=='Pago').reduce((s,c)=>s+c.valor,0);
+  const pendRec   = doMes.filter(c=>c.tipo==='receita'&&c.status!=='Pago').reduce((s,c)=>s+c.valor,0);
+  const totEl = document.getElementById('vencTotais');
+  if (totEl) totEl.innerHTML = `
+    <span style="color:var(--green);font-weight:600">📥 Receitas: ${R$(totalRec)}</span>
+    <span style="color:var(--red);font-weight:600">📤 Despesas: ${R$(totalDesp)}</span>
+    <span style="color:var(--yellow);font-weight:600">⏳ A receber: ${R$(pendRec)}</span>
+    <span style="color:var(--orange);font-weight:600">💳 A pagar: ${R$(pendDesp)}</span>
+    <span style="color:${totalRec-totalDesp>=0?'var(--green)':'var(--red)'};font-weight:700">= Saldo mês: ${R$(totalRec-totalDesp)}</span>`;
+
+  if (calView === 'cal') {
+    renderCalendario();
+  } else {
+    renderListaVenc();
+  }
+}
+
+function renderCalendario() {
+  const grid = document.getElementById('calDaysGrid');
+  if (!grid) return;
+
+  const hoje2 = hoje();
+  // Primeiro dia do mês e último
+  const primeiroDia = new Date(calAno, calMes, 1);
+  const ultimoDia   = new Date(calAno, calMes + 1, 0);
+  // Dia da semana do primeiro dia (0=Dom)
+  const iniciaSem = primeiroDia.getDay();
+
+  // Montar mapa data → lançamentos
+  const mapaLanc = {};
+  contas.forEach(c => {
+    if (!c.dataVenc) return;
+    if (!mapaLanc[c.dataVenc]) mapaLanc[c.dataVenc] = [];
+    mapaLanc[c.dataVenc].push(c);
+  });
+
+  const cells = [];
+
+  // Dias do mês anterior (padding inicial)
+  const diasPadding = iniciaSem;
+  const mesAnterior = new Date(calAno, calMes, 0); // último dia mês anterior
+  for (let i = diasPadding - 1; i >= 0; i--) {
+    const d = mesAnterior.getDate() - i;
+    const m = calMes === 0 ? 11 : calMes - 1;
+    const a = calMes === 0 ? calAno - 1 : calAno;
+    const ds = `${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push({ds, d, outromes: true});
+  }
+
+  // Dias do mês atual
+  for (let d = 1; d <= ultimoDia.getDate(); d++) {
+    const ds = `${calAno}-${String(calMes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    cells.push({ds, d, outromes: false});
+  }
+
+  // Completar para múltiplo de 7
+  const resto = cells.length % 7;
+  if (resto !== 0) {
+    for (let d = 1; d <= 7 - resto; d++) {
+      const m = calMes === 11 ? 0 : calMes + 1;
+      const a = calMes === 11 ? calAno + 1 : calAno;
+      const ds = `${a}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      cells.push({ds, d, outromes: true});
+    }
+  }
+
+  grid.innerHTML = cells.map(({ds, d, outromes}) => {
+    const isHoje = ds === hoje2;
+    const lancDia = mapaLanc[ds] || [];
+    const MAX_SHOW = 3;
+    const visiveis = lancDia.slice(0, MAX_SHOW);
+    const resto2   = lancDia.length - MAX_SHOW;
+
+    const chips = visiveis.map(c => {
+      const cls = c.status === 'Pago' ? 'pago'
+                : c.status === 'Vencida' ? 'vencida'
+                : c.tipo;
+      const label = c.fornecedor.length > 14 ? c.fornecedor.slice(0,12)+'…' : c.fornecedor;
+      return `<span class="cal-chip ${cls}" onclick="abrirEditar(${c.id})" title="${c.fornecedor} — ${R$(c.valor)}">${label}</span>`;
+    }).join('');
+
+    const maisTag = resto2 > 0
+      ? `<span class="cal-more" onclick="calVerDia('${ds}')">+${resto2} mais</span>`
+      : '';
+
+    return `<div class="cal-day${outromes?' outro-mes':''}${isHoje?' hoje-cel':''}">
+      <div class="cal-day-num">${isHoje ? `<div class="cal-day-num" style="background:var(--accent);color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72em;font-weight:700;margin-bottom:3px">${d}</div>` : d}</div>
+      ${chips}${maisTag}
+    </div>`;
+  }).join('');
+}
+
+function calVerDia(ds) {
+  // Filtra lista para o dia clicado
+  const lancDia = contas.filter(c => c.dataVenc === ds);
+  if (!lancDia.length) return;
+  const [a,m,d] = ds.split('-');
+  toast(`${d}/${m}/${a}: ${lancDia.length} lançamento(s) — use Lista para ver todos`, 'info');
+  setCalView('list');
+}
+
+function renderListaVenc() {
   const dias = document.getElementById('vencDias')?.value||'30';
   const h = new Date(); h.setHours(0,0,0,0);
   let lista;
   if (dias==='all') lista = contas.filter(c=>c.status!=='Pago');
-  else { const lim=new Date(h); lim.setDate(lim.getDate()+parseInt(dias)); lista=contas.filter(c=>new Date(c.dataVenc)<=lim); }
-  lista=lista.sort((a,b)=>new Date(a.dataVenc)-new Date(b.dataVenc));
+  else { const lim=new Date(h); lim.setDate(lim.getDate()+parseInt(dias)); lista=contas.filter(c=>new Date(c.dataVenc+'T12:00:00')<=lim); }
+  lista=lista.sort((a,b)=>a.dataVenc.localeCompare(b.dataVenc));
   const total = lista.filter(c=>c.status!=='Pago').reduce((s,c)=>s+(c.tipo==='despesa'?c.valor:0),0);
-  document.getElementById('vencBody').innerHTML = lista.map(c=>`
+  const body = document.getElementById('vencBody');
+  if (!body) return;
+  body.innerHTML = lista.map(c=>`
     <tr>
       <td>${fmtD(c.dataVenc)}</td>
       <td><span class="badge ${c.tipo==='receita'?'badge-receita':'badge-despesa'}">${c.tipo==='receita'?'📥':'📤'}</span></td>
@@ -2094,7 +2308,7 @@ function renderVencimentos() {
       <td class="mono" style="color:${c.tipo==='receita'?'var(--green)':'var(--text)'}">${R$(c.valor)}</td>
       <td style="font-size:.8em;color:var(--text3)">${c.forma||'—'}</td>
       <td><span class="badge ${sClass(c.status)}">${c.status.toUpperCase()}</span></td>
-      <td style="display:flex;gap:4px">${c.status==='Pendente'?`<button class="btn btn-sm" style="background:rgba(251,146,60,.15);color:var(--orange);border:1px solid rgba(251,146,60,.3)" onclick="abrirQuitar(${c.id})">💳 Quitar</button>`:''}${c.status==='A Vencer'||c.status==='Vencida'?`<button class="btn btn-success btn-sm" onclick="marcarPago(${c.id})">✓ ${c.tipo==='receita'?'Receber':'Pagar'}</button>`:''}<button class="btn btn-ghost btn-sm" onclick="abrirEditar(${c.id})">✏️</button></td>
+      <td>${rowAcao(c)}</td>
     </tr>
   `).join('') + `<tr class="sub-row"><td colspan="4">TOTAL DESPESAS PENDENTES</td><td class="mono">${R$(total)}</td><td colspan="3"></td></tr>`;
 }
@@ -4327,15 +4541,24 @@ async function salvarEdicao() {
   c.obs=document.getElementById('editObs').value;
   const em=document.getElementById('editMaterial'); if (em) c.material=em.value;
   const newCId=document.getElementById('editConta')?.value;
-  if (newCId && newCId!==(c.contaId?.toString()||'')) {
-    // Troca de conta: remove movs antigas e cria nova
-    movCaixa = movCaixa.filter(m => m.lancId !== c.id);
-    salvarContasBancoLocal();
-    registrarMovCaixa(newCId,c.tipo==='receita'?'entrada':'saida',c.valor,c.dataVenc||hoje(),
-      c.fornecedor+' — '+(c.descricao||c.categoria),'Edit #'+c.id, null, c.id);
-    c.contaId=parseInt(newCId);
+  const novaConta = newCId ? parseInt(newCId) : null;
+  if (novaConta !== (c.contaId||null)) {
+    // Conta trocada: se havia movimentação bancária (lançamento já pago), atualiza
+    const movVinc = movCaixa.find(m => m.lancId === c.id);
+    if (movVinc) {
+      // Lançamento já estava pago — move a movimentação para a nova conta
+      movCaixa = movCaixa.filter(m => m.lancId !== c.id);
+      if (novaConta) {
+        registrarMovCaixa(novaConta, c.tipo==='receita'?'entrada':'saida', val, dv,
+          forn+' — '+(document.getElementById('editDescricao').value||document.getElementById('editCategoria').value),
+          'Edit #'+c.id, null, c.id);
+      }
+      salvarContasBancoLocal();
+    }
+    // Se ainda não pago: apenas atualiza o campo de destino (será registrado no marcarPago)
+    c.contaId = novaConta;
   } else if (c.contaId) {
-    // Mesma conta mas valor/data podem ter mudado — atualiza movimentação existente
+    // Mesma conta: atualiza valor/data da movimentação se já estava pago
     const movVinc = movCaixa.find(m => m.lancId === c.id);
     if (movVinc) {
       movVinc.valor = val;
